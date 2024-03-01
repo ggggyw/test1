@@ -24,5 +24,4 @@ urlpatterns = [
     path('student/',include('stu.urls')),
     path('register/', stu_views.register, name='register'),
     path('', stu_views.login, name='login'),
-    path('login/', stu_views.login, name='login'),
 ]
