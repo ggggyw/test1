@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <!-- add your style here -->
+</head>
+<body>
+    <div class="container">
+        <h2>注册</h2>
+        <form action="/register/" method="post">
+            {% csrf_token %}
+            <p><label>用户名:</label><input type="text" name="name" required></p>
+            <p><label>密 码:</label><input type="password" name="code" required></p>
+             <p>
+                <label>角色:
+                <select name="role">
+                    <option value="user">用户</option>
+                    <option value="admin">管理员</option>
+                    <option value="merchant">商家</option>
+                </select>
+                </label>
+            </p>
+            <p><input type="submit" value="注册"></p>
+            <p>已经有帐户? <a href="/login/">登录</a></p>
+        </form>
+    </div>
+
+</body>
+</html>
