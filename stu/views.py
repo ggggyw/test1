@@ -5,7 +5,7 @@ from django.http import HttpResponse
 def login(request):
     if request.method == 'POST':
         username = request.POST['name']  # 注意字段名称
-        password = request.POST['code']
+        password = request.POST['password']
         role = request.POST['role']
 
         try:
