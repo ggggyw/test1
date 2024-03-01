@@ -232,19 +232,29 @@ a {
 }
 .classes-items{
     float: left;
-    width: 798px;
+    width: 1300px; /* 增大宽度 */
     height: 50px;
     margin-left: 15px;
 }
 .classes-items>li.items{
     float: left;
-    width: 57px;
+    width: 120px;
     height: 50px;
     padding-top: 15px;
 }
 .classes-items>li.items.active a{
     color: #ff464e;
 }
+.classes-items .items a {
+    font-size: 14px;
+    text-align: center;
+    display: block;
+    white-space: nowrap;
+    clear: both;
+    padding: 0 10px;
+    margin: 0 5px
+}
+
 .willOnline{
     float: left;
     width: 71px;
