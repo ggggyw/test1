@@ -44,3 +44,6 @@ def register(request):
         return redirect('/login/')
 
     return render(request, 'registration.html')
+
+def home(request):
+    return render(request, '首页.html')
