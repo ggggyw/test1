@@ -57,5 +57,5 @@ def register(request):
 
 def home(request):
     return render(request, '首页.html')
-def userpage(request):
+def userspage(request):
     return render(request, 'userspage.html')
