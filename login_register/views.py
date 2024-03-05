@@ -1,33 +1,43 @@
+from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
 from .models import User
+from .models import Admin
+from .models import Merchant
+from django.contrib.auth.hashers import check_password
 from django.http import HttpResponse
 # Create your views here.
 def login(request):
     if request.method == 'POST':
-        username = request.POST['name']  # 注意字段名称
+        username = request.POST['name']
         password = request.POST['password']
         role = request.POST['role']
 
         try:
-            user = User.objects.get(name=username)
-
-            # Validate password
-            if user.password == password and user.role == role:
-                # Password is correct, login the user
-                request.session['username'] = username
-                request.session['role'] = role
-
-                return redirect('/home/')  # Redirects to home view
+            # 根据角色获取对应的用户模型对象
+            if role == 'user':
+                user = User.objects.get(u_acc=username)
+                print(user)
+            elif role == 'admin':
+                user = Admin.objects.get(username=username)
+            elif role == 'merchant':
+                user = Merchant.objects.get(username=username)
             else:
-                # Password incorrect or role not correct, return to login
-                return render(request, 'login.html', {'error': '密码错误或者角色不对'})
+                user = None
 
+            # 如果找到了用户并且密码匹配，进行登录
+            if (user.u_acc==username)&(user.u_psw==password):
+                print('pipe')
+                # 执行登录逻辑
+               # request.session['user_id'] = user.id
+                #request.session['role'] = role
+                return redirect('home')
+            else:
+                return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
         except User.DoesNotExist:
-            # Username does not exist in the database
-            return render(request, 'login.html', {'error': '用户名不存在'})
+            return render(request, 'login.html', {'error': 'User not found'})
 
+    # GET 请求直接渲染登录页面
     return render(request, 'login.html')
-
 
 def register(request):
     if request.method == 'POST':
