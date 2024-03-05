@@ -30,7 +30,7 @@ def login(request):
                 # 执行登录逻辑
                # request.session['user_id'] = user.id
                 #request.session['role'] = role
-                return redirect('home')
+                return redirect('userspage')
             else:
                 return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
         except User.DoesNotExist:
@@ -57,3 +57,5 @@ def register(request):
 
 def home(request):
     return render(request, '首页.html')
+def userpage(request):
+    return render(request, 'userspage.html')
