@@ -92,7 +92,7 @@ DATABASES = {
         'PORT': '3306',				# 数据库连接端口，一般默认为3306
         'NAME': 'tradeplatform',			# 已经存在的数据库名称
         'USER': 'root',				# 用户名
-        'PASSWORD': '12345678',				# 用户密码
+        'PASSWORD': '314159',				# 用户密码
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             }
