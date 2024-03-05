@@ -55,7 +55,3 @@ def register(request):
 
     return render(request, 'registration.html')
 
-def home(request):
-    return render(request, '首页.html')
-def userspage(request):
-    return render(request, 'userspage.html')
