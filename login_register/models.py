@@ -6,7 +6,7 @@ class User(models.Model):
     u_psw = models.CharField(max_length=20)
     u_name = models.CharField(max_length=20)
     u_sex = models.CharField(max_length=1)
-    u_tele = models.CharField(max_length=11)
+    u_phone = models.CharField(max_length=11)
 
     class Meta:
         managed = True
