@@ -17,22 +17,32 @@ def login(request):
             if role == 'user':
                 user = User.objects.get(u_acc=username)
                 print(user)
+                if (user.u_acc == username) & (user.u_psw == password):
+                    return redirect('userspage')
+                else:
+                    return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
             elif role == 'admin':
-                user = Admin.objects.get(username=username)
+                try:
+                    user = Admin.objects.get(ad_acc=username)
+                    print(user)
+                    if (user.ad_acc == username) & (user.ad_psw == password):
+                        return redirect('userspage')
+                    else:
+                        return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
+                except Admin.DoesNotExist:
+                    return render(request, 'login.html', {'error': 'User not found'})
             elif role == 'merchant':
-                user = Merchant.objects.get(username=username)
+                try:
+                    user = Merchant.objects.get(m_acc=username)
+                    print(user)
+                    if (user.m_acc == username) & (user.m_psw == password):
+                        return redirect('userspage')
+                    else:
+                        return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
+                except Merchant.DoesNotExist:
+                    return render(request, 'login.html', {'error': 'User not found'})
             else:
                 user = None
-
-            # 如果找到了用户并且密码匹配，进行登录
-            if (user.u_acc==username)&(user.u_psw==password):
-                print('pipe')
-                # 执行登录逻辑
-               # request.session['user_id'] = user.id
-                #request.session['role'] = role
-                return redirect('userspage')
-            else:
-                return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
         except User.DoesNotExist:
             return render(request, 'login.html', {'error': 'User not found'})
 
