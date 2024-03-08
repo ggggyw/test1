@@ -6,7 +6,7 @@ class User(models.Model):
     u_psw = models.CharField(max_length=20)
     u_name = models.CharField(max_length=20)
     u_sex = models.CharField(max_length=1)
-    u_phone = models.CharField(max_length=11)
+    u_tele = models.CharField(max_length=11)
 
     class Meta:
         managed = True
@@ -33,3 +33,18 @@ class Merchant(models.Model):
     class Meta:
         managed = True
         db_table = 'merchant'
+
+class Product(models.Model):
+    p_id = models.AutoField(primary_key=True)
+    m = models.ForeignKey(Merchant, models.DO_NOTHING)
+    p_name = models.CharField(max_length=20)
+    p_desc = models.CharField(max_length=50)
+    p_class = models.CharField(max_length=10)
+    p_price = models.DecimalField(max_digits=10, decimal_places=2)
+    p_status = models.CharField(max_length=3)
+    p_img = models.CharField(max_length=50, db_collation='utf8_general_ci', blank=True, null=True)
+    p_quantity = models.IntegerField()
+
+    class Meta:
+        managed = True
+        db_table = 'product'
