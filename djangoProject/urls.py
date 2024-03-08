@@ -27,4 +27,5 @@ urlpatterns = [
     path('user/userpage/', user_views.userspage, name='userspage'),
     path('user/userprofile',user_views.userprofile, name='userprofile'),
     path('', views.home, name='home'),
+    path('home/', views.home, name='home'),
 ]
