@@ -72,196 +72,23 @@
     <div class="goods-content">
         <!-- 商品内容部分 -->
         <!-- 你需要将首页的商品内容部分完全复制到这里 -->
+        {% for product in products %} <!-- 遍历所有商品对象 -->
         <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/4">
-                <img src="{% static '首页_files/hong_Dm4fQ6U.jpg' %}" width="285px" height="285px">
-                <p class="name">苹果 iphon 16 pro</p>
+            <a href=""> <!-- 生成商品详情页面的链接 -->
+                <img src="{{ product.p_img.url }}" width="285px" height="285px"> <!-- 显示商品图片 -->
+                <p class="name">{{ product.p_name }}</p> <!-- 显示商品名称 -->
                 <div class="price">
-                    <i>￥</i>
-                    <p class="big">99.00</p>
-                    <s>￥499.00</s>
+                    <p >￥{{ product.p_price }}</p> <!-- 显示商品价格 -->
+{#                    <s>￥499.00</s>#}
                 </div>
-                <div class="sale">
-                    特卖
-                </div>
+{#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
+{#                <div class="sale">#}
+{#                    特卖#}
+{#                </div>#}
+{#                {% endif %}#}
             </a>
         </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/5">
-                <img src="{% static '首页_files/bai_mt1VrH5.jpg' %}" width="285px" height="285px">
-                <p class="name">秋时尚印花两件套装裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">35.00</p>
-                    <s>￥100.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/6">
-                <img src="{% static '首页_files/hong_y7wQwRw.jpg' %}" width="285px" height="285px">
-                <p class="name">韩版侧开叉宽松毛衣</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">39.00</p>
-                    <s>￥369.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/7">
-                <img src="{% static '首页_files/lan_BKQdpOj.jpg' %}" width="285px" height="285px">
-                <p class="name">无袖套头毛衣马甲女秋</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">39.00</p>
-                    <s>￥296.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/8">
-                <img src="{% static '首页_files/hong_zHPXVqY.jpg' %}" width="285px" height="285px">
-                <p class="name">红色原宿bf风小外套</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.00</p>
-                    <s>￥229.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/9">
-                <img src="{% static '首页_files/lan_IThSO4Z.jpg' %}" width="285px" height="285px">
-                <p class="name">不规则毛边喇叭牛仔裤</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">65.00</p>
-                    <s>￥199.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/10">
-                <img src="{% static '首页_files/lan_ELubwxG.jpg' %}" width="285px" height="285px">
-                <p class="name">宽松短款牛仔外套</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">79.00</p>
-                    <s>￥259.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/11">
-                <img src="{% static '首页_files/lv_H5hkmmq.jpg' %}" width="285px" height="285px">
-                <p class="name">气质收腰显瘦连衣裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.00</p>
-                    <s>￥199.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/12">
-                <img src="{% static '首页_files/hui.jpg' %}" width="285px" height="285px">
-                <p class="name">针织袖拼接毛呢打底裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.00</p>
-                    <s>￥199.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/13">
-                <img src="{% static '首页_files/hei_kYyKPNv.jpg' %}" width="285px" height="285px">
-                <p class="name">双排扣假两件连衣裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.00</p>
-                    <s>￥299.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/14">
-                <img src="{% static '首页_files/lv_sxlJZTq.jpg' %}" width="285px" height="285px">
-                <p class="name">修身包臀蕾丝打底裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.00</p>
-                    <s>￥199.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
-
-
-        <div class="good">
-            <a href="http://127.0.0.1:8000/goodsdetails/15">
-                <img src="{% static '首页_files/ju.jpg' %}" width="285px" height="285px">
-                <p class="name">修身显瘦格子打底裙</p>
-                <div class="price">
-                    <i>￥</i>
-                    <p class="big">69.90</p>
-                    <s>￥259.00</s>
-                </div>
-                <div class="sale">
-                    特卖
-                </div>
-            </a>
-        </div>
+        {% endfor %}
     </div>
 </div>
 
