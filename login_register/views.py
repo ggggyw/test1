@@ -33,9 +33,9 @@ def login(request):
                     return render(request, 'login.html', {'error': 'User not found'})
             elif role == 'merchant':
                 try:
-                    user = Shops.objects.get(m_acc=username)
+                    user = Shops.objects.get(s_acc=username)
                     print(user)
-                    if (user.m_acc == username) & (user.m_psw == password):
+                    if (user.s_acc == username) & (user.s_psw == password):
                         return redirect('userspage')
                     else:
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
