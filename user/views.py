@@ -1,10 +1,10 @@
 from django.shortcuts import render
-from login_register.models import Product
+from login_register.models import Products
 
 
 # Create your views here.
 def userspage(request):
-    products = Product.objects.all()  # 获取所有商品对象
+    products = Products.objects.all()  # 获取所有商品对象
     context = {'products': products}  # 构建上下文字典
     return render(request, 'userpage.html',context)
 
