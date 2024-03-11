@@ -13,3 +13,7 @@ def userprofile(request):
 
 def usercart(request):
     return render(request,'usercart.html')
+
+def product_details(request, p_id):
+    product = Products.objects.get(p_id=p_id)
+    return render(request, 'productdetails.html', {'product': product})

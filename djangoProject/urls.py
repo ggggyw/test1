@@ -29,6 +29,7 @@ urlpatterns = [
     path('user/userpage/', user_views.userspage, name='userspage'),
     path('user/userprofile',user_views.userprofile, name='userprofile'),
     path('user/usercart',user_views.usercart, name='usercart'),
+    path('user/userpage/productdetails/<int:p_id>/', user_views.product_details, name='product_details'),
     path('', views.home, name='home'),
     path('home/', views.home, name='home'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -80,7 +80,7 @@
         <!-- 你需要将首页的商品内容部分完全复制到这里 -->
         {% for product in products %} <!-- 遍历所有商品对象 -->
         <div class="good">
-            <a href=""> <!-- 生成商品详情页面的链接 -->
+            <a href="{% url 'product_details' product.p_id %}"><!-- 生成商品详情页面的链接 -->
                 <img src="{% static '商品图片/'|add:product.image_url %}" width="285px" height="285px"><!-- 显示商品图片 -->
                 <p class="name">{{ product.p_name }}</p> <!-- 显示商品名称 -->
                 <div class="price">
