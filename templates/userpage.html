@@ -73,7 +73,7 @@
         {% for product in products %} <!-- 遍历所有商品对象 -->
         <div class="good">
             <a href=""> <!-- 生成商品详情页面的链接 -->
-                <img src="{% static product.image_url %}" width="285px" height="285px">
+                <img src="{% static '商品图片/'|add:product.image_url %}" width="285px" height="285px">
                 <p class="name">{{ product.p_name }}</p>
                 <div class="price">
                     <p >￥{{ product.p_price }}</p>
