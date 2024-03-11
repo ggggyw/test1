@@ -76,19 +76,20 @@ WSGI_APPLICATION = 'djangoProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Or 'django.db.backends.mysql', or 'django.db.backends.sqlite3', etc.
-        'NAME': 'web', # The name of your database
-        'USER': 'web', # Your database user here
-        'PASSWORD': 'dzh20030112', # Your database password here
-        'HOST': '47.93.125.169',
-        'PORT': '3306', #The default Postgres port. Change it as per your settings.
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '47.93.125.169',		# 要连接的数据库ip
+        'PORT': '3306',				# 数据库连接端口，一般默认为3306
+        'NAME': 'web',			# 已经存在的数据库名称
+        'USER': 'web',				# 用户名
+        'PASSWORD': 'dzh20030112',				# 用户密码
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            }
     }
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
