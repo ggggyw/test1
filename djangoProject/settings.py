@@ -76,20 +76,21 @@ WSGI_APPLICATION = 'djangoProject.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '47.93.125.169',		# 要连接的数据库ip
-        'PORT': '3306',				# 数据库连接端口，一般默认为3306
-        'NAME': 'web',			# 已经存在的数据库名称
-        'USER': 'web',				# 用户名
-        'PASSWORD': 'dzh20030112',				# 用户密码
+        'HOST': 'localhost',       # 要连接的数据库ip
+        'PORT': '3306',          # 数据库连接端口，一般默认为3306
+        'NAME': 'trade2',          # 已经存在的数据库名称
+        'USER': 'root',          # 用户名
+        'PASSWORD': '12345678',          # 用户密码
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
             }
     }
 }
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

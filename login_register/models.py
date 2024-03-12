@@ -50,10 +50,25 @@ class Products(models.Model):
     p_id = models.IntegerField(primary_key=True)
     p_name = models.CharField(max_length=20)
     p_type = models.ForeignKey(ProductCategories, models.DO_NOTHING, db_column='p_type')
-    description = models.TextField(blank=True, null=True)
     brand = models.CharField(max_length=50, blank=True, null=True)
-    image_url = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'products'
+
+
+class ShopProducts(models.Model):
+    shop_product_id = models.IntegerField(primary_key=True)
+    shop = models.ForeignKey('Shops', models.DO_NOTHING)
+    product = models.ForeignKey(Products, models.DO_NOTHING)
+    product_desc = models.TextField()
+    product_status = models.CharField(max_length=2)
+    product_image_url = models.CharField(max_length=255, blank=True, null=True)
+    stock_quantity = models.IntegerField()
+    original_price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    current_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'shop_products'

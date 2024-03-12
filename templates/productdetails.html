@@ -1,16 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
-    <title>{{ product.p_name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-<div class="product-details">
-    <h1>{{ product.p_name }}</h1>
-    {% load static %}
-    <img src="{% static '商品图片/'|add:product.image_url %}" alt="{{ product.p_name }}">
-    <p>Price: ￥{{ product.p_price }}</p>
-
-</div>
+    <header class="header">
+        <!-- 顶部导航栏内容 -->
+    </header>
+    <main class="product-details">
+        <section class="product-gallery">
+            {% load static %}
+            <img src="{% static '商品图片/'|add:product.product_image_url %}" alt="{{ product.name }}" class="product-image">
+            <!-- 产品图片下方的缩略图列表 -->
+        </section>
+        <section class="product-info">
+            <h1>{{ product.name }}</h1>
+            <p class="price">￥{{ product.price }}</p>
+            <p>{{ product.description }}</p>
+            <div class="promotion">
+                <!-- 促销信息内容 -->
+            </div>
+            <div class="reviews">
+                <!-- 用户评价内容 -->
+            </div>
+            <button class="buy-button">立即购买</button>
+        </section>
+    </main>
+    <footer class="footer">
+        <!-- 底部信息内容 -->
+    </footer>
+    <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
+
