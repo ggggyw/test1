@@ -6,5 +6,7 @@ from login_register.models import ShopProducts
 
 def home(request):
     products = ShopProducts.objects.all()  # 获取所有商品对象
-    context = {'products': products}  # 构建上下文字典
+    products2= Products.objects.all()
+    context = {'products': products,
+               'products2':products2}  # 构建上下文字典
     return render(request, '首页.html',context)

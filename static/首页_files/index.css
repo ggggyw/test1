@@ -289,8 +289,8 @@ a {
 }
 .good>a>p.name{
     margin-top: 14px;
-    margin-left: 50px;
-    font-size: 11px;
+    margin-left: 15px;
+    font-size: 20px;
 }
 .good .price{
     position: absolute;
