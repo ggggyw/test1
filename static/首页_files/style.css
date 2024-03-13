@@ -17,7 +17,7 @@
 }
 
 .product-image {
-    max-width: 100%;
+    max-width: 80%;
     height: auto;
     border: 1px solid #ddd;
     box-shadow: 2px 2px 5px rgba(0,0,0,.3);
