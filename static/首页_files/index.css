@@ -288,8 +288,9 @@ a {
     overflow: hidden;
 }
 .good>a>p.name{
-    margin-top: 14px;   
-    margin-left: 5px;
+    margin-top: 14px;
+    margin-left: 5000px;
+    font-size: 11px;
 }
 .good .price{
     position: absolute;
@@ -318,7 +319,7 @@ a {
     position: absolute;
     bottom: 15px;
     right:11px;
-    color:#ff464e; 
+    color:#ff464e;
 }
 
 
