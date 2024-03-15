@@ -75,7 +75,7 @@
             <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
                 <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
                 {% for product2 in products2 %}
-                {% if product.shop_product_id == product2.p_id %}
+                {% if product.product_id == product2.p_id %}
                 	<p class="name">{{ product2.p_name }}</p>
                 {% endif %}
                 {% endfor %}

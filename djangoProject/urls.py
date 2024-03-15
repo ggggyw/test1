@@ -32,4 +32,5 @@ urlpatterns = [
     path('user/userpage/productdetails/<int:p_id>/', user_views.product_details, name='product_details'),
     path('', views.home, name='home'),
     path('home/', views.home, name='home'),
+    path('get_products/', views.get_products, name='get_products'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

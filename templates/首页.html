@@ -61,16 +61,15 @@
 
 
 <div class="classes">
-    <ul class="classes-items">
-        <li class="items"><a href="http://127.0.0.1:8000/category/7">个人电脑和配件</a></li>
-        <li class="items active "><a href="http://127.0.0.1:8000/category/8">移动设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/9">家用电子产品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/10">厨房电子设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/11">办公设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/12">汽车电子设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/13">网络和通信设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/14">可穿戴设备</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/category/15">智能家居设备</a></li>
+    <ul class="classes-items"><li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">个人电脑和配件</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">移动设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">家用电子产品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">厨房电子设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">办公设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">汽车电子设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">网络和通信设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">可穿戴设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">智能家居设备</a></li>
     </ul>
 </div>
 
@@ -81,7 +80,7 @@
             <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
                 <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
                 {% for product2 in products2 %}
-                {% if product.shop_product_id == product2.p_id %}
+                {% if product.product_id == product2.p_id %}
                 	<p class="name">{{ product2.p_name }}</p>
                 {% endif %}
                 {% endfor %}
