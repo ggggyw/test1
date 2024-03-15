@@ -53,19 +53,18 @@
             <img src="{% static '首页_files/1_06.png'%}">
         </div>
     </div>
-    <div class="classes">
-        <ul class="classes-items">
-            <li class="items"><a href="http://127.0.0.1:8000/category/7">个人电脑和配件</a></li>
-            <li class="items active "><a href="http://127.0.0.1:8000/category/8">移动设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/9">家用电子产品</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/10">厨房电子设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/11">办公设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/12">汽车电子设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/13">网络和通信设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/14">可穿戴设备</a></li>
-            <li class="items"><a href="http://127.0.0.1:8000/category/15">智能家居设备</a></li>
-        </ul>
-    </div>
+<div class="classes">
+    <ul class="classes-items"><li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">个人电脑和配件</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=2">移动设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=3">家用电子产品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=4">厨房电子设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=5">办公设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=6">汽车电子设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=7">网络和通信设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=8">可穿戴设备</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=9">智能家居设备</a></li>
+    </ul>
+</div>
 
     <div>
     <main class="product-details">
@@ -75,8 +74,8 @@
             <!-- 产品图片下方的缩略图列表 -->
         </section>
         <section class="product-info">
-            <h1>{{ product.name }}</h1>
-            <p class="price">￥{{ product.price }}</p>
+            <h1>{{ products2.p_name }}</h1>
+            <p class="price">￥{{ product.original_price }}</p>
             <p>{{ product.description }}</p>
             <div class="promotion">
                 <!-- 促销信息内容 -->
@@ -84,7 +83,7 @@
             <div class="reviews">
                 <!-- 用户评价内容 -->
             </div>
-            <button class="buy-button">立即购买</button>
+            <button class="buy-button">加入购物车</button>
         </section>
     </main>
     </div>

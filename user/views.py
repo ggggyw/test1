@@ -19,4 +19,5 @@ def usercart(request):
 
 def product_details(request, p_id):
     product = ShopProducts.objects.get(shop_product_id=p_id)
-    return render(request, 'productdetails.html', {'product': product})
+    products2 = Products.objects.get(p_id=product.product_id)
+    return render(request, 'productdetails.html', {'product': product,'products2':products2})
