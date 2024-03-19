@@ -1,6 +1,6 @@
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.hashers import check_password
-from .models import User, Admin, Merchant
+from common.models import Users, Admin
 class CustomBackend(BaseBackend):
     # 一个自定义的后端，它可以从不同的模型中验证用户
 
@@ -22,7 +22,7 @@ class CustomBackend(BaseBackend):
 
     def get_user(self, user_id):
         # 尝试从任何模型中获取一个具有给定 user_id 的用户
-        for model in [User, Admin, Merchant]:
+        for model in [Users, Admin]:
             try:
                 return model.objects.get(pk=user_id)
             except model.DoesNotExist:
