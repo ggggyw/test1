@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from login_register.models import ShopProducts
-from login_register.models import Products
+from common.models import ShopProducts
+from common.models import Products
 
 
 # Create your views here.
