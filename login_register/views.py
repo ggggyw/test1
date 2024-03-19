@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
+
 from .models import Users
 from .models import Admin
 from .models import Shops
@@ -16,7 +18,7 @@ def login(request):
                 print(user)
                 if (user.u_acc == user_acc) & (user.u_psw == password):
                     user_id = user.u_id  # 获取用户ID
-                    return redirect('userspage', user_id=user_id)  # 将用户ID传递到userspage
+                    return redirect(reverse('userspage', kwargs={'ID': user_id, 'role': role}))
                 else:
                     return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
             elif role == 'admin':
@@ -24,7 +26,8 @@ def login(request):
                     user = Admin.objects.get(ad_acc=user_acc)
                     print(user)
                     if (user.ad_acc == user_acc) & (user.ad_psw == password):
-                        return redirect('userspage')
+                        admin_id = user.ad_id  # 获取管理员ID
+                        return redirect(reverse('userspage', kwargs={'ID': admin_id, 'role': role}))# 将管理员ID传递到userspage
                     else:
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
                 except Admin.DoesNotExist:
@@ -34,7 +37,8 @@ def login(request):
                     user = Shops.objects.get(s_acc=user_acc)
                     print(user)
                     if (user.s_acc == user_acc) & (user.s_psw == password):
-                        return redirect('userspage')
+                        shop_id = user.s_id  # 获取商家ID
+                        return redirect(reverse('userspage', kwargs={'ID': shop_id, 'role': role}))  # 将商家ID传递到userspage
                     else:
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
                 except Shops.DoesNotExist:
