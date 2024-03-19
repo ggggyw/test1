@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from .models import Users
-from .models import Admin
-from .models import Shops
+from common.models import Users
+from common.models import Admin
+from common.models import Shops
 
 def login(request):
     if request.method == 'POST':
