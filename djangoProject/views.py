@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 
-from login_register.models import Products
-from login_register.models import ShopProducts
-from login_register.models import ProductCategories
+from common.models import Products
+from common.models import ShopProducts
+from common.models import ProductCategories
 
 
 
