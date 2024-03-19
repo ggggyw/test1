@@ -29,7 +29,7 @@ def login(request):
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
                 except Admin.DoesNotExist:
                     return render(request, 'login.html', {'error': 'User not found'})
-            elif role == 'merchant':
+            elif role == 'shop':
                 try:
                     user = Shops.objects.get(s_acc=user_acc)
                     print(user)
