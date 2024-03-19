@@ -72,3 +72,16 @@ class ShopProducts(models.Model):
     class Meta:
         managed = False
         db_table = 'shop_products'
+
+
+class Carts(models.Model):
+    product = models.ForeignKey('ShopProducts', models.DO_NOTHING)
+    user = models.OneToOneField('Users', models.DO_NOTHING, primary_key=True)  # The composite primary key (user_id, product_id, shop_id) found, that is not supported. The first column is selected.
+    shop = models.ForeignKey('Shops', models.DO_NOTHING)
+    join_time = models.DateTimeField()
+    quantity = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'carts'
+        unique_together = (('user', 'product', 'shop'),)
