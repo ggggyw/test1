@@ -5,13 +5,14 @@ from login_register.models import Products
 
 
 # Create your views here.
-def userspage(request, user_id):
+def userspage(request, user_id, role):
     products = ShopProducts.objects.all()  # 获取所有商品对象
     products2 = Products.objects.all()
     context = {
         'products': products,
         'products2': products2,
-        'user_id': user_id  # 添加 user_id 到上下文
+        'user_id': user_id,  # 添加 user_id 到上下文
+        'role': role
     }
     return render(request, 'userspage.html', context)  # 将上下文传递给模板
 
