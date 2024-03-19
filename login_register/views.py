@@ -8,24 +8,25 @@ from django.http import HttpResponse
 # Create your views here.
 def login(request):
     if request.method == 'POST':
-        username = request.POST['name']
+        user_acc = request.POST['name']
         password = request.POST['password']
         role = request.POST['role']
 
         try:
             # 根据角色获取对应的用户模型对象
             if role == 'user':
-                user = Users.objects.get(u_acc=username)
+                user = Users.objects.get(u_acc=user_acc)
                 print(user)
-                if (user.u_acc == username) & (user.u_psw == password):
-                    return redirect('userspage')
+                if (user.u_acc == user_acc) & (user.u_psw == password):
+                    user_id = user.u_id  # 获取用户ID
+                    return redirect('userspage', user_id=user_id)  # 将用户ID传递到userspage
                 else:
                     return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
             elif role == 'admin':
                 try:
-                    user = Admin.objects.get(ad_acc=username)
+                    user = Admin.objects.get(ad_acc=user_acc)
                     print(user)
-                    if (user.ad_acc == username) & (user.ad_psw == password):
+                    if (user.ad_acc == user_acc) & (user.ad_psw == password):
                         return redirect('userspage')
                     else:
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
@@ -33,9 +34,9 @@ def login(request):
                     return render(request, 'login.html', {'error': 'User not found'})
             elif role == 'merchant':
                 try:
-                    user = Shops.objects.get(s_acc=username)
+                    user = Shops.objects.get(s_acc=user_acc)
                     print(user)
-                    if (user.s_acc == username) & (user.s_psw == password):
+                    if (user.s_acc == user_acc) & (user.s_psw == password):
                         return redirect('userspage')
                     else:
                         return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
