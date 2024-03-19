@@ -1,5 +1,4 @@
-from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from login_register.models import ShopProducts
@@ -8,12 +7,16 @@ from login_register.models import Carts
 
 
 # Create your views here.
-def userspage(request):
+def userspage(request, user_id, role):
     products = ShopProducts.objects.all()  # 获取所有商品对象
-    products2= Products.objects.all()
-    context = {'products': products,
-               'products2':products2}  # 构建上下文字典
-    return render(request, 'userpage.html',context)
+    products2 = Products.objects.all()
+    context = {
+        'products': products,
+        'products2': products2,
+        'user_id': user_id,  # 添加 user_id 到上下文
+        'role': role
+    }
+    return render(request, 'userspage.html', context)  # 将上下文传递给模板
 
 def userprofile(request):
     return render(request, 'userprofile.html')
