@@ -1,11 +1,8 @@
-from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
 from .models import Users
 from .models import Admin
 from .models import Shops
-from django.contrib.auth.hashers import check_password
-from django.http import HttpResponse
-# Create your views here.
+
 def login(request):
     if request.method == 'POST':
         user_acc = request.POST['name']
