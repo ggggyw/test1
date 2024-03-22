@@ -1,4 +1,6 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
+
 from common.models import ShopProducts, Users, Carts
 from common.models import Products
 from django.shortcuts import render
@@ -20,7 +22,8 @@ def userspage(request, ID, role):
     }
     # 根据角色重定向到不同的页面
     if role == 'user':
-        return render(request, 'userspage.html', context)
+        request.session['u_id'] = ID
+        return render(request, 'userpage.html', context)
     elif role == 'admin':
         return render(request, 'adminpage.html', context)
     elif role == 'shop':
@@ -85,6 +88,7 @@ def userorder(request):
 def userserve(request):
     return render(request,'userserve.html')
 def product_details(request, p_id):
+    u_id= request.session.get('u_id')
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
-    return render(request, 'productdetails.html', {'product': product,'products2':products2})
+    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id})

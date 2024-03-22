@@ -15,7 +15,6 @@ def login(request):
             # 根据角色获取对应的用户模型对象
             if role == 'user':
                 user = Users.objects.get(u_acc=user_acc)
-                print(user)
                 if (user.u_acc == user_acc) & (user.u_psw == password):
                     user_id = user.u_id  # 获取用户ID
                     return redirect(reverse('userspage', kwargs={'ID': user_id, 'role': role}))  #返回用户ID和角色
