@@ -9,11 +9,11 @@ from django.utils import timezone
 # Create your views here.
 def userspage(request, ID, role):
     # 获取所有商品对象
-    products = ShopProducts.objects.all()
+    shop_products = ShopProducts.objects.all()
     products2 = Products.objects.all()
     # 构建上下文字典
     context = {
-        'products': products,
+        'shop_products': shop_products,
         'products2': products2,
         'user_id': ID,
         'role': role
