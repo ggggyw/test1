@@ -86,7 +86,7 @@
             <form action="/add-to-cart/" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="product_id" value="{{ product.shop_product_id }}">
-                <input type="hidden" name="user_id" value="{{ u_id }}">{# 暂时没想好，要传一个user*********************************** #}
+                <input type="hidden" name="user_id" value="{{ u_id }}">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="buy-button">加入购物车</button>
             </form>
