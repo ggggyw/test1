@@ -73,7 +73,17 @@ def userprofile(request, ID, role):
     return render(request, 'userprofile.html', context)
 
 def usercart(request):
-    return render(request,'usercart.html')
+    cart=Carts.objects.all()
+    shopproduct=ShopProducts.objects.all()
+    product=Products.objects.all()
+    u_id = request.session.get('u_id')
+    context={
+        'cart': cart,
+        'shoppro':shopproduct,
+        'pro':product,
+        'uid':u_id
+    }
+    return render(request,'usercart.html',context)
 
 
 @require_POST
