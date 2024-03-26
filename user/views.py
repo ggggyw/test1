@@ -107,6 +107,7 @@ def userserve(request):
     return render(request,'userserve.html')
 def product_details(request, p_id):
     u_id= request.session.get('u_id')
+    role= request.session.get('role')
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
-    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id})
+    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})
