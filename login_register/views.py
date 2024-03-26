@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect
 from django.urls import reverse
-
+from django.contrib import messages
+from django.shortcuts import render, redirect
 from common.models import Users
 from common.models import Admin
 from common.models import Shops
@@ -12,42 +12,42 @@ def login(request):
         role = request.POST['role']
 
         try:
-            # 根据角色获取对应的用户模型对象
             if role == 'user':
                 user = Users.objects.get(u_acc=user_acc)
-                if (user.u_acc == user_acc) & (user.u_psw == password):
-                    user_id = user.u_id  # 获取用户ID
-                    return redirect(reverse('userspage', kwargs={'ID': user_id, 'role': role}))  #返回用户ID和角色
+                if user.u_psw == password:
+                    request.session['u_id'] = user.u_id  # 将用户ID存入session
+                    request.session['role'] = role  # 将角色存入session
+                    return redirect(reverse('userpage', kwargs={'ID': user.u_id, 'role': role}))
                 else:
-                    return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
+                    messages.error(request, 'Invalid username or password.')
             elif role == 'admin':
                 try:
-                    user = Admin.objects.get(ad_acc=user_acc)
-                    print(user)
-                    if (user.ad_acc == user_acc) & (user.ad_psw == password):
-                        admin_id = user.ad_id  # 获取管理员ID
-                        return redirect(reverse('userspage', kwargs={'ID': admin_id, 'role': role}))  # 返回管理员ID和角色
+                    admin = Admin.objects.get(ad_acc=user_acc)
+                    if admin.ad_psw == password:
+                        request.session['u_id'] = admin.ad_id
+                        request.session['role'] = role
+                        return redirect(reverse('userpage', kwargs={'ID': admin.ad_id, 'role': role}))
                     else:
-                        return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
+                        messages.error(request, 'Invalid username or password.')
                 except Admin.DoesNotExist:
-                    return render(request, 'login.html', {'error': 'User not found'})
+                    messages.error(request, 'Admin not found.')
             elif role == 'shop':
                 try:
-                    user = Shops.objects.get(s_acc=user_acc)
-                    print(user)
-                    if (user.s_acc == user_acc) & (user.s_psw == password):
-                        shop_id = user.s_id   #获取商家ID
-                        return redirect(reverse('userspage', kwargs={'ID': shop_id, 'role': role}))  # 返回商家ID和角色
+                    shop = Shops.objects.get(s_acc=user_acc)
+                    if shop.s_psw == password:
+                        request.session['u_id'] = shop.s_id
+                        request.session['role'] = role
+                        return redirect(reverse('userpage', kwargs={'ID': shop.s_id, 'role': role}))
                     else:
-                        return render(request, 'login.html', {'error': 'Invalid username, password, or role'})
+                        messages.error(request, 'Invalid username or password.')
                 except Shops.DoesNotExist:
-                    return render(request, 'login.html', {'error': 'User not found'})
+                    messages.error(request, 'Shop not found.')
             else:
-                user = None
+                messages.error(request, 'Invalid role.')
         except Users.DoesNotExist:
-            return render(request, 'login.html', {'error': 'User not found'})
+            messages.error(request, 'User not found.')
 
-    # GET 请求直接渲染登录页面
+    # 对于GET请求，或者是身份验证失败的情况，渲染登录页面
     return render(request, 'login.html')
 
 def register(request):

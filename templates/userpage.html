@@ -22,8 +22,8 @@
             <li class="sub"><a href="/user/userserve">客户服务</a></li>
             <li class="sub"><a href="/user/usercart">我的购物车</a></li>
         </ul>
-        <div class="register"><a href="/user/userprofile">查看个人信息</a></div>
-        <div class="register"><a href="/home/">退出登录</a></div>
+         <div class="register"><a href="{% url 'userprofile' user_id role %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
         <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
     </div>
 </div>

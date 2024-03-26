@@ -1,7 +1,8 @@
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
-from common.models import ShopProducts, Users, Carts
+from common.models import ShopProducts, Users, Carts, Shops, Admin
 from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
@@ -9,7 +10,7 @@ from django.utils import timezone
 
 
 # Create your views here.
-def userspage(request, ID, role):
+def userpage(request, ID, role):
     # 获取所有商品对象
     products = ShopProducts.objects.all()
     products2 = Products.objects.all()
@@ -20,38 +21,55 @@ def userspage(request, ID, role):
         'user_id': ID,
         'role': role
     }
-    # 根据角色重定向到不同的页面
+    return render(request, 'userpage.html', context)
+
+
+def userprofile(request, ID, role):
+    context = {}
     if role == 'user':
-        request.session['u_id'] = ID
-        return render(request, 'userpage.html', context)
-    elif role == 'admin':
-        return render(request, 'adminpage.html', context)
+        # 获取并处理用户信息
+        user = get_object_or_404(Users, u_id=ID)
+        context = {
+            'u_id': user.u_id,
+            'u_acc': user.u_acc,
+            'u_name': user.u_name,
+            'u_psw': user.u_psw,
+            'u_sex': user.u_sex,
+            'u_phone': user.u_phone,
+            'email': user.email,
+            'address': user.address,
+            'created_at': user.created_at,
+            'role': role,
+             # 添加更多需要的用户信息字段
+        }
     elif role == 'shop':
-        return render(request, 'shoppage.html', context)
+        # 获取并处理商户信息
+        shop = get_object_or_404(Shops, s_id=ID)
+        context = {
+            's_id': shop.s_id,
+            's_name': shop.s_name,
+            's_acc': shop.s_acc,
+            's_psw': shop.s_psw,
+            's_phone': shop.s_phone,
+            'email': shop.email,
+            'address': shop.address,
+            'role': role,
+            # 添加更多需要的商户信息字段
+        }
+
+    elif role == 'admin':
+        # 获取并处理管理员信息
+        admin = get_object_or_404(Admin, ad_id=ID)  # 假设你的管理员模型名为Admins
+        context = {
+            'ad_id': admin.ad_id,
+            'ad_acc': admin.ad_acc,
+            'ad_psw': admin.ad_psw,
+            'is_super': admin.is_super,
+            'role': role,
+            # 添加更多需要的管理员信息字段
+        }
     else:
-        # 如果角色不匹配，可以重定向到一个通用页面或显示错误信息
-        return render(request, 'errorpage.html', {'message': '无效的角色'})
-
-
-def userprofile(request, ID):
-    # 使用 get_object_or_404 来获取用户对象，如果用户不存在则返回404错误
-    user = get_object_or_404(Users, u_id=ID)
-
-    # 构建上下文字典，包含用户信息
-    context = {
-        'u_id': user.u_id,
-        'u_acc': user.u_acc,
-        'u_name': user.u_name,
-        'u_psw': user.u_psw,
-        'u_sex': user.u_sex,
-        'u_phone': user.u_phone,
-        'email': user.email,
-        'address': user.address,
-        'created_at': user.created_at,
-        # 添加更多需要的用户信息字段
-    }
-
-    # 将上下文字典传递给模板
+        return HttpResponse('Invalid role.')  # 或者你可以选择重定向到错误页面
     return render(request, 'userprofile.html', context)
 
 def usercart(request):
@@ -89,6 +107,7 @@ def userserve(request):
     return render(request,'userserve.html')
 def product_details(request, p_id):
     u_id= request.session.get('u_id')
+    role= request.session.get('role')
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
-    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id})
+    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})

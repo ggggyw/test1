@@ -17,15 +17,29 @@
 </head>
 <body>
     <div class="head">
-        <div class="head-in">
-            <ul class="options">
+    <div class="head-in">
+
+            {% if u_id %}
+                <ul class="options">
+                <!-- 用户已登录 -->
+                <li class="sub"><a href="/user/userorder">我的订单</a></li>
+                <li class="sub"><a href="/user/userserve">客户服务</a></li>
+                <li class="sub"><a href="/user/usercart">我的购物车</a></li>
+                </ul>
+                <div class="register"><a href="{% url 'userprofile' u_id role %}">查看个人信息</a></div>
+                <div class="register"><a href="/logout">退出登录</a></div>
+                <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+            {% else %}
+                <ul class="options">
+                <!-- 用户未登录 -->
                 <li class="sub"><a href="/user/login">我的订单</a></li>
                 <li class="sub"><a href="/user/login">客户服务</a></li>
                 <li class="sub"><a href="/user/login">我的购物车</a></li>
-            </ul>
-            <div class="register"><a href="/user/register">免费注册</a></div>
-            <div class="sign"><a href="/user/login">登录</a></div>
-        </div>
+                </ul>
+                <div class="register"><a href="/user/register">免费注册</a></div>
+                <div class="sign"><a href="/user/login">登录</a></div>
+            {% endif %}
+    </div>
     </div>
     <div class="search">
         <ul class="items">
