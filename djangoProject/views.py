@@ -5,7 +5,8 @@ from django.template.loader import render_to_string
 from common.models import Products
 from common.models import ShopProducts
 from common.models import ProductCategories
-
+from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 
 def home(request):
@@ -14,6 +15,11 @@ def home(request):
     context = {'products': products,
                'products2':products2}  # 构建上下文字典
     return render(request, '首页.html',context)
+
+
+def logout_view(request):
+    logout(request)  # Django的logout函数会结束用户的session
+    return redirect('home')  # 将用户重定向到登录页面或者首页
 
 def get_products(request):
     category_id = request.GET.get('category_id')
