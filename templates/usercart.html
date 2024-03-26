@@ -1,10 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <title>购物车</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            min-height: 100vh;
+        }
+        .shopping-cart {
+            width: 80%;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .cart-header,
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+        }
+        .cart-header {
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .cart-item {
+            border-bottom: 1px solid #ddd;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+        .cart-item img {
+            width: 80px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .select-all,
+        .item-select,
+        .item-name,
+        .item-description,
+        .item-price,
+        .item-quantity,
+        .item-actions {
+            flex: 1;
+        }
+        .item-remove {
+            color: #d9534f;
+            cursor: pointer;
+        }
+        .cart-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 20px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .total {
+        flex-grow: 1; /* 让总计价格占据更多空间 */
+        text-align: right; /* 将总计价格对齐到右边 */
+        margin-right: 20px; /* 增加到结算按钮的间距 */
+        }
+        .checkout-btn {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 30px;
+        }
+    </style>
 </head>
 <body>
+    <div class="shopping-cart">
+        <div class="cart-header">
+            <div class="select-all">
+                <input type="checkbox" id="select-all" />
+                <label for="select-all">全选</label>
+            </div>
+            <div style="flex: 0 0 160px;">商品图片</div>
+            <div style="flex: 0 0 200px;">名称</div>
+            <div style="flex: 0 0 180px;">描述</div>
+            <div style="flex: 0 0 230px;">单价</div>
+            <div style="flex: 0 0 120px;">数量</div>
+            <div style="flex: 0 0 40px;">操作</div>
+        </div>
+        <!-- 商品列表 -->
+        <div class="cart-item">
+            <div class="item-select">
+                <input type="checkbox" class="select-item" />
+            </div>
+            <img src="product1.jpg" alt="商品图片">
+            <div class="item-name">商品名称1</div>
+            <div class="item-description">商品描述1</div>
+            <div class="item-price">¥19.90</div>
+            <input type="number" class="item-quantity" value="1">
+            <div class="item-remove">删除</div>
+        </div>
+        <!-- 更多商品... -->
+    </div>
+    <div class="cart-footer">
+        <div class="select-all">
+            <input type="checkbox" id="select-all-footer" />
+            <label for="select-all-footer">全选</label>
+        </div>
+        <div class="total">
+            总价: <span class="total-price">¥0.00</span>
+        </div>
+        <button class="checkout-btn">结算</button>
+    </div>
 
+    <script>
+// 全选功能
+document.querySelectorAll('#select-all, #select-all-footer').forEach(function(selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', function() {
+        // 设置所有商品选择框的状态与当前全选框相同
+        var checkboxes = document.querySelectorAll('.select-item');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+
+        // 同步两个全选框的状态
+        var allSelectAllCheckboxes = document.querySelectorAll('#select-all, #select-all-footer');
+        allSelectAllCheckboxes.forEach(function(otherSelectAllCheckbox) {
+            otherSelectAllCheckbox.checked = selectAllCheckbox.checked;
+        });
+
+        updateTotal(); // 更新总计价格
+    });
+});
+
+// 单个商品选择框变化时检查全选框状态
+document.querySelectorAll('.select-item').forEach(function(itemCheckbox) {
+    itemCheckbox.addEventListener('change', function() {
+        checkSelectAll();
+        updateTotal(); // 更新总计价格
+    });
+});
+
+// 删除商品功能
+document.querySelectorAll('.item-remove').forEach(function(removeButton) {
+    removeButton.addEventListener('click', function() {
+        var item = this.closest('.cart-item');
+        item.remove(); // 删除对应的商品元素
+        checkSelectAll(); // 检查全选框状态
+        updateTotal(); // 更新总计价格
+    });
+});
+
+// 检查是否应该选中或取消选中全选框
+function checkSelectAll() {
+    var allCheckboxes = document.querySelectorAll('.select-item');
+    var selectAllCheckboxes = document.querySelectorAll('#select-all, #select-all-footer');
+    var allChecked = true;
+    allCheckboxes.forEach(function(checkbox) {
+        if (!checkbox.checked) {
+            allChecked = false;
+        }
+    });
+    selectAllCheckboxes.forEach(function(selectAllCheckbox) {
+        selectAllCheckbox.checked = allChecked;
+    });
+}
+
+// 更新总计价格
+function updateTotal() {
+    var total = 0;
+    document.querySelectorAll('.cart-item').forEach(function(item) {
+        var checkbox = item.querySelector('.select-item');
+        if (checkbox.checked) {
+            var priceElement = item.querySelector('.item-price');
+            var price = parseFloat(priceElement.textContent.replace('¥', ''));
+            var quantity = item.querySelector('.item-quantity').valueAsNumber;
+            total += price * quantity;
+        }
+    });
+    document.querySelector('.total-price').textContent = '¥' + total.toFixed(2);
+}
+
+    </script>
 </body>
 </html>
