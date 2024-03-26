@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from djangoProject import views
+from djangoProject.views import logout_view
 from user import views as user_views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,6 +25,7 @@ from django.conf.urls.static import static
 from login_register import views as login_register_views
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('logout/', logout_view, name='logout'),
     path('user/register/', login_register_views.register, name='register'),
     path('user/login/', login_register_views.login, name='login'),
     path('userpage/<int:ID>/<str:role>/', user_views.userpage, name='userpage'),
