@@ -10,25 +10,29 @@ from django.utils import timezone
 
 
 # Create your views here.
-def userpage(request, ID, role):
+def userpage(request):
     # 获取所有商品对象
     products = ShopProducts.objects.all()
     products2 = Products.objects.all()
     # 构建上下文字典
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
     context = {
         'products': products,
         'products2': products2,
-        'user_id': ID,
+        'user_id': u_id,
         'role': role
     }
     return render(request, 'userpage.html', context)
 
 
-def userprofile(request, ID, role):
+def userprofile(request):
     context = {}
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
     if role == 'user':
         # 获取并处理用户信息
-        user = get_object_or_404(Users, u_id=ID)
+        user = get_object_or_404(Users, u_id=u_id)
         context = {
             'u_id': user.u_id,
             'u_acc': user.u_acc,
@@ -44,7 +48,7 @@ def userprofile(request, ID, role):
         }
     elif role == 'shop':
         # 获取并处理商户信息
-        shop = get_object_or_404(Shops, s_id=ID)
+        shop = get_object_or_404(Shops, s_id=u_id)
         context = {
             's_id': shop.s_id,
             's_name': shop.s_name,
@@ -59,7 +63,7 @@ def userprofile(request, ID, role):
 
     elif role == 'admin':
         # 获取并处理管理员信息
-        admin = get_object_or_404(Admin, ad_id=ID)  # 假设你的管理员模型名为Admins
+        admin = get_object_or_404(Admin, ad_id=u_id)  # 假设你的管理员模型名为Admin
         context = {
             'ad_id': admin.ad_id,
             'ad_acc': admin.ad_acc,
