@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
@@ -10,10 +11,14 @@ from django.shortcuts import redirect
 
 
 def home(request):
-    products = ShopProducts.objects.all()  # 获取所有商品对象
-    products2= Products.objects.all()
-    context = {'products': products,
-               'products2':products2}  # 构建上下文字典
+    products = ShopProducts.objects.all()
+    paginator = Paginator(products, 24)  # 假设每页显示多少个商品
+
+    page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
+    paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
+    context = {
+        'products': paged_products,
+    }
     return render(request, '首页.html',context)
 
 
