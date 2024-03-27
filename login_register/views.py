@@ -1,6 +1,8 @@
 from django.urls import reverse
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils import timezone
+
 from common.models import Users
 from common.models import Admin
 from common.models import Shops
@@ -17,7 +19,7 @@ def login(request):
                 if user.u_psw == password:
                     request.session['u_id'] = user.u_id  # 将用户ID存入session
                     request.session['role'] = role  # 将角色存入session
-                    return redirect(reverse('userpage', kwargs={'ID': user.u_id, 'role': role}))
+                    return redirect(reverse('userpage'))  # 重定向到用户页面
                 else:
                     messages.error(request, 'Invalid username or password.')
             elif role == 'admin':
@@ -26,7 +28,7 @@ def login(request):
                     if admin.ad_psw == password:
                         request.session['u_id'] = admin.ad_id
                         request.session['role'] = role
-                        return redirect(reverse('userpage', kwargs={'ID': admin.ad_id, 'role': role}))
+                        return redirect(reverse('userpage'))
                     else:
                         messages.error(request, 'Invalid username or password.')
                 except Admin.DoesNotExist:
@@ -37,7 +39,7 @@ def login(request):
                     if shop.s_psw == password:
                         request.session['u_id'] = shop.s_id
                         request.session['role'] = role
-                        return redirect(reverse('userpage', kwargs={'ID': shop.s_id, 'role': role}))
+                        return redirect(reverse('userpage'))
                     else:
                         messages.error(request, 'Invalid username or password.')
                 except Shops.DoesNotExist:
@@ -50,19 +52,37 @@ def login(request):
     # 对于GET请求，或者是身份验证失败的情况，渲染登录页面
     return render(request, 'login.html')
 
+
 def register(request):
     if request.method == 'POST':
         username = request.POST['name']
-        password = request.POST['code']
+        password = request.POST['password']
         role = request.POST['role']
 
-        # Check if this username already exists.
-        if Users.objects.filter(name=username).exists():
-            return render(request, 'registration.html', {'error': '用户名已经存在'})
+        if role == 'user':
+            if Users.objects.filter(u_acc=username).exists():
+                messages.error(request, '该用户已经存在！')
+            else:
+                # 创建用户时加入 created_at 字段的值
+                Users.objects.create(
+                    u_acc=username,
+                    u_psw=password,
+                    created_at=timezone.now()  # 使用 Django 的 timezone.now() 设置当前时间
+                )
+                messages.success(request, '用户注册成功！快去登录吧！')
+                return redirect('/user/login/')
 
-        # If not exists, create the user.
-        Users.objects.create(name=username, code=password, role=role)
-        return redirect('/login/')
+        elif role == 'shop':
+            if Shops.objects.filter(s_acc=username).exists():
+                messages.error(request, '该商家已经存在！')
+            else:
+                Shops.objects.create(s_acc=username, s_psw=password)
+                messages.success(request, '商家注册成功！快去登录吧！')
+                return redirect('/user/login/')
 
+        else:
+            messages.error(request, '选择了无效的角色')
+
+    # 显示register.html页面
     return render(request, 'registration.html')
 
