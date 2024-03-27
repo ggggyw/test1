@@ -9,16 +9,52 @@
         body {
             background-image: url('{% static "/登录_files/aaa.jpg" %}');
         }
+        .message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(255,255,255,0.9);
+            z-index: 10;
+            text-align: center;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            display: none;
+        }
+        .alert-success {
+            color: green;
+        }
     </style>
+    <script type="text/javascript">
+        function showMessage() {
+            var container = document.querySelector('.message-container');
+            if(container){
+                container.style.display = 'block';
+                setTimeout(function(){
+                    container.style.display = 'none';
+                }, 2000);
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="showMessage()">
+    {% if messages %}
+    <div class="message-container">
+        {% for message in messages %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <div class="container">
         <h2>登录</h2>
         <form action="{% url 'login' %}" method="post">
             {% csrf_token %}
             <p><label>用户名:</label><input type="text" name="name"></p>
             <p><label>密 码:</label><input type="password" name="password"></p>
-             <p>
+            <p>
                 <label>角色:
                 <select name="role">
                     <option value="user">用户</option>
@@ -27,12 +63,9 @@
                 </select>
                 </label>
             </p>
-            <p><input type="submit" value="登录">
-            <input type="reset" value="重置"></p>
+            <p><input type="submit" value="登录"><input type="reset" value="重置"></p>
             <p><strong>没有账号吗?</strong> <a href="/user/register/"><strong>点击这里注册</strong></a>.</p>
-
         </form>
     </div>
-
 </body>
 </html>
