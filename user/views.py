@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -11,15 +12,17 @@ from django.utils import timezone
 
 # Create your views here.
 def userpage(request):
-    # 获取所有商品对象
     products = ShopProducts.objects.all()
-    products2 = Products.objects.all()
-    # 构建上下文字典
+    paginator = Paginator(products, 24)  # 假设每页显示多少个商品
+
+    page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
+    paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
+
     u_id = request.session.get('u_id')
     role = request.session.get('role')
+
     context = {
-        'products': products,
-        'products2': products2,
+        'products': paged_products,
         'user_id': u_id,
         'role': role
     }
