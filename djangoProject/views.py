@@ -27,6 +27,8 @@ def logout_view(request):
     logout(request)  # Django的logout函数会结束用户的session
     return redirect('home')  # 将用户重定向到登录页面或者首页
 
+
+
 def get_products(request):
     category_id = request.GET.get('category_id')
     if category_id is not None:
@@ -38,6 +40,13 @@ def get_products(request):
         shoppro = ShopProducts.objects.all()
     products2 = Products.objects.all()
 
+    # 创建一个 Paginator 对象，每页显示 24 个商品
+    paginator = Paginator(shoppro, 24)
+    # 从 GET 请求的查询参数中获取页码
+    page = request.GET.get('page')
+    # 使用 Paginator 对象的 get_page 方法来获取当前页的商品
+    shoppro = paginator.get_page(page)
+
     # 检查用户是否已经登录
     if 'u_id' in request.session:
         # 如果用户已经登录，就渲染 userpage.html 模板
@@ -46,5 +55,5 @@ def get_products(request):
         # 如果用户没有登录，就渲染 首页.html 模板
         template_name = '首页.html'
 
-    content = render_to_string(template_name, {'products': shoppro,'products2':products2})
+    content = render_to_string(template_name, {'products': shoppro,'products2':products2, 'category_id': category_id})
     return HttpResponse(content)
