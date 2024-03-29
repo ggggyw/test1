@@ -61,7 +61,9 @@
 
 
 <div class="classes">
-    <ul class="classes-items"><li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">个人电脑和配件</a></li>
+    <ul class="classes-items">
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/">全部商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1">个人电脑和配件</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=2">移动设备</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=3">家用电子产品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=4">厨房电子设备</a></li>
@@ -76,36 +78,40 @@
 <div class="goods-model">
     <div class="goods-content">
         {% for product in products %} <!-- 遍历所有商品对象 -->
-        <div class="good">
-            <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
-                <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
-                {% for product2 in products2 %}
-                {% if product.product_id == product2.p_id %}
-                	<p class="name">{{ product2.p_name }}</p>
-                {% endif %}
-                {% endfor %}
-                <div class="price">
-                    <p >￥{{ product.original_price }}</p>
-{#                    <s>￥499.00</s>#}
-                </div>
-{#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
-{#                <div class="sale">#}
-{#                    特卖#}
-{#                </div>#}
-{#                {% endif %}#}
-            </a>
-        </div>
+            <div class="good">
+                <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                    <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
+                    {% for product2 in products2 %}
+                        {% if product.product_id == product2.p_id %}
+                            <p class="name">{{ product2.p_name }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="price">
+                        <p>￥{{ product.original_price }}</p>
+                        {#                    <s>￥499.00</s>#}
+                    </div>
+                    {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
+                    {#                <div class="sale">#}
+                    {#                    特卖#}
+                    {#                </div>#}
+                    {#                {% endif %}#}
+                </a>
+            </div>
         {% endfor %}
     </div>
 </div>
 
 <div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    {% if products.has_previous %}
+        <a href="?page={{ products.previous_page_number }}" style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+    {% endif %}
 
+    <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
 
-    <a href="http://127.0.0.1:8000/category/8/page/2"
-       style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-
-
+    {% if products.has_next %}
+        <a href="?page={{ products.next_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+    {% endif %}
 </div>
 
 

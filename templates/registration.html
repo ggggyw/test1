@@ -5,6 +5,52 @@
     <title>Register</title>
     {% load static %}
     <link rel="stylesheet" href="{% static '/注册_files/register.css' %}">
+    <script>
+        // 页面加载完成后执行
+        window.onload = function() {
+            {% if messages %}
+                var messagesHTML = '';
+                {% for message in messages %}
+                    // 在messagesHTML中添加消息提示
+                    messagesHTML += '<div class="message {{ message.tags }}">{{ message }}</div>';
+                {% endfor %}
+
+                // 创建消息提示容器
+                var messageContainer = document.createElement('div');
+                messageContainer.innerHTML = messagesHTML;
+                messageContainer.classList.add('message-container');
+                document.body.appendChild(messageContainer);
+
+                // 设置2秒后自动消失
+                setTimeout(function() {
+                    messageContainer.style.opacity = '0';
+                    setTimeout(function(){
+                        document.body.removeChild(messageContainer);
+                    }, 1000); // 这里我们在1秒内渐渐隐藏，然后再移除元素
+                }, 3000);
+            {% endif %}
+        };
+    </script>
+    <style>
+        .message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            text-align: center;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            color: #333;
+            background-color: #fa0505;
+            display: inline-block;
+            border-radius: 5px;
+            border: 1px solid #ffffff;
+            transition: opacity 1s ease-in-out; /* 设置过渡效果 */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,14 +59,12 @@
             {% csrf_token %}
             <p><label>用户名:</label><input type="text" name="name" required></p>
             <p><label>密 码:</label><input type="password" name="password" required></p>
-             <p>
-                <label>角色:
+            <p>
+                <label>角色:</label>
                 <select name="role">
                     <option value="user">用户</option>
-                    <option value="admin">管理员</option>
                     <option value="shop">商家</option>
                 </select>
-                </label>
             </p>
             <p><input type="submit" value="注册"></p>
             <p>已经有帐户了吗? <a href="/user/login">点击此处去登录</a></p>
