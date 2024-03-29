@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
-    <title>shoppage</title>
+    <title>shop_order</title>
     <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
@@ -79,59 +79,3 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
 </div>
-
-<div class="goods-model">
-    <div class="goods-content">
-        {% for product in products %} <!-- 遍历所有商品对象 -->
-            <div class="good">
-                <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
-                    <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
-                    {% for product2 in products2 %}
-                        {% if product.product_id == product2.p_id %}
-                            <p class="name">{{ product2.p_name }}</p>
-                        {% endif %}
-                    {% endfor %}
-                    <div class="price">
-                        <p>￥{{ product.original_price }}</p>
-                        {#                    <s>￥499.00</s>#}
-                    </div>
-                    {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
-                    {#                <div class="sale">#}
-                    {#                    特卖#}
-                    {#                </div>#}
-                    {#                {% endif %}#}
-                </a>
-            </div>
-        {% empty %}
-            <div class="no-products-animation">
-                <p>此类别还没有商品哦！</p>
-            </div>
-        {% endfor %}
-    </div>
-</div>
-
-<div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-    {% if products.has_previous %}
-        <a href="?category_id={{ category_id }}&page={{ products.previous_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
-    {% endif %}
-
-    <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
-
-    {% if products.has_next %}
-        <a href="?category_id={{ category_id }}&page={{ products.next_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-    {% endif %}
-</div>
-
-<script>
-    // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
-    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
-    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
-    document.addEventListener("DOMContentLoaded", function () {
-        document.querySelector('.no-products-animation').style.display = 'block';
-    });
-</script>
-
-</body>
-</html>
