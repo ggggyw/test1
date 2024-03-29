@@ -103,13 +103,13 @@
 
 <div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
     {% if products.has_previous %}
-        <a href="?page={{ products.previous_page_number }}" style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+        <a href="?category_id={{ category_id }}&page={{ products.previous_page_number }}" style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
     {% endif %}
 
     <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
 
     {% if products.has_next %}
-        <a href="?page={{ products.next_page_number }}"
+        <a href="?category_id={{ category_id }}&page={{ products.next_page_number }}"
            style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
     {% endif %}
 </div>
