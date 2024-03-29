@@ -110,13 +110,13 @@ def add_to_cart(request):
         defaults={'quantity': 0,
                   'join_time':'2023-03-19 00:00'}
     )
-
+    role = request.session.get('role')
     # 更新数量
     cart.quantity += quantity
     cart.join_time = timezone.now()
     cart.save()
     # 网页跳转问题，如何动态添加，暂时还没想好真的要用javascript吗？
-    return render(request,'productdetails.html',{'product': products,'products2':products2})
+    return render(request,'productdetails.html',{'product': products,'products2':products2,'u_id':user_id,'role':role})
 
 def userorder(request):
     return render(request,'userorder.html')
