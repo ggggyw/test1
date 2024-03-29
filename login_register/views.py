@@ -39,7 +39,7 @@ def login(request):
                     if shop.s_psw == password:
                         request.session['u_id'] = shop.s_id
                         request.session['role'] = role
-                        return redirect(reverse('userpage'))
+                        return redirect(reverse('shoppage'))
                     else:
                         messages.error(request, 'Invalid username or password.')
                 except Shops.DoesNotExist:
