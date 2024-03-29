@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 import json
-from common.models import ShopProducts, Users, Carts, Shops, Admin
+from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders
 from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
@@ -130,14 +130,33 @@ def product_details(request, p_id):
     return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})
 
 def delete_item(request):
-    print(request.body)
+    # print(request.body)
     if request.method == 'POST':
         request_data = json.loads(request.body)
         item_id = request_data.get('item_id')
-        print(item_id)
+        # print(item_id)
         u_id=request.session.get('u_id')
         cart=Carts.objects.all()
         cart.filter(product_id=item_id,user_id=u_id).delete()
         return JsonResponse({'message': 'Item deleted successfully'})
     else:
         return JsonResponse({'error': 'Invalid request method'})
+
+
+def checkout(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        u_id = request.session.get('u_id')
+        selected_product_ids = request_data.get('selectedProductIds')
+        print(selected_product_ids)
+        try:
+            # 从购物车表中删除选中的商品
+            Carts.objects.filter(product_id__in=selected_product_ids,user_id=u_id).delete()
+
+            # 在订单表中添加选中的商品(有俩表格下面还没改)
+            for product_id in selected_product_ids:
+                Orders.objects.create(product_id=product_id, user_id=u_id,)
+
+            return JsonResponse({'success': True, 'message': '结算成功'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '结算失败'})

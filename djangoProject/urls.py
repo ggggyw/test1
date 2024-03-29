@@ -38,7 +38,8 @@ urlpatterns = [
     path('user/userorder',user_views.userorder, name='userorder'),
     path('user/userserve',user_views.userserve, name='userserve'),
     path('delete_item/',user_views.delete_item, name='delete_item'),
-    path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),#没想好要不要删掉
+    path('checkout/',user_views.checkout, name='delete_item'),
+    path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),
     path('home/', views.home, name='home'),
     path('get_products/', views.get_products, name='get_products'),
     path('shop/', include('shop.urls')),
