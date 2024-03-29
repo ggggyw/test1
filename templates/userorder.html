@@ -1,10 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    {% load static %}
+    <title>订单</title>
+    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
+    <script src="{% static '首页_files/carts.js.下载' %}"></script>
+
+    <style>
+        {% load static %}
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            min-height: 100vh;
+        }
+        .order-options-container {
+            width: 80%;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-options {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .cart-item img {
+            width: 80px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .order-options,
+        .order-options li {
+            flex: 1;
+        }
+        .order-options-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+
 </head>
 <body>
+
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+            <li class="sub"><a href="/user/usercart">我的购物车</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+</div>
+<div class="search">
+    <ul class="items">
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="{% static '首页_files/1_09.png' %}">
+                <p>10:00开抢</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="{% static '首页_files/1_11.png' %}">
+                <p>买手砍价</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/?category=2#">
+                <img src="{% static '首页_files/1_13.png' %}">
+                <p>验货质检</p>
+            </a>
+        </li>
+    </ul>
+    <div class="input">
+        <input type="" name="" value="请输入想找的宝贝">
+        <img src="{% static '首页_files/1_06.png' %}">
+    </div>
+</div>
+       <div class="order-options-container">
+    <ul class="order-options">
+        <li><a href="/user/userorder">全部订单</a></li>
+        <li><a href="/user/userorder?status=pending">待付款</a></li>
+        <li><a href="/user/userorder?status=shipped">待收货/使用</a></li>
+        <li><a href="/user/userorder?status=review">待评价</a></li>
+        <li><a href="/user/userorder?status=recycle">订单回收站</a></li>
+    </ul>
+</div>
+
+
+
+<script>
+
+</script>
 
 </body>
 </html>
