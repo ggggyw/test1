@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 
 
 def home(request):
+    request.session.clear()
     products = ShopProducts.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
