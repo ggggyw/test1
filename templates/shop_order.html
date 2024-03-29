@@ -1,10 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    {% load static %}
     <title>shop_order</title>
+    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
+    <script src="{% static '首页_files/carts.js.下载' %}"></script>
+
+    <style>
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .no-products-animation {
+            display: none;
+            animation: fadeInOut 3s ease infinite;
+            position: fixed; /* 使用 fixed 定位 */
+            top: 50%; /* 从顶部开始的位置 */
+            left: 50%; /* 从左边开始的位置 */
+            transform: translate(-50%, -50%); /* 使用 transform 居中 */
+        }
+
+        .no-products-animation p {
+            text-align: center;
+            font-size: 5em; /* 调整为您需要的大小 */
+            color: red;
+        }
+
+        .classes-items {
+            text-align: center;
+        }
+
+        .items {
+            text-align: center;
+        }
+
+    </style>
 </head>
 <body>
-<p>订单界面</p>
-</body>
-</html>
+
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+</div>
+<div class="search">
+    <div class="input">
+        <input type="" name="" value="请输入想找的宝贝">
+        <img src="{% static '首页_files/1_06.png' %}">
+    </div>
+</div>
+<div class="classes">
+    <ul class="classes-items">
+
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
+    </ul>
+</div>
