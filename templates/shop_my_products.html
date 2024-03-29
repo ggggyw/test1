@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    {% load static %}
+    <title>shop_my_products</title>
+    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
+    <script src="{% static '首页_files/carts.js.下载' %}"></script>
+
+    <style>
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .no-products-animation {
+            display: none;
+            animation: fadeInOut 3s ease infinite;
+            position: fixed; /* 使用 fixed 定位 */
+            top: 50%; /* 从顶部开始的位置 */
+            left: 50%; /* 从左边开始的位置 */
+            transform: translate(-50%, -50%); /* 使用 transform 居中 */
+        }
+
+        .no-products-animation p {
+            text-align: center;
+            font-size: 5em; /* 调整为您需要的大小 */
+            color: red;
+        }
+
+        .classes-items {
+            text-align: center;
+        }
+
+        .items {
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+</div>
+<div class="search">
+    <div class="input">
+        <input type="" name="" value="请输入想找的宝贝">
+        <img src="{% static '首页_files/1_06.png' %}">
+    </div>
+</div>
+<div class="classes">
+    <ul class="classes-items">
+
+        <li class="items"><a id="my-products-link" href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a>
+        </li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="items"><a id="sales-analysis-link"
+                             href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
+    </ul>
+    <ul class="classes-items">
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">全部商品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=1">个人电脑和配件</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=2">移动设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=3">家用电子产品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=4">厨房电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=5">办公设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=6">汽车电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=7">网络和通信设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=8">可穿戴设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=9">智能家居设备</a></li>
+    </ul>
+</div>
+
+<div class="goods-model">
+    <div class="goods-content">
+        {% for product in products %} <!-- 遍历所有商品对象 -->
+            <div class="good">
+                <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                    <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
+                    {% for product2 in products2 %}
+                        {% if product.product_id == product2.p_id %}
+                            <p class="name">{{ product2.p_name }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="price">
+                        <p>￥{{ product.original_price }}</p>
+                        {#                    <s>￥499.00</s>#}
+                    </div>
+                    {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
+                    {#                <div class="sale">#}
+                    {#                    特卖#}
+                    {#                </div>#}
+                    {#                {% endif %}#}
+                </a>
+            </div>
+        {% empty %}
+            <div class="no-products-animation">
+                <p>此类别还没有商品哦！</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    {% if products.has_previous %}
+        <a href="?category_id={{ category_id }}&page={{ products.previous_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+    {% endif %}
+
+    <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
+
+    {% if products.has_next %}
+        <a href="?category_id={{ category_id }}&page={{ products.next_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+    {% endif %}
+</div>
+
+
+<script>
+    // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
+    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
+    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector('.no-products-animation').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
