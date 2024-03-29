@@ -85,6 +85,7 @@
     </style>
 </head>
 <body>
+{% csrf_token %}
     <div class="shopping-cart">
         <div class="cart-header">
             <div class="select-all">
@@ -102,7 +103,7 @@
         {% for a in cart %}
             {% for b in shoppro %}
                 {% if a.product_id == b.shop_product_id and a.user_id == uid %}
-        <div class="cart-item">
+        <form class="cart-item" data-item-id="{{a.product_id }}" method="POST">
             <div class="item-select">
                 <input type="checkbox" class="select-item" />
             </div>
@@ -115,8 +116,8 @@
             <div class="item-description">{{ b.product_desc }}</div>
             <div class="item-price">{{ b.original_price }}</div>
             <input type="number" class="item-quantity" value="{{ a.quantity }}">
-            <div class="item-remove">删除</div>
-        </div>
+            <div class="item-remove" >删除</div>
+        </form>
                 {% endif %}
                 {% endfor %}
         {% endfor %}
@@ -161,14 +162,45 @@ document.querySelectorAll('.select-item').forEach(function(itemCheckbox) {
 });
 
 // 删除商品功能
+// 获取 CSRF 令牌
+var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
 document.querySelectorAll('.item-remove').forEach(function(removeButton) {
     removeButton.addEventListener('click', function() {
         var item = this.closest('.cart-item');
-        item.remove(); // 删除对应的商品元素
-        checkSelectAll(); // 检查全选框状态
-        updateTotal(); // 更新总计价格
+        var item_id = item.dataset.itemId;
+        fetch('/delete_item/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken // 添加 CSRF 令牌到请求头
+            },
+            body: JSON.stringify({ item_id: item_id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); // 打印服务器返回的消息
+            if (data.message === 'Item deleted successfully') {
+                // 删除成功，您可以执行其他操作或显示一条成功消息给用户
+                alert("删除成功");
+            } else {
+                // 删除失败，您可以处理错误情况，例如显示错误消息
+                alert("删除失败，请重试");
+            }
+            item.remove();
+            checkSelectAll();
+            updateTotal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // 处理请求失败的情况
+            alert("请求失败，请检查网络连接或稍后重试");
+        });
     });
 });
+
+
+
 
 // 检查是否应该选中或取消选中全选框
 function checkSelectAll() {

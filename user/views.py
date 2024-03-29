@@ -1,8 +1,8 @@
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-
+import json
 from common.models import ShopProducts, Users, Carts, Shops, Admin
 from common.models import Products
 from django.shortcuts import render
@@ -128,3 +128,16 @@ def product_details(request, p_id):
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
     return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})
+
+def delete_item(request):
+    print(request.body)
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        item_id = request_data.get('item_id')
+        print(item_id)
+        u_id=request.session.get('u_id')
+        cart=Carts.objects.all()
+        cart.filter(product_id=item_id,user_id=u_id).delete()
+        return JsonResponse({'message': 'Item deleted successfully'})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})
