@@ -23,6 +23,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from login_register import views as login_register_views
+from shop import views as shop_views
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('logout/', logout_view, name='logout'),
@@ -38,4 +40,5 @@ urlpatterns = [
     path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),#没想好要不要删掉
     path('home/', views.home, name='home'),
     path('get_products/', views.get_products, name='get_products'),
+    path('shop/', include('shop.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
