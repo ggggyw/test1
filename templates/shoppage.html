@@ -40,6 +40,15 @@
             font-size: 5em; /* 调整为您需要的大小 */
             color: red;
         }
+
+        .classes-items {
+            text-align: center;
+        }
+
+        .items {
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -61,28 +70,13 @@
         <img src="{% static '首页_files/1_06.png' %}">
     </div>
 </div>
-
 <div class="classes">
     <ul class="classes-items">
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/">全部商品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=1">个人电脑和配件</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=2">移动设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=3">家用电子产品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=4">厨房电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=5">办公设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=6">汽车电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=7">网络和通信设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=8">可穿戴设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/get_products_fromshop/?category_id=9">智能家居设备</a></li>
+
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
 </div>
 
@@ -129,7 +123,6 @@
            style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
     {% endif %}
 </div>
-
 
 <script>
     // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
