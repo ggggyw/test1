@@ -153,7 +153,7 @@ def checkout(request):
         selected_product_ids = request_data.get('selectedProductIds')
         try:
             # 从购物车表中删除选中的商品
-            # Carts.objects.filter(product_id__in=selected_product_ids,user_id=u_id).delete()
+            Carts.objects.filter(product_id__in=selected_product_ids,user_id=u_id).delete()
             i=0
             new_order=Orders.objects.create(
                 status='1', paid_time=timezone.localtime(timezone.now())
@@ -169,3 +169,20 @@ def checkout(request):
             return JsonResponse({'success': False, 'message': '结算失败'})
 
 
+def update_quantity(request):
+    #有bug，更改数字不可以输入enter键
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        cart_id = request_data.get('cart_id')
+        new_quantity = request_data.get('newQuantity')
+        print(new_quantity)
+        try:
+            # 更新数据库中对应商品的数量
+            product = Carts.objects.get(id=cart_id)
+            product.quantity = new_quantity
+            product.save()
+            return JsonResponse({'success': True, 'message': '数量已更新'})
+        except Carts.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '商品不存在'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '更新失败'})

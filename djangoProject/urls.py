@@ -39,6 +39,7 @@ urlpatterns = [
     path('user/userserve',user_views.userserve, name='userserve'),
     path('delete_item/',user_views.delete_item, name='delete_item'),
     path('checkout/',user_views.checkout, name='delete_item'),
+    path('update_quantity/',user_views.update_quantity, name='update_quantity'),
     path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),
     path('home/', views.home, name='home'),
     path('get_products/', views.get_products, name='get_products'),

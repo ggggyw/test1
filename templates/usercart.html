@@ -147,7 +147,7 @@
         {% for a in cart %}
             {% for b in shoppro %}
                 {% if a.product_id == b.shop_product_id and a.user_id == uid %}
-        <form class="cart-item" data-item-id="{{a.product_id }}" method="POST">
+        <form class="cart-item" data-item-id="{{a.product_id }}" data-cart-id="{{ a.id }}" method="POST">
             <div class="item-select">
                 <input type="checkbox" class="select-item" />
             </div>
@@ -242,8 +242,33 @@ document.querySelectorAll('.item-remove').forEach(function(removeButton) {
         });
     });
 });
-
-
+//不能输入enter键，很奇怪，提示csrf有毛病
+document.querySelectorAll('.item-quantity').forEach(function(removeButton) {
+    removeButton.addEventListener('change', function() {
+        var item = this.closest('.cart-item');
+        var cart_id = item.dataset.cartId;
+        var newQuantity = parseInt(this.value);
+        fetch('/update_quantity/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken // 添加 CSRF 令牌到请求头
+            },
+            body: JSON.stringify({ cart_id: cart_id,newQuantity:newQuantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.message); // 打印服务器返回的消息
+            checkSelectAll();
+            updateTotal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // 处理请求失败的情况
+            alert("请求失败，请检查网络连接或稍后重试");
+        });
+    });
+});
 
 
 // 检查是否应该选中或取消选中全选框
