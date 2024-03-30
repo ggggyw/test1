@@ -155,14 +155,17 @@ def checkout(request):
             # 从购物车表中删除选中的商品
             # Carts.objects.filter(product_id__in=selected_product_ids,user_id=u_id).delete()
             i=0
-            Orders.objects.create(status='1', paid_time=timezone.localtime(timezone.now()),
-                                  o_time=timezone.localtime(timezone.now())
-                                  , total_price=totalPrice, user_id=u_id)
+            new_order=Orders.objects.create(
+                status='1', paid_time=timezone.localtime(timezone.now())
+                ,o_time=timezone.localtime(timezone.now())
+                , total_price=totalPrice, user_id=u_id)
             # 在订单表中添加选中的商品
             for product_id in selected_product_ids:
                 #shopid未定,orderid未定
-                OrderDetails.objects.create(quantity=itemQuantities[i],current_single_price=itemPrices[i],order_id=1,product_id=product_id,shop_id=1)
+                OrderDetails.objects.create(quantity=itemQuantities[i],current_single_price=itemPrices[i],order_id=new_order.o_id,product_id=product_id,shop_id=1)
                 i=i+1
             return JsonResponse({'success': True, 'message': '结算成功'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': '结算失败'})
+
+
