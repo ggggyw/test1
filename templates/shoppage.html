@@ -82,17 +82,17 @@
 
 <div class="goods-model">
     <div class="goods-content">
-        {% for product in products %} <!-- 遍历所有商品对象 -->
+        {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
             <div class="good">
-                <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
-                    <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
-                    {% for product2 in products2 %}
-                        {% if product.product_id == product2.p_id %}
+                <a href="{% url 'product_details' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                    <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
+                    {% for product2 in products %}
+                        {% if product1.product_id == product2.p_id %}
                             <p class="name">{{ product2.p_name }}</p>
                         {% endif %}
                     {% endfor %}
                     <div class="price">
-                        <p>￥{{ product.original_price }}</p>
+                        <p>￥{{ product1.original_price }}</p>
                         {#                    <s>￥499.00</s>#}
                     </div>
                     {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
@@ -104,22 +104,22 @@
             </div>
         {% empty %}
             <div class="no-products-animation">
-                <p>此类别还没有商品哦！</p>
+                <p>还没有商品哦！</p>
             </div>
         {% endfor %}
     </div>
 </div>
 
 <div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-    {% if products.has_previous %}
-        <a href="?category_id={{ category_id }}&page={{ products.previous_page_number }}"
+    {% if shop_products.has_previous %}
+        <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
            style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
     {% endif %}
 
-    <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
+    <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
 
-    {% if products.has_next %}
-        <a href="?category_id={{ category_id }}&page={{ products.next_page_number }}"
+    {% if shop_products.has_next %}
+        <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
            style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
     {% endif %}
 </div>
