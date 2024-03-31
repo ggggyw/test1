@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
@@ -47,6 +46,38 @@
             text-align: center;
         }
 
+        tr {
+            padding: 25px 0;
+        }
+
+        th {
+            padding: 25px 0;
+        }
+
+        td {
+            padding: 20px;
+        }
+
+        .pagination {
+            text-align: center; /* 居中分页控件 */
+            margin-top: 20px; /* 顶部距离，可根据需要调整 */
+            margin-bottom: 20px; /* 底部距离，可根据需要调整 */
+        }
+
+        .pagination .step-links a,
+        .pagination .step-links span {
+            display: inline-block; /* 使链接和当前页信息能够在同一行显示 */
+            margin-right: 5px; /* 为链接和当前页信息等元素之间添加间隔 */
+            padding: 5px 10px; /* 内间距，可根据需要调整 */
+            text-decoration: none; /* 移除超链接的下划线 */
+            border: 1px solid #ddd; /* 加边框，可根据需要调整或移除 */
+            color: #333; /* 文字颜色，可根据需要调整 */
+        }
+
+        .pagination .step-links span.current {
+            font-weight: bold; /* 当前页加粗显示 */
+        }
+
     </style>
 </head>
 <body>
@@ -71,9 +102,70 @@
 <div class="classes">
     <ul class="classes-items">
 
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
+
+
+    <table>
+        <tr>
+            <th>选择</th> <!-- 新增的表头 -->
+            <th>商品名称</th>
+            <th>图片</th>
+            <th>类别</th>
+            <th>品牌</th>
+            <th>价格</th>
+            <th>描述</th>
+            <th>状态</th>
+            <th>库存</th>
+            <th>原始价格</th>
+            <th>折扣</th>
+            <th>现在价格</th>
+        </tr>
+        {% for shop_product in shop_products %}
+            <tr>
+                <td>
+                    <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"
+                           name="product_selection">
+                    <label for="product_selection_{{ shop_product.shop_product_id }}"></label>
+                </td>
+                <td>{{ shop_product.product.p_name }}</td>
+                <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片" width="100px"
+                         height="100px"></td>
+                <td>{{ shop_product.product.p_type.category_name }}</td>
+                <td>{{ shop_product.product.brand }}</td>
+                <td>{{ shop_product.current_price }}</td>
+                <td>{{ shop_product.product_desc }}</td>
+                <td>{{ shop_product.product_status }}</td>
+                <td>{{ shop_product.stock_quantity }}</td>
+                <td>{{ shop_product.original_price }}</td>
+                <td>{{ shop_product.discount }}%</td>
+                <td>{{ shop_product.current_price }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if shop_products.has_previous %}
+            <a href="?page=1">&laquo; 第一页</a>
+            <a href="?page={{ shop_products.previous_page_number }}">上一页</a>
+        {% endif %}
+
+        <span class="current">
+            第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
+        </span>
+
+        {% if shop_products.has_next %}
+            <a href="?page={{ shop_products.next_page_number }}">下一页</a>
+            <a href="?page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
+        {% endif %}
+    </span>
+    </div>
 </div>
+
+
+</body>
+</html>
