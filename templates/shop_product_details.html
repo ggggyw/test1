@@ -14,39 +14,42 @@
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
+        .classes {
+            background: #f4f4f4; /* Example background color for the classes bar */
+            padding: 10px 0; /* Add some padding around the classes bar */
+            margin-bottom: 20px; /* Add space below the classes bar before product details */
+            border-bottom: 1px solid #ccc; /* Add a border line below the classes bar */
         }
 
-        .no-products-animation {
-            display: none;
-            animation: fadeInOut 3s ease infinite;
-            position: fixed; /* 使用 fixed 定位 */
-            top: 50%; /* 从顶部开始的位置 */
-            left: 50%; /* 从左边开始的位置 */
-            transform: translate(-50%, -50%); /* 使用 transform 居中 */
+        .product-details {
+            display: flex;
+            flex-direction: row; /* Change from column to row */
+            justify-content: space-around;
+            align-items: flex-start;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #eaeaea;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
-        .no-products-animation p {
-            text-align: center;
-            font-size: 5em; /* 调整为您需要的大小 */
-            color: red;
+        .product-gallery, .product-info {
+            flex: 1;
         }
 
-        .classes-items {
-            text-align: center;
+        .product-image {
+            width: 350px; /* 设置图片宽度 */
+            height: auto; /* 设置图片高度自动 */
         }
 
-        .items {
-            text-align: center;
+        .product-gallery, .product-info {
+            flex: 1;
+            font-size: 24px; /* 设置字体大小 */
+        }
+
+        .product-info h1 {
+            font-size: 50px; /* 设置字体大小为 30px */
         }
 
     </style>
@@ -102,33 +105,24 @@
         <li class="items"><a
                 href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=9">智能家居设备</a></li>
     </ul>
-</div>
 
-<div>
     <main class="product-details">
         <section class="product-gallery">
             {% load static %}
             <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="{{ shop_product.name }}"
                  class="product-image">
-            <!-- 产品图片下方的缩略图列表 -->
         </section>
         <section class="product-info">
             <h1>{{ products.p_name }}</h1>
+            <p>类别：{{ products.p_type.category_name }}</p>  <!-- 添加商品类别 -->
+            <p>品牌：{{ products.brand }}</p>  <!-- 添加商品品牌 -->
             <p class="price">￥{{ shop_product.original_price }}</p>
-            <p>{{ shop_product.description }}</p>
-            <div class="promotion">
-                <!-- 促销信息内容 -->
-            </div>
-            <div class="reviews">
-                <!-- 用户评价内容 -->
-            </div>
-            <form action="/add-to-cart/" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ shop_product.shop_product_id }}">
-                <input type="hidden" name="user_id" value="{{ u_id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="buy-button">加入购物车</button>
-            </form>
+            <p>{{ shop_product.product_desc }}</p>
+            <p>状态：{{ shop_product.product_status }}</p>
+            <p>库存：{{ shop_product.stock_quantity }}</p>
+            <p>原始价格：{{ shop_product.original_price }}</p>
+            <p>折扣：{{ shop_product.discount }}</p>
+            <p>现在价格：{{ shop_product.current_price }}</p>
         </section>
     </main>
 </div>
