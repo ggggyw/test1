@@ -69,7 +69,7 @@ def shop_productdetails(request , p_id):
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
     products = Products.objects.get(p_id=shop_product.product_id)
     return render(request, 'shop_product_details.html',
-                  {'product': shop_product, 'products2': products, 'u_id': u_id, 'role': role})
+                  {'shop_product': shop_product, 'products': products, 'u_id': u_id, 'role': role})
 
 def manage_products(request):
     return render(request, 'shop_manage_products.html')
