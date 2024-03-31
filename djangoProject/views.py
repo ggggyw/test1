@@ -14,11 +14,12 @@ def home(request):
     request.session.clear()
     products = ShopProducts.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
-
+    products2 = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
     context = {
         'products': paged_products,
+        'products2':products2
     }
     return render(request, '首页.html',context)
 
