@@ -108,7 +108,7 @@
     <div class="goods-content">
         {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
             <div class="good">
-                <a href="{% url 'product_details' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
                     <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
                     {% for product2 in products %}
                         {% if product1.product_id == product2.p_id %}
