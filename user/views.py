@@ -13,6 +13,7 @@ from django.utils import timezone
 # Create your views here.
 def userpage(request):
     products = ShopProducts.objects.all()
+    products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
@@ -23,6 +24,7 @@ def userpage(request):
 
     context = {
         'products': paged_products,
+        'products2':products2,
         'user_id': u_id,
         'role': role
     }
@@ -119,7 +121,15 @@ def add_to_cart(request):
     return render(request,'productdetails.html',{'product': products,'products2':products2,'u_id':user_id,'role':role})
 
 def userorder(request):
-    return render(request,'userorder.html')
+    orders=Orders.objects.all()
+    ord_de=OrderDetails.objects.all()
+    u_id = request.session.get('u_id')
+    context={
+        'orders':orders,
+        'ord_de':ord_de,
+        'u_id':u_id
+    }
+    return render(request,'userorder.html',context)
 def userserve(request):
     return render(request,'userserve.html')
 def product_details(request, p_id):
