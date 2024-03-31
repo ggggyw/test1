@@ -32,12 +32,12 @@ def logout_view(request):
 
 def get_products(request):
     category_id = request.GET.get('category_id')
-    if category_id is not None:
+    if category_id is not None and category_id != '0':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
         shoppro = ShopProducts.objects.filter(product_id__in=ids)
     else:
-        # 如果没有接收到 category_id 参数，就获取所有商品
+        # 如果没有接收到 category_id 参数，或者 category_id 的值为 0，就获取所有商品
         shoppro = ShopProducts.objects.all()
     products2 = Products.objects.all()
 

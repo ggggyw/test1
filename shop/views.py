@@ -66,8 +66,10 @@ def get_products_fromshop(request):
 def manage_products(request):
     return render(request, 'shop_manage_products.html')
 
+
 def shop_order(request):
     return render(request, 'shop_order.html')
+
 
 def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
@@ -105,3 +107,12 @@ def myproducts(request):
 
     content = render_to_string(template_name, {'products': shoppro, 'products2': products2, 'category_id': category_id})
     return HttpResponse(content)
+
+
+def shop_productdetails(request , p_id):
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
+    product = ShopProducts.objects.get(shop_product_id=p_id)
+    products2 = Products.objects.get(p_id=product.product_id)
+    return render(request, 'shop_product_details.html',
+                  {'product': product, 'products2': products2, 'u_id': u_id, 'role': role})
