@@ -44,4 +44,5 @@ urlpatterns = [
     path('home/', views.home, name='home'),
     path('get_products/', views.get_products, name='get_products'),
     path('shop/', include('shop.urls')),
+    path('user_orders/', user_views.user_orders, name='user_orders'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
