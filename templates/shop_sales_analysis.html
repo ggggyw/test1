@@ -26,15 +26,6 @@
             }
         }
 
-        .no-products-animation {
-            display: none;
-            animation: fadeInOut 3s ease infinite;
-            position: fixed; /* 使用 fixed 定位 */
-            top: 50%; /* 从顶部开始的位置 */
-            left: 50%; /* 从左边开始的位置 */
-            transform: translate(-50%, -50%); /* 使用 transform 居中 */
-        }
-
         .no-products-animation p {
             text-align: center;
             font-size: 5em; /* 调整为您需要的大小 */
@@ -47,6 +38,13 @@
 
         .items {
             text-align: center;
+        }
+
+        .classes {
+            background: #f4f4f4;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
         }
 
     </style>
@@ -73,7 +71,7 @@
 <div class="classes">
     <ul class="classes-items">
 
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>

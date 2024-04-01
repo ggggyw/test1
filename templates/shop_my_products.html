@@ -49,6 +49,39 @@
             text-align: center;
         }
 
+        .classes {
+            background: #f4f4f4;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #pager {
+        text-align: center; /* 分页居中 */
+        font-size: 16px; /* 文字大小 */
+        overflow: hidden; /* 防止内容溢出 */
+        margin-top: 10px; /* 与顶部的间距 */
+        margin-bottom: 20px; /* 与底部的间距，可自行调整 */
+    }
+
+    #pager a {
+        display: inline-block; /* 以块级元素排列 */
+        padding: 5px 10px; /* 内间距：垂直和水平 */
+        margin: 5px; /* 与其他元素的间距 */
+        text-decoration: none; /* 去除下划线 */
+        color: #333; /* 文字颜色 */
+        border: 1px solid #ddd;  /* 边框颜色和样式 */
+        background-color: #f4f4f4; /* 背景颜色 */
+    }
+
+    #pager .current {
+        padding: 5px 10px; /* 当前页的内间距，与链接匹配 */
+        margin: 5px; /* 当前页的外间距，与链接匹配 */
+        border: 1px solid #ddd;  /* 当前页的边框颜色和样式 */
+        background-color: #e9e9e9; /* 当前页的背景颜色 */
+        font-weight: bold; /* 当前页加粗 */
+    }
+
     </style>
 </head>
 <body>
@@ -73,7 +106,7 @@
 <div class="classes">
     <ul class="classes-items">
 
-        <li class="items"><a id="my-products-link" href="http://127.0.0.1:8000/shop/shoppage/myproducts/">我的商品</a>
+        <li class="items"><a id="my-products-link" href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a>
         </li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
@@ -81,7 +114,8 @@
                              href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
     <ul class="classes-items">
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/">全部商品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">全部商品</a></li>
         <li class="items"><a
                 href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=1">个人电脑和配件</a></li>
         <li class="items"><a
@@ -105,17 +139,17 @@
 
 <div class="goods-model">
     <div class="goods-content">
-        {% for product in products %} <!-- 遍历所有商品对象 -->
+        {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
             <div class="good">
-                <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
-                    <img src="{% static '商品图片/'|add:product.product_image_url %}" width="285px" height="285px">
-                    {% for product2 in products2 %}
-                        {% if product.product_id == product2.p_id %}
+                <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                    <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
+                    {% for product2 in products %}
+                        {% if product1.product_id == product2.p_id %}
                             <p class="name">{{ product2.p_name }}</p>
                         {% endif %}
                     {% endfor %}
                     <div class="price">
-                        <p>￥{{ product.original_price }}</p>
+                        <p>￥{{ product1.original_price }}</p>
                         {#                    <s>￥499.00</s>#}
                     </div>
                     {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
@@ -127,24 +161,26 @@
             </div>
         {% empty %}
             <div class="no-products-animation">
-                <p>此类别还没有商品哦！</p>
+                <p>还没有商品哦！</p>
             </div>
         {% endfor %}
     </div>
 </div>
 
-<div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-    {% if products.has_previous %}
-        <a href="?category_id={{ category_id }}&page={{ products.previous_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
-    {% endif %}
+<div id="pager" class="pagination">
+    <span class="step-links">
+        {% if shop_products.has_previous %}
+            <a href="?category_id={{ category_id }}&page=1">&laquo; 第一页</a>
+            <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}">上一页</a>
+        {% endif %}
 
-    <span>第 {{ products.number }} 页, 共 {{ products.paginator.num_pages }} 页</span>
+        <span class="current">第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
 
-    {% if products.has_next %}
-        <a href="?category_id={{ category_id }}&page={{ products.next_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-    {% endif %}
+        {% if shop_products.has_next %}
+            <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}">下一页</a>
+            <a href="?category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
+        {% endif %}
+    </span>
 </div>
 
 
