@@ -32,6 +32,15 @@
             border-bottom: 1px solid #ccc;
         }
 
+        .no-products-animation {
+            display: none;
+            animation: fadeInOut 3s ease infinite;
+            position: fixed; /* 使用 fixed 定位 */
+            top: 50%; /* 从顶部开始的位置 */
+            left: 50%; /* 从左边开始的位置 */
+            transform: translate(-50%, -50%); /* 使用 transform 居中 */
+        }
+
         .no-products-animation p {
             text-align: center;
             font-size: 5em; /* 调整为您需要的大小 */
@@ -46,9 +55,78 @@
             text-align: center;
         }
 
-        tr {
-            padding: 25px 0;
+        th {
+            padding: 25px 0; /* 我们保留了原始的内边距 */
+            /* 定义每个标题的具体宽度 */
+            width: 120px; /* 选择列 */
         }
+
+        /* 为每个标题项单独设置宽度 */
+        th:nth-child(1) {
+            width: 60px;
+        }
+
+        /* 选择 */
+        th:nth-child(2) {
+            width: 200px;
+        }
+
+        /* 商品名称 */
+        th:nth-child(3) {
+            width: 110px;
+        }
+
+        /* 图片 */
+        th:nth-child(4) {
+            width: 150px;
+        }
+
+        /* 类别 */
+        th:nth-child(5) {
+            width: 120px;
+        }
+
+        /* 品牌 */
+        th:nth-child(6) {
+            width: 100px;
+        }
+
+        /* 价格 */
+        th:nth-child(7) {
+            width: 200px;
+        }
+
+        /* 描述 */
+        th:nth-child(8) {
+            width: 100px;
+        }
+
+        /* 状态 */
+        th:nth-child(9) {
+            width: 100px;
+        }
+
+        /* 库存 */
+        th:nth-child(10) {
+            width: 120px;
+        }
+
+        /* 原始价格 */
+        th:nth-child(11) {
+            width: 80px;
+        }
+
+        /* 折扣 */
+        th:nth-child(12) {
+            width: 100px;
+        }
+
+        /* 现在价格 */
+        th:nth-child(13) {
+            width: 80px;
+        }
+
+        /* 详情 */
 
         th {
             padding: 25px 0;
@@ -63,6 +141,7 @@
             margin-top: 20px; /* 顶部距离，可根据需要调整 */
             margin-bottom: 20px; /* 底部距离，可根据需要调整 */
         }
+
 
         .pagination .step-links a,
         .pagination .step-links span {
@@ -107,47 +186,82 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
+    <ul class="classes-items">
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">全部商品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=1">个人电脑和配件</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=2">移动设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=3">家用电子产品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=4">厨房电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=5">办公设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=6">汽车电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=7">网络和通信设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=8">可穿戴设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=9">智能家居设备</a></li>
+    </ul>
 
 
-    <table>
-        <tr>
-            <th>选择</th> <!-- 新增的表头 -->
-            <th>商品名称</th>
-            <th>图片</th>
-            <th>类别</th>
-            <th>品牌</th>
-            <th>价格</th>
-            <th>描述</th>
-            <th>状态</th>
-            <th>库存</th>
-            <th>原始价格</th>
-            <th>折扣</th>
-            <th>现在价格</th>
-        </tr>
-        {% for shop_product in shop_products %}
+    {% if shop_products %}
+        <table>
             <tr>
-                <td>
-                    <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"
-                           name="product_selection">
-                    <label for="product_selection_{{ shop_product.shop_product_id }}"></label>
-                </td>
-                <td>{{ shop_product.product.p_name }}</td>
-                <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片" width="100px"
-                         height="100px"></td>
-                <td>{{ shop_product.product.p_type.category_name }}</td>
-                <td>{{ shop_product.product.brand }}</td>
-                <td>{{ shop_product.current_price }}</td>
-                <td>{{ shop_product.product_desc }}</td>
-                <td>{{ shop_product.product_status }}</td>
-                <td>{{ shop_product.stock_quantity }}</td>
-                <td>{{ shop_product.original_price }}</td>
-                <td>{{ shop_product.discount }}%</td>
-                <td>{{ shop_product.current_price }}</td>
+                <th>选择</th>
+                <th>商品名称</th>
+                <th>图片</th>
+                <th>类别</th>
+                <th>品牌</th>
+                <th>价格</th>
+                <th>描述</th>
+                <th>状态</th>
+                <th>库存</th>
+                <th>原始价格</th>
+                <th>折扣</th>
+                <th>现在价格</th>
+                <th>详情</th>
+                <th>修改</th>
             </tr>
-        {% endfor %}
-    </table>
-
-    <div class="pagination">
+            {% for shop_product in shop_products %}
+                <tr>
+                    <td>
+                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"
+                               name="product_selection">
+                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>
+                    </td>
+                    <td>{{ shop_product.product.p_name }}</td>
+                    <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片"
+                             width="100px"
+                             height="100px"></td>
+                    <td>{{ shop_product.product.p_type.category_name }}</td>
+                    <td>{{ shop_product.product.brand }}</td>
+                    <td>{{ shop_product.current_price }}</td>
+                    <td>{{ shop_product.product_desc }}</td>
+                    <td>{{ shop_product.product_status }}</td>
+                    <td>{{ shop_product.stock_quantity }}</td>
+                    <td>{{ shop_product.original_price }}</td>
+                    <td>{{ shop_product.discount }}%</td>
+                    <td>{{ shop_product.current_price }}</td>
+                    <td>
+                        <!-- 新增的详情按钮 -->
+                        <a href="{% url 'shop_productdetails' shop_product.shop_product_id %}"
+                           class="btn btn-info">详情</a>
+                    </td>
+                    <td>
+                        <!-- 修改按钮 -->
+                        <a href="{% url 'edit_product' shop_product.shop_product_id %}"
+                           class="btn btn-primary">修改</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="pagination">
     <span class="step-links">
         {% if shop_products.has_previous %}
             <a href="?page=1">&laquo; 第一页</a>
@@ -163,7 +277,23 @@
             <a href="?page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
         {% endif %}
     </span>
-    </div>
+        </div>
+    {% else %}
+        <div class="no-products-animation">
+            <p>还没有商品哦！</p>
+        </div>
+    {% endif %}
+    {% block javascript %}
+        <script>
+            // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
+            $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
+            $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelector('.no-products-animation').style.display = 'block';
+            });
+        </script>
+    {% endblock %}
+
 </div>
 
 
