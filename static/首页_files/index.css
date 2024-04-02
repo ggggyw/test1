@@ -86,14 +86,14 @@ a {
     height: 30px;
 }
 
-.options>li.sub {
+.options > li.sub {
     height: 30px;
     line-height: 30px;
     margin-left: 17px;
     float: left;
 }
 
-.options>li.sub>a {
+.options > li.sub > a {
     font-size: 12px;
 }
 
@@ -111,7 +111,7 @@ a {
     float: right;
 }
 
-.register>a {
+.register > a {
     color: #ff464e;
 }
 
@@ -128,8 +128,9 @@ a {
     margin: 21px auto 0;
     overflow: hidden;
 }
-.logo{
-    top:0;
+
+.logo {
+    top: 0;
     left: 0;
     position: absolute;
 }
@@ -141,41 +142,47 @@ a {
     width: 435px;
 }
 
-.search .items>li.item {
+.search .items > li.item {
     float: left;
     height: 44px;
     line-height: 44px;
 }
-.search .items>li.item>a{
+
+.search .items > li.item > a {
     display: block;
 }
-.search .items>li.item img{
-    display:block;
+
+.search .items > li.item img {
+    display: block;
     width: 30px;
     height: 30px;
     margin-top: 6px;
     float: left;
 }
-.search .items>li.item p{
-    display:block;
+
+.search .items > li.item p {
+    display: block;
     padding: 0 20px 0 10px;
     float: left;
 }
-.search .input{
+
+.search .input {
     position: absolute;
     top: 6px;
     right: 0;
     width: 237px;
     height: 35px;
 }
-.search .input>input{
+
+.search .input > input {
     float: left;
     display: block;
     width: 200px;
     height: 35px;
     background-color: #efefef;
 }
-.search .input>img{
+
+.search .input > img {
     float: left;
     display: block;
     width: 37px;
@@ -184,21 +191,24 @@ a {
 
 
 /*导航*/
-.nav{
+.nav {
     height: 38px;
     border-bottom: 2px solid #ff464e;
 }
-.nav-content{
+
+.nav-content {
     width: 1200px;
     height: 38px;
     margin: 0 auto;
 }
-.nav_items{
+
+.nav_items {
     float: left;
     width: 624px;
     height: 38px;
 }
-.nav_items>li.item{
+
+.nav_items > li.item {
     float: left;
     width: 104px;
     height: 38px;
@@ -207,10 +217,12 @@ a {
     text-align: center;
     line-height: 38px;
 }
-.nav_items>li.item.active{
+
+.nav_items > li.item.active {
     background-color: #ff464e;
 }
-.qiandao{
+
+.qiandao {
     float: right;
     width: 105px;
     height: 19px;
@@ -219,32 +231,37 @@ a {
 
 
 /*分类classes*/
-.classes{
+.classes {
     width: 1200px;
     height: 50px;
     margin: 0 auto;
 }
-.todayNew{
+
+.todayNew {
     float: left;
     width: 71px;
     height: 50px;
     line-height: 50px;
 }
-.classes-items{
+
+.classes-items {
     float: left;
     width: 1300px; /* 增大宽度 */
     height: 50px;
     margin-left: 15px;
 }
-.classes-items>li.items{
+
+.classes-items > li.items {
     float: left;
     width: 120px;
     height: 50px;
     padding-top: 15px;
 }
-.classes-items>li.items.active a{
+
+.classes-items > li.items.active a {
     color: #ff464e;
 }
+
 .classes-items .items a {
     font-size: 14px;
     text-align: center;
@@ -255,7 +272,22 @@ a {
     margin: 0 5px
 }
 
-.willOnline{
+.content {
+    display: flex; /* 启用Flexbox */
+    justify-content: space-between; /* 在子元素之间保持间距 */
+    align-items: flex-start; /* 使子元素在顶部对齐 */
+    margin-top: 20px; /* 上边距，视需求而定 */
+}
+
+.product-info, .edit-form {
+    width: 48%; /* 使两个子元素宽度相似，视需求调整 */
+    /* 可以添加一些内边距(padding)来保持内容不会挤到边界 */
+    padding: 10px;
+    box-sizing: border-box; /* 确保内边距和边框包含在宽度内 */
+}
+
+
+.willOnline {
     float: left;
     width: 71px;
     height: 50px;
@@ -265,19 +297,22 @@ a {
 
 
 /*商品卡片*/
-.goods-model, .detail-body{
+.goods-model, .detail-body {
     background-color: #f6f6f6;
 }
-.goods-model{
+
+.goods-model {
     min-height: 1000px;
 }
-.goods-content{
+
+.goods-content {
     width: 1220px;
     height: auto;
     margin: 0 auto;
     overflow: hidden;
 }
-.good{
+
+.good {
     position: relative;
     float: left;
     margin-right: 20px;
@@ -287,12 +322,14 @@ a {
     background-color: #ffffff;
     overflow: hidden;
 }
-.good>a>p.name{
+
+.good > a > p.name {
     margin-top: 14px;
     margin-left: 15px;
     font-size: 20px;
 }
-.good .price{
+
+.good .price {
     position: absolute;
     bottom: 15px;
     left: 0;
@@ -300,33 +337,38 @@ a {
     height: 30px;
     padding-left: 8px;
 }
-.good .price i,.good .price p,.good .price s{
+
+.good .price i, .good .price p, .good .price s {
     display: block;
     float: left;
 }
-.good .price i{
+
+.good .price i {
     margin-top: 17px;
 }
-.good .price p{
+
+.good .price p {
     font-size: 30px;
     color: #ff464e;
 }
-.good .price s{
+
+.good .price s {
     margin-top: 17px;
     color: #bbc6dd;
 }
-.good .sale{
+
+.good .sale {
     position: absolute;
     bottom: 15px;
-    right:11px;
-    color:#ff464e;
+    right: 11px;
+    color: #ff464e;
 }
 
 
-.page{
-    width:100px;
-    height:100px;
-    margin:0 auto;
-    background-color:#ff464e;
-    text-align:center;
+.page {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    background-color: #ff464e;
+    text-align: center;
 }
