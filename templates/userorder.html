@@ -43,7 +43,7 @@
         display: flex;
         justify-content: space-around;
         padding: 10px 0;
-        width: 450px;
+        width: 400px;
     }
     .order-details {
         display: flex;
@@ -57,7 +57,7 @@
     }
     .order-options > li {
         flex: 1;
-        text-align: left;
+        text-align: center;
         padding: 5px 0px;
         margin-right: 0px;
 
@@ -124,13 +124,49 @@
     </div>
     </div>
 
-
 </div>
 
 
 
 
 <script>
+    //有问题，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，
+$(document).ready(function() {
+    $.ajax({
+        url: '/user_orders/',  // 后端 API 地址
+        type: 'GET',
+        success: function(response) {
+            var ordersData = response.orders;
+            var ordersContent = '';
+            alert(ordersData)
+            for (var i = 0; i < ordersData.length; i++) {
+
+                var order = ordersData[i];
+                var orderDetailsContent = '';
+                for (var j = 0; j < order.order_details.length; j++) {
+                    var orderDetail = order.order_details[j];
+                    orderDetailsContent += '<div class="product">' +
+                        '<img src="' + orderDetail.product_image_url + '">' +
+                        '<p>' + orderDetail.product_name + '</p>' +
+                        '<p>数量：' + orderDetail.quantity + '</p>' +
+                        '<p>价格：' + orderDetail.price + '</p>' +
+                        '</div>';
+                }
+                ordersContent += '<div class="order">' +
+                    '<p>订单号：' + order.order_id + '</p>' +
+                    '<div class="order-details">' + orderDetailsContent + '</div>' +
+                    '<p>总金额：' + order.total_amount + '</p>' +
+                    '<p>状态：' + order.status + '</p>' +
+                    '</div>';
+            }
+            $('#orders-container').html(ordersContent);
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+            $('#orders-container').html('<p>获取订单失败</p>');
+        }
+    });
+});
 
 </script>
 

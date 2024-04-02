@@ -1,4 +1,5 @@
 from django.core.paginator import Paginator
+from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
@@ -121,13 +122,16 @@ def add_to_cart(request):
     return render(request,'productdetails.html',{'product': products,'products2':products2,'u_id':user_id,'role':role})
 
 def userorder(request):
-    orders=Orders.objects.all()
     ord_de=OrderDetails.objects.all()
     u_id = request.session.get('u_id')
+    orders=Orders.objects.filter(user_id=u_id)
+    order_ids = [order.o_id for order in orders]
+    print(order_ids)
     context={
         'orders':orders,
         'ord_de':ord_de,
-        'u_id':u_id
+        'u_id':u_id,
+        'order_ids':order_ids
     }
     return render(request,'userorder.html',context)
 def userserve(request):
@@ -196,3 +200,27 @@ def update_quantity(request):
             return JsonResponse({'success': False, 'message': '商品不存在'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': '更新失败'})
+
+def user_orders(request):
+    user_id = request.session.get('u_id')
+    try:
+        orders = Orders.objects.filter(user_id=user_id).prefetch_related(
+            Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
+        )
+
+        orders_data = [{
+            'order_id': order.o_id,
+            'order_details': [{
+                'product_name': Products.objects.get(p_id=detail.product.shop_product_id).p_name,
+                'product_image_url': detail.product.product_image_url,
+                'quantity': detail.quantity,
+                'price': detail.current_single_price,
+            } for detail in order.orderdetails_set.all()],
+            'total_amount': order.total_price,
+            'status': order.status,
+        } for order in orders]
+
+        return JsonResponse({'orders': orders_data})
+    except Exception as e:
+        print("Error:", e)
+        return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)

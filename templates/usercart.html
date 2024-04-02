@@ -242,7 +242,8 @@ document.querySelectorAll('.item-remove').forEach(function(removeButton) {
         });
     });
 });
-//不能输入enter键，很奇怪，提示csrf有毛病
+//不能输入enter键，很奇怪，提示csrf有毛病-----------------------------------------------------------------------
+//—-------------------------------------------------------------------------------------------------
 document.querySelectorAll('.item-quantity').forEach(function(removeButton) {
     removeButton.addEventListener('change', function() {
         var item = this.closest('.cart-item');
