@@ -5,52 +5,13 @@
     {% load static %}
     <title>shop_product_details</title>
     <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <link rel="stylesheet" href="{% static '商品详情页/base.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
-
-    <style>
-        .classes {
-            background: #f4f4f4; /* Example background color for the classes bar */
-            padding: 10px 0; /* Add some padding around the classes bar */
-            margin-bottom: 20px; /* Add space below the classes bar before product details */
-            border-bottom: 1px solid #ccc; /* Add a border line below the classes bar */
-        }
-
-        .product-details {
-            display: flex;
-            flex-direction: row; /* Change from column to row */
-            justify-content: space-around;
-            align-items: flex-start;
-            padding: 20px;
-            background: #fff;
-            border: 1px solid #eaeaea;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .product-gallery, .product-info {
-            flex: 1;
-        }
-
-        .product-image {
-            width: 350px; /* 设置图片宽度 */
-            height: auto; /* 设置图片高度自动 */
-        }
-
-        .product-gallery, .product-info {
-            flex: 1;
-            font-size: 24px; /* 设置字体大小 */
-        }
-
-        .product-info h1 {
-            font-size: 50px; /* 设置字体大小为 30px */
-        }
 
     </style>
 </head>
@@ -113,20 +74,26 @@
                  class="product-image">
         </section>
         <section class="product-info">
-            <h1>{{ products.p_name }}</h1>
-            <p>类别：{{ products.p_type.category_name }}</p>  <!-- 添加商品类别 -->
-            <p>品牌：{{ products.brand }}</p>  <!-- 添加商品品牌 -->
-            <p class="price">￥{{ shop_product.original_price }}</p>
-            <p>{{ shop_product.product_desc }}</p>
-            <p>状态：{{ shop_product.product_status }}</p>
-            <p>库存：{{ shop_product.stock_quantity }}</p>
-            <p>原始价格：{{ shop_product.original_price }}</p>
-            <p>折扣：{{ shop_product.discount }}</p>
-            <p>现在价格：{{ shop_product.current_price }}</p>
-        </section>
+    <h1>{{ products.p_name }}</h1>
+    <p>类别：{{ products.p_type.category_name }}</p>  <!-- 添加商品类别 -->
+    <p>品牌：{{ products.brand }}</p>  <!-- 添加商品品牌 -->
+    <p class="price">￥{{ shop_product.original_price }}</p>
+    <p>{{ shop_product.product_desc }}</p>
+    <p>库存：{{ shop_product.stock_quantity }}</p>
+    <p>原始价格：{{ shop_product.original_price }}</p>
+    <p>折扣：{{ shop_product.discount }}</p>
+    <p>现在价格：{{ shop_product.current_price }}</p>
+    <div class="num">
+        <p class="p-item">
+            数量：
+        </p>
+        <div class="jian">-</div>
+        <input type="number" name="" value="1">
+        <div class="jia">+</div>
+    </div>
+</section>
     </main>
 </div>
-
 
 </body>
 </html>
