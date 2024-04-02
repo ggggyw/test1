@@ -126,31 +126,69 @@
             var currentQuantity = parseInt(quantityInput.value, 10);
             quantityInput.value = currentQuantity + 1;
         });
+        // 在 buy-button 的点击事件中添加以下代码
+    var buyButton = document.querySelector('.buy-button');
+    var alertBar = document.createElement('div');
+    var alertMessage = document.createElement('span');
+    var alertCancel = document.createElement('button');
+
+    buyButton.addEventListener('click', function(event) {
         {% if not u_id %}
-    var alertBar = document.getElementById('alert-bar');
-    var alertMessage = document.getElementById('alert-message');
-    var alertCancel = document.getElementById('alert-cancel');
-    var countdown = 3;
+            event.preventDefault(); // 阻止表单提交
 
-    function updateAlert() {
-        if (countdown > 0) {
-            alertMessage.textContent = '请先登录，' + countdown + '秒后将自动跳转到登录页面';
-            countdown--;
-        } else {
-            window.location.href = '/user/login';  // 修改为你的登录页面的 URL
-        }
-    }
+            alertBar.id = 'alert-bar';
+            alertBar.style.position = 'fixed';
+            alertBar.style.top = '0';
+            alertBar.style.left = '0';
+            alertBar.style.right = '0';
+            alertBar.style.backgroundColor = alertBar.style.backgroundColor = 'red'; /* 将背景颜色改为红色 */
+            alertBar.style.color = 'white'; // 修改颜色为红色
+            alertBar.style.textAlign = 'center'; // 添加文字居中样式
+            alertBar.style.padding = '20px';
+            alertBar.style.zIndex = '9999';
 
-    alertBar.style.display = 'block';
-    updateAlert();
-    var intervalId = setInterval(updateAlert, 1000);
+            alertMessage.id = 'alert-message';
+            alertMessage.textContent = '您尚未登录,即将跳转至登录界面,3...';
 
-    alertCancel.addEventListener('click', function() {
-        clearInterval(intervalId);
-        alertBar.style.display = 'none';
+            alertCancel.id = 'alert-cancel';
+            alertCancel.textContent = '取消';
+            alertCancel.style.padding = '8px 16px'; /* 增加按钮内边距 */
+            alertCancel.style.fontSize = '14px'; /* 增加字体大小 */
+            alertCancel.style.backgroundColor = 'white'; /* 设置背景颜色为白色 */
+            alertCancel.style.color = 'red'; /* 设置文字颜色为红色 */
+            alertCancel.style.border = 'none'; /* 移除边框 */
+            alertCancel.style.borderRadius = '4px'; /* 设置圆角边框 */
+            alertCancel.style.cursor = 'pointer'; /* 设置鼠标指针为手型 */
+
+            alertBar.appendChild(alertMessage);
+            alertBar.appendChild(alertCancel);
+            document.body.appendChild(alertBar);
+
+            var countdown = 2;
+            var intervalId = setInterval(function() {
+                if (countdown > 0) {
+                    alertMessage.textContent = '您尚未登录,即将跳转至登录界面,' + countdown + '...';
+                    countdown--;
+                } else {
+                    clearInterval(intervalId);
+                    window.location.href = '/user/login'; // 修改为您的登录页面 URL
+                }
+            }, 1000);
+
+            alertCancel.addEventListener('click', function() {
+                clearInterval(intervalId);
+                document.body.removeChild(alertBar);
+            });
+        {% endif %}
     });
-{% endif %}
-    </script>
+
+    // 在页面卸载时移除提示条元素
+    window.addEventListener('beforeunload', function() {
+        if (alertBar && alertBar.parentNode) {
+            alertBar.parentNode.removeChild(alertBar);
+        }
+    });
+</script>
 
 </body>
 </html>
