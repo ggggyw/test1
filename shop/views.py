@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -109,9 +110,11 @@ def edit_product(request, product_id):
             product_form.save()
             # 更新ShopProducts实例
             shop_product_form.save()
-
-            # 保存后重定向回管理商品页面
-            return redirect('manage_products')
+            messages.success(request, '修改成功！')
+            # 保存后重定向回修改商品页面
+            return redirect('edit_product', product_id=product_id)
+        else:
+            messages.error(request, '修改不成功，请重新修改。')
     else:
         # GET 请求，创建表单并填充当前模型实例数据
         product_form = ProductForm(instance=product)
