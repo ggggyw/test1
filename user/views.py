@@ -9,6 +9,7 @@ from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.contrib import messages
 
 
 # Create your views here.
@@ -99,11 +100,15 @@ def usercart(request):
 @require_POST
 def add_to_cart(request):
     product_id = request.POST.get('product_id')
-    user_id=request.POST.get('user_id')
+    user_id = request.POST.get('user_id')
+    if user_id is None or user_id == 'None':
+        messages.error(request, '请先登录')
+        return redirect('login')
+    user_id = int(user_id)  # 尝试将 user_id 转换为整数
     products = ShopProducts.objects.filter(product_id=product_id).first()
     products2 = Products.objects.filter(p_id=product_id).first()
     quantity = int(request.POST.get('quantity', 1))
-    shop_id=products.shop_id
+    shop_id = products.shop_id
 
     # 获取或创建购物车项
     cart, created = Carts.objects.get_or_create(
@@ -111,7 +116,7 @@ def add_to_cart(request):
         user_id=user_id,
         shop_id=shop_id,
         defaults={'quantity': 0,
-                  'join_time':'2023-03-19 00:00'}
+                  'join_time': '2023-03-19 00:00'}
     )
     role = request.session.get('role')
     # 更新数量
@@ -119,7 +124,8 @@ def add_to_cart(request):
     cart.join_time = timezone.now()
     cart.save()
     # 网页跳转问题，如何动态添加，暂时还没想好真的要用javascript吗？
-    return render(request,'productdetails.html',{'product': products,'products2':products2,'u_id':user_id,'role':role})
+    return render(request, 'productdetails.html', {'product': products, 'products2': products2, 'u_id': user_id, 'role': role})
+
 
 def userorder(request):
     ord_de=OrderDetails.objects.all()
