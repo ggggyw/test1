@@ -262,21 +262,29 @@
             {% endfor %}
         </table>
         <div class="pagination">
-    <span class="step-links">
-        {% if shop_products.has_previous %}
-            <a href="?page=1">&laquo; 第一页</a>
-            <a href="?page={{ shop_products.previous_page_number }}">上一页</a>
-        {% endif %}
+        <span class="step-links">
+            {% if shop_products.has_previous %}
+                <a href="?page=1">&laquo; 第一页</a>
+                <a href="?page={{ shop_products.previous_page_number }}">上一页</a>
+            {% endif %}
 
-        <span class="current">
-            第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
+            <span class="current">
+                第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
+            </span>
+
+            {% if shop_products.has_next %}
+                <a href="?page={{ shop_products.next_page_number }}">下一页</a>
+                <a href="?page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
+            {% endif %}
         </span>
 
-        {% if shop_products.has_next %}
-            <a href="?page={{ shop_products.next_page_number }}">下一页</a>
-            <a href="?page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
-        {% endif %}
-    </span>
+            <!-- 页码跳转表单 -->
+            <form action="" method="get" style="display: inline-block;">
+                <!-- 如果有其他查询参数，务必在这里添加相应的input hidden字段 -->
+                <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
+                       placeholder="页码" style="margin-left: 10px;">
+                <input type="submit" value="跳转">
+            </form>
         </div>
     {% else %}
         <div class="no-products-animation">
