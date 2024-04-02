@@ -7,6 +7,8 @@ class ProductCategories(models.Model):
 
     class Meta:
         db_table = 'product_categories'
+    def __str__(self):
+        return self.category_name
 
 
 class Products(models.Model):
