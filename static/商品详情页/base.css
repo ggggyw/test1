@@ -1,0 +1,86 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.product-details {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.product-gallery {
+    flex: 1;
+    text-align: center;
+}
+
+.product-gallery .product-image {
+    max-width: 100%;
+    height: auto;
+}
+
+.product-info {
+    flex: 2;
+    padding-left: 20px;
+}
+
+.product-info h1 {
+    font-size: 24px;
+    color: #333;
+}
+
+.product-info p {
+    font-size: 16px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.product-info .price {
+    font-size: 16px;
+    color: #666;
+    text-decoration: line-through;  /* 添加删除线样式 */
+}
+
+.product-info p:nth-child(3) {
+    font-size: 20px;
+    color: #e60000;
+    font-weight: bold;
+}
+
+
+.quantity {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.quantity button {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    font-size: 20px;
+    line-height: 30px;
+    text-align: center;
+    cursor: pointer;
+}
+
+#quantity {
+    width: 50px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ccc;
+    margin: 0 10px;
+}
+
+.buy-button {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #e60000;
+    color: #fff;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
