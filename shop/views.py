@@ -2,7 +2,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
-
+from .forms import ShopProductForm, ProductForm
 from common.models import ShopProducts, ProductCategories, Products
 
 
@@ -97,15 +97,33 @@ def manage_products(request):
 
 
 def edit_product(request, product_id):
-    product = get_object_or_404(ShopProducts, pk=product_id)
-    if request.method == "POST":
-        # 这里处理表单提交的数据，更新产品信息
-        # 可以使用ModelForm或直接从request.POST中获取数据并更新
-        return redirect('shop_manage_products')  # 保存后重定向回管理商品页面
-    else:
-        # GET请求时显示带有产品信息的编辑表单
-        return render(request, 'shop_edit_product.html', {'product': product})
+    shop_product = get_object_or_404(ShopProducts, pk=product_id)
+    product = shop_product.product
 
+    if request.method == "POST":
+        product_form = ProductForm(request.POST, instance=product)
+        shop_product_form = ShopProductForm(request.POST, instance=shop_product)
+
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 更新Products实例
+            product_form.save()
+            # 更新ShopProducts实例
+            shop_product_form.save()
+
+            # 保存后重定向回管理商品页面
+            return redirect('manage_products')
+    else:
+        # GET 请求，创建表单并填充当前模型实例数据
+        product_form = ProductForm(instance=product)
+        shop_product_form = ShopProductForm(instance=shop_product)
+
+    # 将表单传递给模板
+    context = {
+        'product_form': product_form,
+        'shop_product_form': shop_product_form,
+        'shop_products': shop_product
+    }
+    return render(request, 'shop_edit_product.html', context)
 
 def delete_product(request):
     return None
