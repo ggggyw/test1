@@ -167,20 +167,37 @@
     </div>
 </div>
 
-<div id="pager" class="pagination">
-    <span class="step-links">
-        {% if shop_products.has_previous %}
-            <a href="?category_id={{ category_id }}&page=1">&laquo; 第一页</a>
-            <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}">上一页</a>
-        {% endif %}
+<div id="pager" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    <!-- 如果不是第一页，添加跳转到第一页的链接 -->
+    {% if shop_products.number != 1 %}
+        <a href="?category_id={{ category_id }}&page=1"
+           style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
+    {% endif %}
 
-        <span class="current">第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
+    {% if shop_products.has_previous %}
+        <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+    {% endif %}
 
-        {% if shop_products.has_next %}
-            <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}">下一页</a>
-            <a href="?category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
-        {% endif %}
-    </span>
+    <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
+
+    {% if shop_products.has_next %}
+        <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+    {% endif %}
+
+    <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
+    {% if shop_products.number != shop_products.paginator.num_pages %}
+        <a href="?category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
+    {% endif %}
+    <!-- 添加页面跳转功能 -->
+    <form action="" method="get" style="display: inline-block;">
+        <input type="hidden" name="category_id" value="{{ category_id }}">
+        <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
+               placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
+        <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
+    </form>
 </div>
 
 
