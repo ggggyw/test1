@@ -235,6 +235,7 @@ a {
     width: 1200px;
     height: 50px;
     margin: 0 auto;
+    background-color: #f6f6f6
 }
 
 .todayNew {
@@ -274,7 +275,7 @@ a {
 
 .content {
     display: flex; /* 启用Flexbox */
-    justify-content: flex-start; /* 从左边开始排列子元素 */
+    justify-content: center; /* 从左边开始排列子元素 */
     align-items: flex-start; /* 使子元素在顶部对齐 */
     margin-top: 20px; /* 上边距，视需求而定 */
     gap: 20px; /* 在子元素之间添加间距 */
@@ -282,9 +283,9 @@ a {
 }
 
 .product-info, .edit-form {
-    width: 45%; /* 调整宽度以适应间距 */
+    width: 30%; /* 调整宽度以适应间距 */
     /* 可以添加一些内边距(padding)来保持内容不会挤到边界 */
-    padding: 10px;
+    padding: 50px;
     box-sizing: border-box; /* 确保内边距和边框包含在宽度内 */
 }
 
@@ -296,7 +297,6 @@ a {
     line-height: 50px;
     color: #336600;
 }
-
 
 /*商品卡片*/
 .goods-model, .detail-body {
