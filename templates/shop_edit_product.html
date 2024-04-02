@@ -6,18 +6,33 @@
     <title>shop_edit_product</title>
     <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
     <style>
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
+        .messages {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 1000; /* 确保提示框显示在最上层 */
+            text-align: center;
+            width: auto;
         }
 
+        .message {
+            background-color: #93ff97; /* 背景色 */
+            color: #000000; /* 字体色 */
+            border: 1px solid #bafd96;
+            padding: 10px; /* 内边距 */
+            margin-bottom: 10px; /* 外边距 */
+            display: inline-block;
+            border-radius: 5px; /* 边框圆角 */
+        }
+
+        /* 淡出动画 */
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -101,6 +116,31 @@
         </form>
     </div>
 </div>
+{% if messages %}
+    <div id="message-container" class="messages">
+        {% for message in messages %}
+            <div class="{{ message.tags }} message">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<script>
+    // 当页面加载完成后执行此函数
+    window.onload = function() {
+        // 查找消息容器
+        var messageContainer = document.getElementById('message-container');
+
+        if (messageContainer) {
+            // 设置5秒后执行淡出动画
+            setTimeout(function() {
+                messageContainer.style.opacity = '0'; // 设置透明度为 0 触发消失效果
+                setTimeout(function() {
+                    messageContainer.style.display = 'none'; // 设置display为none来完全隐藏
+                }, 1000); // 额外的时间确保透明度动画完成
+            }, 2000); // 你可以调整这里的时间来控制消息显示多久
+        }
+    };
+</script>
 
 </body>
 </html>
