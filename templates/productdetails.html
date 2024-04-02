@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <link rel="stylesheet" href="{% static '商品详情页/base.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 </head>
@@ -90,26 +91,66 @@
             <!-- 产品图片下方的缩略图列表 -->
         </section>
         <section class="product-info">
-            <h1>{{ products2.p_name }}</h1>
-            <p class="price">￥{{ product.original_price }}</p>
-            <p>{{ product.description }}</p>
-            <div class="promotion">
-                <!-- 促销信息内容 -->
-            </div>
-            <div class="reviews">
-                <!-- 用户评价内容 -->
-            </div>
+            <h1>{{ product.p_name }}</h1>  <!-- 商品名 -->
+            <p class="price">原价价格：￥{{ product.original_price }}</p>  <!-- 打折前价格 -->
+            <p>现价：￥{{ product.current_price }}</p>  <!-- 现在价格 -->
+            <p>库存：{{ product.stock_quantity }}</p>  <!-- 商品剩余数量 -->
             <form action="/add-to-cart/" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.shop_product_id }}">
-                <input type="hidden" name="user_id" value="{{ u_id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="buy-button">加入购物车</button>
-            </form>
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.shop_product_id }}">
+    <input type="hidden" name="user_id" value="{{ u_id }}">
+    <div class="quantity">
+        <button type="button" id="decrease">-</button>
+        <input type="number" id="quantity" name="quantity" value="1" min="1">
+        <button type="button" id="increase">+</button>
+    </div>
+    <button type="submit" class="buy-button">加入购物车</button>
+    </form>
+            <p>商品描述：{{ product.product_desc }}</p>  <!-- 商品描述 -->
         </section>
     </main>
     </div>
+<script>
+        var decreaseButton = document.getElementById('decrease');
+        var increaseButton = document.getElementById('increase');
+        var quantityInput = document.getElementById('quantity');
 
+        decreaseButton.addEventListener('click', function() {
+            var currentQuantity = parseInt(quantityInput.value, 10);
+            if (currentQuantity > 1) {
+                quantityInput.value = currentQuantity - 1;
+            }
+        });
+
+        increaseButton.addEventListener('click', function() {
+            var currentQuantity = parseInt(quantityInput.value, 10);
+            quantityInput.value = currentQuantity + 1;
+        });
+        {% if not u_id %}
+    var alertBar = document.getElementById('alert-bar');
+    var alertMessage = document.getElementById('alert-message');
+    var alertCancel = document.getElementById('alert-cancel');
+    var countdown = 3;
+
+    function updateAlert() {
+        if (countdown > 0) {
+            alertMessage.textContent = '请先登录，' + countdown + '秒后将自动跳转到登录页面';
+            countdown--;
+        } else {
+            window.location.href = '/user/login';  // 修改为你的登录页面的 URL
+        }
+    }
+
+    alertBar.style.display = 'block';
+    updateAlert();
+    var intervalId = setInterval(updateAlert, 1000);
+
+    alertCancel.addEventListener('click', function() {
+        clearInterval(intervalId);
+        alertBar.style.display = 'none';
+    });
+{% endif %}
+    </script>
 
 </body>
 </html>
