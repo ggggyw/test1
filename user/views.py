@@ -218,6 +218,7 @@ def user_orders(request):
             } for detail in order.orderdetails_set.all()],
             'total_amount': order.total_price,
             'status': order.status,
+            'user_id':order.user_id,
         } for order in orders]
 
         return JsonResponse({'orders': orders_data})

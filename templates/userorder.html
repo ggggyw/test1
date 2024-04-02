@@ -4,14 +4,8 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
     <title>订单</title>
-    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
-    <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
         {% load static %}
@@ -62,6 +56,72 @@
         margin-right: 0px;
 
     }
+.oorder-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+    width: 100%;
+    /* 设置弹性容器的内边距为0，确保没有额外的空间 */
+    gap: 0;
+}
+
+.oorder-details-block {
+    flex: 1;
+    margin-right: 10px;
+    /* 调整宽度 */
+    width: 19%; /* 使用19%确保五个子元素紧挨着 */
+}
+
+.total-amount,
+.status {
+    /* 调整宽度 */
+    text-align: center;
+    width: 19%; /* 使用19%确保五个子元素紧挨着 */
+}
+.user_id{
+    /* 调整宽度 */
+    text-align: center;
+    width: 19%; /* 使用19%确保五个子元素紧挨着 */
+}
+.caozuo{
+    /* 调整宽度 */
+    text-align: center;
+    width: 19%; /* 使用19%确保五个子元素紧挨着 */
+}
+.oorder-container .oorder-product-details {
+    display: flex;
+    {#flex-direction: column;#}
+}
+
+.oorder-container .oorder-product img {
+    width: 90px;
+    height: 90px;
+    margin-right: 10px;
+}
+
+.oorder-container .oorder-product p {
+    margin: 0;
+}
+
+.oorder-container p {
+    margin: 5px 0;
+}
+
+.oorder-details {
+    display: flex;
+    flex-direction: column;
+    width: 180px;
+}
+
+.oorder-details .oorder-product {
+    display: flex;
+    align-items: center;
+}
 </style>
 
 </head>
@@ -114,7 +174,7 @@
         <li><a href="/user/userorder?status=recycle">订单回收站</a></li>
     </ul>
 
-    <div class="order-details-container">
+    <div id="order-details-container" class="order-details-container">
     <div class="order-details">
         <div class="detail">订单详情</div>
         <div class="recipient">收货人</div>
@@ -130,44 +190,56 @@
 
 
 <script>
-    //有问题，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，，
 $(document).ready(function() {
     $.ajax({
         url: '/user_orders/',  // 后端 API 地址
         type: 'GET',
-        success: function(response) {
-            var ordersData = response.orders;
-            var ordersContent = '';
-            alert(ordersData)
-            for (var i = 0; i < ordersData.length; i++) {
-
-                var order = ordersData[i];
-                var orderDetailsContent = '';
-                for (var j = 0; j < order.order_details.length; j++) {
-                    var orderDetail = order.order_details[j];
-                    orderDetailsContent += '<div class="product">' +
-                        '<img src="' + orderDetail.product_image_url + '">' +
-                        '<p>' + orderDetail.product_name + '</p>' +
-                        '<p>数量：' + orderDetail.quantity + '</p>' +
-                        '<p>价格：' + orderDetail.price + '</p>' +
-                        '</div>';
-                }
-                ordersContent += '<div class="order">' +
-                    '<p>订单号：' + order.order_id + '</p>' +
-                    '<div class="order-details">' + orderDetailsContent + '</div>' +
-                    '<p>总金额：' + order.total_amount + '</p>' +
-                    '<p>状态：' + order.status + '</p>' +
-                    '</div>';
-            }
-            $('#orders-container').html(ordersContent);
-        },
+success: function(response) {
+    var ordersData = response.orders;
+    var ordersContent = '';
+    for (var i = 0; i < ordersData.length; i++) {
+        var order = ordersData[i];
+        var orderDetailsContent = '';
+        for (var j = 0; j < order.order_details.length; j++) {
+            var orderDetail = order.order_details[j];
+            orderDetailsContent += '<div class="oorder-product">' +
+                '<div class="oorder-product-details">' +
+                '<img src="{% static '商品图片/' %}' + orderDetail.product_image_url + '">' +
+                '<div>'+
+                '<p>' + orderDetail.product_name + '</p>' +
+                '<p>数量：' + orderDetail.quantity + '</p>' +
+                '<p>单价：' + orderDetail.price + '</p>' +
+                '</div>'+
+                '</div></div>';
+        }
+        ordersContent += '<div class="oorder-container">' +
+            '<div >' +
+            {#'<p>订单号：' + order.order_id + '</p>' +#}
+            '<div class="oorder-details">' + orderDetailsContent + '</div>' +
+            '</div>' +
+             '<div class="user_id">' +
+            '<p>' + order.user_id + '</p>' +
+            '</div>' +
+            '<div class="total-amount">' +
+            '<p>' + order.total_amount +'元'+ '</p>' +
+            '</div>' +
+            '<div class="status">' +
+            '<p>' + order.status + '</p>' +
+            '</div>' +
+            '<div class="caozuo">' +
+                '<button>' + "再次购买" + '</button>' +
+                '<button>' + "删除" + '</button>' +
+            '</div>' +
+            '</div>';
+    }
+    $('#order-details-container').append(ordersContent);
+},
         error: function(xhr, status, error) {
             console.error(error);
-            $('#orders-container').html('<p>获取订单失败</p>');
+            $('#order-details-container').html('<p>获取订单失败</p>');
         }
     });
 });
-
 </script>
 
 </body>
