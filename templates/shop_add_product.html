@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    {% load static %}
+    <title>shop_add_product</title>
+    <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
+    <style>
+        .messages {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 1000; /* 确保提示框显示在最上层 */
+            text-align: center;
+            width: auto;
+        }
+
+        .message {
+            background-color: #93ff97; /* 背景色 */
+            color: #000000; /* 字体色 */
+            border: 1px solid #bafd96;
+            padding: 10px; /* 内边距 */
+            margin-bottom: 10px; /* 外边距 */
+            display: inline-block;
+            border-radius: 5px; /* 边框圆角 */
+        }
+
+        .add-form {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 10; /* 确保不在消息提示框之下 */
+            width: 300px; /* 设置宽度，视情况适当调整 */
+            padding: 20px; /* 内边距 */
+            background-color: white; /* 背景色 */
+            border-radius: 10px; /* 边框圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
+        }
+
+
+        /* 淡出动画 */
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+</div>
+<div class="search">
+    <div class="input">
+        <input type="" name="" value="请输入想找的宝贝">
+        <img src="{% static '首页_files/1_06.png' %}">
+    </div>
+</div>
+<div class="classes">
+    <ul class="classes-items">
+
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
+    </ul>
+    <ul class="classes-items">
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">全部商品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=1">个人电脑和配件</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=2">移动设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=3">家用电子产品</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=4">厨房电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=5">办公设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=6">汽车电子设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=7">网络和通信设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=8">可穿戴设备</a></li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=9">智能家居设备</a></li>
+    </ul>
+</div>
+<!-- 商品信息添加表单 -->
+<div class="add-form">
+    <!-- 使用POST方法发送表单数据 -->
+    <form method="post" action="{% url 'add_product' %}">
+        {% csrf_token %}
+        {{ product_form.as_p }}
+        {{ shop_product_form.as_p }}
+        <!-- 提交按钮 -->
+        <input type="submit" value="添加商品信息">
+    </form>
+</div>
+{% if messages %}
+    <div id="message-container" class="messages">
+        {% for message in messages %}
+            <div class="{{ message.tags }} message">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<script>
+    // 当页面加载完成后执行此函数
+    window.onload = function () {
+        // 查找消息容器
+        var messageContainer = document.getElementById('message-container');
+
+        if (messageContainer) {
+            // 设置5秒后执行淡出动画
+            setTimeout(function () {
+                messageContainer.style.opacity = '0'; // 设置透明度为 0 触发消失效果
+                setTimeout(function () {
+                    messageContainer.style.display = 'none'; // 设置display为none来完全隐藏
+                }, 1000); // 额外的时间确保透明度动画完成
+            }, 2000); // 你可以调整这里的时间来控制消息显示多久
+        }
+    };
+</script>
+
+</body>
+</html>
