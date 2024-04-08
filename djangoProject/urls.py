@@ -21,9 +21,9 @@ from djangoProject.views import logout_view
 from user import views as user_views
 from django.conf import settings
 from django.conf.urls.static import static
-
 from login_register import views as login_register_views
-from shop import views as shop_views
+from user.views import follow_shop, unfollow_shop
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -45,4 +45,6 @@ urlpatterns = [
     path('get_products/', views.get_products, name='get_products'),
     path('shop/', include('shop.urls')),
     path('user_orders/', user_views.user_orders, name='user_orders'),
+    path('follow-shop/<int:shop_id>/', follow_shop, name='follow_shop'),
+    path('unfollow-shop/<int:shop_id>/', unfollow_shop, name='unfollow_shop'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

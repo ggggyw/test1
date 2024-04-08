@@ -105,12 +105,14 @@
         <button type="button" id="increase">+</button>
     </div>
     <button type="submit" class="buy-button">加入购物车</button>
-    </form>
+    <div id="cart-success-message" style="display:none;">加入购物车成功</div>
+</form>
             <p>商品描述：{{ product.product_desc }}</p>  <!-- 商品描述 -->
         </section>
     </main>
     </div>
 <script>
+
         var decreaseButton = document.getElementById('decrease');
         var increaseButton = document.getElementById('increase');
         var quantityInput = document.getElementById('quantity');
@@ -131,8 +133,12 @@
     var alertBar = document.createElement('div');
     var alertMessage = document.createElement('span');
     var alertCancel = document.createElement('button');
+    const cartSuccessMessage = document.getElementById('cart-success-message');
 
     buyButton.addEventListener('click', function(event) {
+        {% if u_id %}
+        alert('加入购物车成功');
+    {% endif %}
         {% if not u_id %}
             event.preventDefault(); // 阻止表单提交
 
@@ -163,7 +169,6 @@
             alertBar.appendChild(alertMessage);
             alertBar.appendChild(alertCancel);
             document.body.appendChild(alertBar);
-
             var countdown = 2;
             var intervalId = setInterval(function() {
                 if (countdown > 0) {
@@ -188,7 +193,65 @@
             alertBar.parentNode.removeChild(alertBar);
         }
     });
-</script>
+    function followShop(shopId) {
+            fetch(`/follow-shop/${shopId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 添加关注成功动画
+                    var followButton = document.querySelector('.follow-button button.follow');
+                    followButton.classList.add('follow-success');
+                    setTimeout(function() {
+                        followButton.classList.remove('follow-success');
+                    }, 500);
+                    location.reload(); // 刷新页面以更新关注状态
+                } else {
+                    console.error('Failed to follow shop');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
 
+        function unfollowShop(shopId) {
+            fetch(`/unfollow-shop/${shopId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // 刷新页面以更新关注状态
+                } else {
+                    console.error('Failed to unfollow shop');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+</script>
+<footer>
+    <div class="store-name-follow">
+        <div class="store-name"> {{ store_name }}</div>
+        <div class="follow-button">
+            {% if u_id and is_following %}
+            <button class="followed" onclick="unfollowShop({{ shop.s_id }})">已关注</button>
+            {% elif u_id %}
+            <button class="follow" onclick="followShop({{ shop.s_id }})">关注店铺</button>
+            {% else %}
+            <a href="{% url 'login' %}"><button class="follow">关注店铺</button></a>
+            {% endif %}
+        </div>
+    </div>
+</footer>
 </body>
 </html>

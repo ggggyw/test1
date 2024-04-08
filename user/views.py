@@ -1,16 +1,13 @@
 from django.core.paginator import Paginator
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 import json
-from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails
+from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers
 from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.contrib import messages
-
 
 # Create your views here.
 def userpage(request):
@@ -142,12 +139,29 @@ def userorder(request):
     return render(request,'userorder.html',context)
 def userserve(request):
     return render(request,'userserve.html')
+
+
 def product_details(request, p_id):
-    u_id= request.session.get('u_id')
-    role= request.session.get('role')
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
-    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})
+
+    # 获取该商品所属的店铺
+    shop = product.shop
+
+    is_following = False
+    if u_id:
+        try:
+            user = Users.objects.get(u_id=u_id)
+            # 检查用户是否关注该店铺
+            is_following = Followers.objects.filter(u=user, s=shop).exists()
+        except Users.DoesNotExist:
+            pass
+
+    return render(request, 'productdetails.html',
+                  {'product': product, 'products2': products2, 'u_id': u_id, 'role': role, 'is_following': is_following,
+                   'store_name': shop.s_name, 'shop': shop})
 
 def delete_item(request):
     # print(request.body)
@@ -231,3 +245,23 @@ def user_orders(request):
     except Exception as e:
         print("Error:", e)
         return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)
+
+from django.shortcuts import redirect, get_object_or_404
+from django.utils import timezone
+from django.db import IntegrityError
+@require_POST
+def follow_shop(request, shop_id):
+    shop = get_object_or_404(Shops, pk=shop_id)
+    user = get_object_or_404(Users, u_id=request.session.get('u_id'))
+    try:
+        Followers.objects.create(u=user, s=shop, created_at=timezone.now())
+    except IntegrityError:
+        pass
+    return JsonResponse({'success': True})
+
+@require_POST
+def unfollow_shop(request, shop_id):
+    shop = get_object_or_404(Shops, pk=shop_id)
+    user = get_object_or_404(Users, u_id=request.session.get('u_id'))
+    Followers.objects.filter(u=user, s=shop).delete()
+    return JsonResponse({'success': True})
