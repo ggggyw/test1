@@ -36,9 +36,11 @@ class ShopProductForm(forms.ModelForm):
         label="商品状态",
     )
 
+    product_image = forms.ImageField(required=False, label="商品图片")
+
     class Meta:
         model = ShopProducts
-        fields = ['product_desc', 'product_status', 'stock_quantity',
+        fields = ['product_image', 'product_desc', 'product_status', 'stock_quantity',
                   'original_price', 'discount', 'current_price']
 
     def __init__(self, *args, **kwargs):
