@@ -91,8 +91,9 @@
         <!-- 在这里显示原来的商品信息 -->
         <p>商品名称: {{ shop_products.product.p_name }}</p>
         <!-- 显示商品图片和其他信息 -->
-        <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="100px"
-             height="100px">
+        <p>商品图片: </p>
+        <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
+             height="200px">
         <p>类别: {{ shop_products.product.p_type.category_name }}</p>
         <p>品牌: {{ shop_products.product.brand }}</p>
         <p>当前价格: {{ shop_products.current_price }}</p>
@@ -107,10 +108,14 @@
     <!-- 商品信息编辑表单 -->
     <div class="edit-form">
         <!-- 使用POST方法发送表单数据 -->
-        <form method="post" action="{% url 'edit_product' shop_products.shop_product_id %}">
+        <!-- 注意这里添加了 enctype="multipart/form-data" -->
+        <form method="post" action="{% url 'edit_product' shop_products.shop_product_id %}"
+              enctype="multipart/form-data">
             {% csrf_token %}
             {{ product_form.as_p }}
             {{ shop_product_form.as_p }}
+            <img id="preview" src="" alt="商品图片预览" width="200px" height="200px">
+            <input id="product_image" type="file" name="product_image" onchange="previewImage(this)">
             <!-- 提交按钮 -->
             <input type="submit" value="更新商品信息">
         </form>
@@ -126,21 +131,32 @@
 
 <script>
     // 当页面加载完成后执行此函数
-    window.onload = function() {
+    window.onload = function () {
         // 查找消息容器
         var messageContainer = document.getElementById('message-container');
 
         if (messageContainer) {
             // 设置5秒后执行淡出动画
-            setTimeout(function() {
+            setTimeout(function () {
                 messageContainer.style.opacity = '0'; // 设置透明度为 0 触发消失效果
-                setTimeout(function() {
+                setTimeout(function () {
                     messageContainer.style.display = 'none'; // 设置display为none来完全隐藏
                 }, 1000); // 额外的时间确保透明度动画完成
             }, 2000); // 你可以调整这里的时间来控制消息显示多久
         }
     };
-</script>
 
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('preview').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 </body>
 </html>
