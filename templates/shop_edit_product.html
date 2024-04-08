@@ -114,7 +114,7 @@
             {% csrf_token %}
             {{ product_form.as_p }}
             {{ shop_product_form.as_p }}
-            <img id="preview" src="" alt="商品图片预览" width="200px" height="200px">
+            <img id="preview" src="" alt="上传修改的商品图片" width="200px" height="200px">
             <input id="product_image" type="file" name="product_image" onchange="previewImage(this)">
             <!-- 提交按钮 -->
             <input type="submit" value="更新商品信息">
