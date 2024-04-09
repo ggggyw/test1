@@ -48,7 +48,6 @@ def userprofile(request):
             'address': user.address,
             'created_at': user.created_at,
             'role': role,
-             # 添加更多需要的用户信息字段
         }
     return render(request, 'userprofile.html', context)
 
