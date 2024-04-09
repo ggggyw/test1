@@ -55,81 +55,7 @@
             /* 定义每个标题的具体宽度 */
             width: 120px; /* 选择列 */
         }
-
-        /* 为每个标题项单独设置宽度 */
-        th:nth-child(1) {
-            width: 60px;
-        }
-
-        /* 选择 */
-        th:nth-child(2) {
-            width: 200px;
-        }
-
-        /* 商品名称 */
-        th:nth-child(3) {
-            width: 110px;
-        }
-
-        /* 图片 */
-        th:nth-child(4) {
-            width: 150px;
-        }
-
-        /* 类别 */
-        th:nth-child(5) {
-            width: 120px;
-        }
-
-        /* 品牌 */
-        th:nth-child(6) {
-            width: 100px;
-        }
-
-        /* 价格 */
-        th:nth-child(7) {
-            width: 200px;
-        }
-
-        /* 描述 */
-        th:nth-child(8) {
-            width: 100px;
-        }
-
-        /* 状态 */
-        th:nth-child(9) {
-            width: 100px;
-        }
-
-        /* 库存 */
-        th:nth-child(10) {
-            width: 120px;
-        }
-
-        /* 原始价格 */
-        th:nth-child(11) {
-            width: 80px;
-        }
-
-        /* 折扣 */
-        th:nth-child(12) {
-            width: 100px;
-        }
-
-        /* 现在价格 */
-        th:nth-child(13) {
-            width: 80px;
-        }
-
-        /* 详情 */
-
-        th {
-            padding: 25px 0;
-        }
-
-        td {
-            padding: 20px;
-        }
+        
 
         .pagination {
             text-align: center; /* 居中分页控件 */
@@ -264,7 +190,7 @@
     {% if shop_products %}
         <table>
             <tr>
-                <th>选择</th>
+{#                <th>选择</th>#}
                 <th>商品名称</th>
                 <th>图片</th>
                 <th>类别</th>
@@ -282,11 +208,11 @@
             </tr>
             {% for shop_product in shop_products %}
                 <tr>
-                    <td>
-                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"
-                               name="product_selection">
-                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>
-                    </td>
+{#                    <td>#}
+{#                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"#}
+{#                               name="product_selection">#}
+{#                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>#}
+{#                    </td>#}
                     <td>{{ shop_product.product.p_name }}</td>
                     <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片"
                              width="100px"
