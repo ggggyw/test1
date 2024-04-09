@@ -50,34 +50,6 @@ def userprofile(request):
             'role': role,
              # 添加更多需要的用户信息字段
         }
-    elif role == 'shop':
-        # 获取并处理商户信息
-        shop = get_object_or_404(Shops, s_id=u_id)
-        context = {
-            's_id': shop.s_id,
-            's_name': shop.s_name,
-            's_acc': shop.s_acc,
-            's_psw': shop.s_psw,
-            's_phone': shop.s_phone,
-            'email': shop.email,
-            'address': shop.address,
-            'role': role,
-            # 添加更多需要的商户信息字段
-        }
-
-    elif role == 'admin':
-        # 获取并处理管理员信息
-        admin = get_object_or_404(Admin, ad_id=u_id)  # 假设你的管理员模型名为Admin
-        context = {
-            'ad_id': admin.ad_id,
-            'ad_acc': admin.ad_acc,
-            'ad_psw': admin.ad_psw,
-            'is_super': admin.is_super,
-            'role': role,
-            # 添加更多需要的管理员信息字段
-        }
-    else:
-        return HttpResponse('Invalid role.')  # 或者你可以选择重定向到错误页面
     return render(request, 'userprofile.html', context)
 
 def usercart(request):
