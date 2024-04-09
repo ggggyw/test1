@@ -26,6 +26,10 @@
             border-radius: 5px; /* 边框圆角 */
         }
 
+        ul.errorlist li {
+            color: red;
+        }
+
         /* 淡出动画 */
         @keyframes fadeOut {
             to {
@@ -91,18 +95,18 @@
         <!-- 在这里显示原来的商品信息 -->
         <p>商品名称: {{ shop_products.product.p_name }}</p>
         <!-- 显示商品图片和其他信息 -->
+        <p>商品类别: {{ shop_products.product.p_type.category_name }}</p>
+        <p>品牌名称: {{ shop_products.product.brand }}</p>
+        <p>当前价格: {{ shop_products.current_price }}</p>
+        <p>商品描述: {{ shop_products.product_desc }}</p>
+        <p>商品状态: {{ shop_products.product_status }}</p>
+        <p>库存数量: {{ shop_products.stock_quantity }}</p>
+        <p>原始价格: {{ shop_products.original_price }}</p>
+        <p>商品折扣: {{ shop_products.discount }}</p>
+        <p>现在价格: {{ shop_products.current_price }}</p>
         <p>商品图片: </p>
         <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
              height="200px">
-        <p>类别: {{ shop_products.product.p_type.category_name }}</p>
-        <p>品牌: {{ shop_products.product.brand }}</p>
-        <p>当前价格: {{ shop_products.current_price }}</p>
-        <p>描述: {{ shop_products.product_desc }}</p>
-        <p>状态: {{ shop_products.product_status }}</p>
-        <p>库存: {{ shop_products.stock_quantity }}</p>
-        <p>原始价格: {{ shop_products.original_price }}</p>
-        <p>折扣: {{ shop_products.discount }}%</p>
-        <p>现在价格: {{ shop_products.current_price }}</p>
     </div>
 
     <!-- 商品信息编辑表单 -->
