@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
-from common.models import ShopProducts, ProductCategories, Products
+from common.models import ShopProducts, ProductCategories, Products, Orders, OrderDetails
 
 
 # Create your views here.
@@ -121,6 +121,7 @@ def edit_product(request, product_id):
                 myfile = request.FILES['product_image']
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
             shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
@@ -202,16 +203,23 @@ def delete_product(request, product_id):
     return redirect('manage_products')  # 重定向到manage_products视图
 
 
+def shop_order(request):
+    # 从会话中获取当前登录的商家ID
+    shop_id = request.session.get('u_id')
+
+    # 查询这个商家的所有订单
+    order_ids = OrderDetails.objects.filter(shop__s_id=shop_id).values_list('order__o_id', flat=True)
+    orders = Orders.objects.filter(o_id__in=order_ids)
+
+    # 将订单传递给模板
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'shop_order.html', context)
+
 def product_detail(request):
     return None
-
-
-def shop_order(request):
-    return render(request, 'shop_order.html')
-
 
 def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
 
-
-from django.db.models import Q
