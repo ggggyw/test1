@@ -292,3 +292,88 @@ def search_products(request):
 
     context = {'products': products, 'query': query}
     return render(request, 'search_results.html', context)
+
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from common.models import Users, UserAddresses
+
+
+def user_addresses(request):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+    default_address = user.address
+    other_addresses = UserAddresses.objects.filter(user_id=user_id)
+
+    context = {
+        'default_address': default_address,
+        'other_addresses': other_addresses,
+    }
+    return render(request, 'edit_useradress.html', context)
+
+
+def get_default_address(request):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+    default_address = {
+        'address': user.address,
+        'address_id': '',
+    }
+    return JsonResponse(default_address)
+
+
+def get_other_addresses(request):
+    user_id = request.session.get('u_id')
+    other_addresses = UserAddresses.objects.filter(user_id=user_id).values('address_id', 'address')
+    return JsonResponse(list(other_addresses), safe=False)
+
+
+def add_address(request):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+    address = request.POST.get('address')
+    is_default = request.POST.get('is_default') == 'true'
+
+    if is_default:
+        user.address = address
+        user.save()
+        UserAddresses.objects.filter(user_id=user_id).update(is_default=False)
+    else:
+        UserAddresses.objects.create(user_id=user_id, address=address)
+
+    return JsonResponse({'success': True})
+
+
+def get_address(request, address_id):
+    address = get_object_or_404(UserAddresses, address_id=address_id)
+    address_data = {
+        'address': address.address,
+        'is_default': address.is_default,
+        'address_id': address.address_id,
+    }
+    return JsonResponse(address_data)
+
+
+def edit_address(request):
+    address_id = request.POST.get('address_id')
+    address = request.POST.get('address')
+    is_default = request.POST.get('is_default') == 'true'
+
+    user_address = get_object_or_404(UserAddresses, address_id=address_id)
+    user_address.address = address
+    user_address.is_default = is_default
+    user_address.save()
+
+    if is_default:
+        user_id = request.session.get('u_id')
+        user = get_object_or_404(Users, u_id=user_id)
+        user.address = address
+        user.save()
+        UserAddresses.objects.filter(user_id=user_id).exclude(address_id=address_id).update(is_default=False)
+
+    return JsonResponse({'success': True})
+
+
+def save_addresses(request):
+    # 这里可以添加保存地址的逻辑,例如将修改后的地址保存到数据库
+    return JsonResponse({'success': True})
