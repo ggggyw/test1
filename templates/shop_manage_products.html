@@ -55,81 +55,7 @@
             /* 定义每个标题的具体宽度 */
             width: 120px; /* 选择列 */
         }
-
-        /* 为每个标题项单独设置宽度 */
-        th:nth-child(1) {
-            width: 60px;
-        }
-
-        /* 选择 */
-        th:nth-child(2) {
-            width: 200px;
-        }
-
-        /* 商品名称 */
-        th:nth-child(3) {
-            width: 110px;
-        }
-
-        /* 图片 */
-        th:nth-child(4) {
-            width: 150px;
-        }
-
-        /* 类别 */
-        th:nth-child(5) {
-            width: 120px;
-        }
-
-        /* 品牌 */
-        th:nth-child(6) {
-            width: 100px;
-        }
-
-        /* 价格 */
-        th:nth-child(7) {
-            width: 200px;
-        }
-
-        /* 描述 */
-        th:nth-child(8) {
-            width: 100px;
-        }
-
-        /* 状态 */
-        th:nth-child(9) {
-            width: 100px;
-        }
-
-        /* 库存 */
-        th:nth-child(10) {
-            width: 120px;
-        }
-
-        /* 原始价格 */
-        th:nth-child(11) {
-            width: 80px;
-        }
-
-        /* 折扣 */
-        th:nth-child(12) {
-            width: 100px;
-        }
-
-        /* 现在价格 */
-        th:nth-child(13) {
-            width: 80px;
-        }
-
-        /* 详情 */
-
-        th {
-            padding: 25px 0;
-        }
-
-        td {
-            padding: 20px;
-        }
+        
 
         .pagination {
             text-align: center; /* 居中分页控件 */
@@ -150,6 +76,58 @@
 
         .pagination .step-links span.current {
             font-weight: bold; /* 当前页加粗显示 */
+        }
+
+        /* 模态框的基本样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        /* 模态框内容 */
+        .modal-content {
+            background-color: #fcfcfc;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 350px; /* 可以根据需要调整宽度 */
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        /* 关闭按钮 */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 确定和取消按钮样式 */
+        .modal-actions button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        .modal-actions button:hover {
+            opacity: 0.8;
         }
 
     </style>
@@ -212,7 +190,7 @@
     {% if shop_products %}
         <table>
             <tr>
-                <th>选择</th>
+{#                <th>选择</th>#}
                 <th>商品名称</th>
                 <th>图片</th>
                 <th>类别</th>
@@ -226,14 +204,15 @@
                 <th>现在价格</th>
                 <th>详情</th>
                 <th>修改</th>
+                <th>删除</th>
             </tr>
             {% for shop_product in shop_products %}
                 <tr>
-                    <td>
-                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"
-                               name="product_selection">
-                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>
-                    </td>
+{#                    <td>#}
+{#                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"#}
+{#                               name="product_selection">#}
+{#                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>#}
+{#                    </td>#}
                     <td>{{ shop_product.product.p_name }}</td>
                     <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片"
                              width="100px"
@@ -256,6 +235,11 @@
                         <!-- 修改按钮 -->
                         <a href="{% url 'edit_product' shop_product.shop_product_id %}"
                            class="btn btn-primary">修改</a>
+                    </td>
+                    <td>
+                        <!-- 删除按钮 -->
+                        <a href="javascript:void(0);" onclick="confirmDelete({{ shop_product.shop_product_id }});"
+                           class="btn btn-danger">删除</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -290,19 +274,58 @@
             <p>还没有商品哦！</p>
         </div>
     {% endif %}
-    {% block javascript %}
-        <script>
-            // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
-            $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
-            $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
-            document.addEventListener("DOMContentLoaded", function () {
-                document.querySelector('.no-products-animation').style.display = 'block';
-            });
-        </script>
-    {% endblock %}
-
 </div>
+<!-- 模态框 -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>你确定要删除这个商品吗？此操作不可恢复！</p>
+        <div class="modal-actions">
+            <button id="confirmDelete">确定</button>
+            <button id="cancelDelete">取消</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector('.no-products-animation').style.display = 'block';
+    });
 
+    // 获取模态框元素
+    var modal = document.getElementById('confirmModal');
+    var span = document.getElementsByClassName("close")[0];
+    var confirmBtn = document.getElementById('confirmDelete');
+    var cancelBtn = document.getElementById('cancelDelete');
 
+    // 点击删除按钮时，显示模态框
+    function confirmDelete(productId) {
+        // 在显示模态框之前，为确定按钮绑定删除的动作
+        confirmBtn.onclick = function () {
+            window.location.href = "/shop/shoppage/manage_products/delete_product/" + productId + "/";
+        };
+        // 显示模态框
+        modal.style.display = "block";
+    }
+
+    // 点击关闭按钮或取消按钮关闭模态框
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    cancelBtn.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // 点击窗口外区域关闭模态框
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    // 调整分页样式的代码可能需要移至更适宜的位置，以避免与其他脚本冲突
+    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'});
+    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'});
+
+</script>
 </body>
 </html>

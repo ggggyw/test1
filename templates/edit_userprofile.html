@@ -102,7 +102,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="u_psw" class="form-label"><i class="fas fa-lock"></i> 密码</label>
-                    <input type="password" class="form-control" id="u_psw" name="u_psw" required>
+                    <input type="password" class="form-control" id="u_psw" name="u_psw" value="{{ user.u_psw }}" required>
                 </div>
                 <div class="mb-3">
                     <label for="u_sex" class="form-label"><i class="fas fa-venus-mars"></i> 性别</label>
@@ -120,7 +120,7 @@
                     <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
                 </div>
                 <div class="mb-3">
-                    <label for="address" class="form-label"><i class="fas fa-map-marker-alt"></i> 地址</label>
+                    <label for="address" class="form-label"><i class="fas fa-map-marker-alt"></i> 默认地址</label>
                     <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}">
                 </div>
                 <div class="d-grid gap-2">

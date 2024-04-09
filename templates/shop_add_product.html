@@ -59,7 +59,6 @@
         </ul>
         <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
         <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
-        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
     </div>
 </div>
 <div class="search">
@@ -102,10 +101,17 @@
 <!-- 商品信息添加表单 -->
 <div class="add-form">
     <!-- 使用POST方法发送表单数据 -->
-    <form method="post" action="{% url 'add_product' %}">
+    <form method="post" action="{% url 'add_product' %}" enctype="multipart/form-data">
         {% csrf_token %}
         {{ product_form.as_p }}
         {{ shop_product_form.as_p }}
+        <!-- 手动添加 current_price 字段标记 -->
+        <div>
+            <label for="id_current_price">现在价格:</label>
+            <input id="id_current_price" type="text" name="current_price" readonly>
+        </div>
+        <img id="preview" src="" alt="上传商品图片" width="200px" height="200px">
+        <input id="product_image" type="file" name="product_image" onchange="previewImage(this)">
         <!-- 提交按钮 -->
         <input type="submit" value="添加商品信息">
     </form>
@@ -119,11 +125,9 @@
 {% endif %}
 
 <script>
-    // 当页面加载完成后执行此函数
     window.onload = function () {
-        // 查找消息容器
+        // 查找消息容器并准备淡出效果
         var messageContainer = document.getElementById('message-container');
-
         if (messageContainer) {
             // 设置5秒后执行淡出动画
             setTimeout(function () {
@@ -133,7 +137,41 @@
                 }, 1000); // 额外的时间确保透明度动画完成
             }, 2000); // 你可以调整这里的时间来控制消息显示多久
         }
+
+        // 获取输入框，定义updateCurrentPrice函数，添加事件监听器
+        var originalPriceInput = document.getElementById('id_original_price');
+        var discountInput = document.getElementById('id_discount');
+        var currentPriceInput = document.getElementById('id_current_price');
+
+        function updateCurrentPrice() {
+            var originalPrice = parseFloat(originalPriceInput.value);
+            var discount = parseFloat(discountInput.value);
+            if (!isNaN(originalPrice) && !isNaN(discount)) {
+                var currentPrice = originalPrice * (1 - discount);
+                currentPriceInput.value = currentPrice.toFixed(2);
+            }
+        }
+
+        // 现在手动计算并更新当前价格
+        updateCurrentPrice();
+
+        originalPriceInput.addEventListener('input', updateCurrentPrice);
+        discountInput.addEventListener('input', updateCurrentPrice);
     };
+
+    // previewImage函数保持不变
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('preview').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 </script>
 
 </body>

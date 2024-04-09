@@ -38,11 +38,10 @@ class ShopProductForm(forms.ModelForm):
         label="商品状态",
     )
     discount = forms.DecimalField(max_digits=10, decimal_places=3)  # 设置最大位数和小数位数
-    current_price = forms.DecimalField(disabled=True)  # 设置为不可编辑
     class Meta:
         model = ShopProducts
         fields = [ 'product_desc', 'product_status', 'stock_quantity',
-                  'original_price', 'discount', 'current_price']
+                  'original_price', 'discount']
 
     def clean_discount(self):
         discount = self.cleaned_data.get('discount')
@@ -72,5 +71,4 @@ class ShopProductForm(forms.ModelForm):
         self.fields['stock_quantity'].label = "库存数量"
         self.fields['original_price'].label = "原始价格"
         self.fields['discount'].label = "商品折扣"
-        self.fields['current_price'].label = "现在价格"
         # 商品状态的自定义标签已在上面通过ChoiceField设置

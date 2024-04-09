@@ -292,3 +292,64 @@ def search_products(request):
 
     context = {'products': products, 'query': query}
     return render(request, 'search_results.html', context)
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from common.models import Users, UserAddresses
+
+
+def address_management(request):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+
+    default_address = user.address
+    other_addresses = UserAddresses.objects.filter(user=user)
+
+    if request.method == 'POST':
+        default_address = request.POST.get('default_address')
+        user.address = default_address
+        user.save()
+
+        for address in other_addresses:
+            address_id = address.address_id
+            updated_address = request.POST.get(f'address_{address_id}')
+            if updated_address:
+                address.address = updated_address
+                address.save()
+
+        new_address = request.POST.get('new_address')
+        if new_address:
+            UserAddresses.objects.create(user=user, address=new_address)
+
+        return redirect('address_management')
+
+    context = {
+        'default_address': default_address,
+        'other_addresses': other_addresses,
+    }
+
+    return render(request, 'edit_useradress.html', context)
+
+
+def set_default_address(request, address_id):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+
+    address = get_object_or_404(UserAddresses, address_id=address_id)
+
+    if user.address:
+        UserAddresses.objects.create(user=user, address=user.address)
+
+    user.address = address.address
+    user.save()
+
+    address.delete()
+
+    return redirect('address_management')
+
+
+def delete_address(request, address_id):
+    address = get_object_or_404(UserAddresses, address_id=address_id)
+    address.delete()
+
+    return redirect('address_management')

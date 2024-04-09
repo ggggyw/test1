@@ -49,4 +49,7 @@ urlpatterns = [
     path('unfollow-shop/<int:shop_id>/', unfollow_shop, name='unfollow_shop'),
     path('search/', views.search_products, name='search_products'),
     path('user/userprofile/edit_userprofile/', user_views.edit_userprofile, name='edit_userprofile'),
+    path('user/address/', user_views.address_management, name='address_management'),
+    path('set_default_address/<int:address_id>/', user_views.set_default_address,name='set_default_address'),
+    path('delete_address/<int:address_id>/', user_views.delete_address, name='delete_address'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

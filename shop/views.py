@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
-from common.models import ShopProducts, ProductCategories, Products
+from common.models import ShopProducts, ProductCategories, Products, Orders, OrderDetails
 
 
 # Create your views here.
@@ -74,6 +74,7 @@ def shop_productdetails(request, p_id):
     return render(request, 'shop_product_details.html',
                   {'shop_product': shop_product, 'products': products, 'u_id': u_id, 'role': role})
 
+
 def manage_products(request):
     # 从会话中获取用户的ID
     u_id = request.session.get('u_id')
@@ -111,10 +112,16 @@ def edit_product(request, product_id):
             product_form.save()
             shop_product = shop_product_form.save(commit=False)
             if 'product_image' in request.FILES:
-                myfile = request.FILES['product_image']
+                # 创建一个文件系统存储对象
                 fs = FileSystemStorage(location='static/商品图片')
+                # 如果已经存在旧的图片，就先删除旧的图片
+                if shop_product.product_image_url:
+                    fs.delete(shop_product.product_image_url)
+                # 保存新的图片
+                myfile = request.FILES['product_image']
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
             shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
@@ -136,12 +143,17 @@ def edit_product(request, product_id):
     }
     return render(request, 'shop_edit_product.html', context)
 
+
 def add_product(request):
+    # 初始化表单实例
+    product_form = ProductForm(request.POST or None, request.FILES or None)
+    shop_product_form = ShopProductForm(request.POST or None, request.FILES or None)
+
     if request.method == "POST":
-        product_form = ProductForm(request.POST)
-        shop_product_form = ShopProductForm(request.POST)
+        # 获取当前登录的商家ID
         shop_id = request.session.get('u_id')
 
+        # 验证两个表单是否都有效
         if product_form.is_valid() and shop_product_form.is_valid():
             # 保存Products模型实例
             product = product_form.save()
@@ -151,37 +163,63 @@ def add_product(request):
             shop_product = shop_product_form.save(commit=False)
             shop_product.product = product
             shop_product.shop_id = shop_id
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
             shop_product.save()
 
+            # 向用户显示成功消息并重定向到商品列表页面
             messages.success(request, '商品已成功添加！')
-            return redirect('add_product') # 这里假设你有一个商品列表的页面
+            return redirect('add_product')  # 这里假设你有一个商品列表的页面
         else:
             messages.error(request, '添加商品时出现错误。')
     else:
+        # GET 请求，创建表单并填充当前模型实例数据
         product_form = ProductForm()
         shop_product_form = ShopProductForm()
 
-    return render(request, 'shop_add_product.html', {
+    # 将表单传递给模板
+    context = {
         'product_form': product_form,
         'shop_product_form': shop_product_form
-    })
+    }
+    return render(request, 'shop_add_product.html', context)
 
-def delete_product(request):
-    return None
+
+def delete_product(request, product_id):
+    if product_id is not None:
+        shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
+        if shop_product:
+            image_path = shop_product.product_image_url  # 获取商品图片的路径
+            fs = FileSystemStorage(location='static/商品图片')  # 创建一个文件系统存储对象
+            fs.delete(shop_product.product_image_url)  # 删除图片文件
+            if fs.exists(shop_product.product_image_url):  # 检查文件是否仍然存在
+                print("删除图片错误")  # 如果文件仍然存在，打印一条错误消息
+            shop_product.delete()  # 删除对应的商品
+    return redirect('manage_products')  # 重定向到manage_products视图
+
+
+def shop_order(request):
+    # 从会话中获取当前登录的商家ID
+    shop_id = request.session.get('u_id')
+
+    # 查询这个商家的所有订单
+    order_ids = OrderDetails.objects.filter(shop__s_id=shop_id).values_list('order__o_id', flat=True)
+    orders = Orders.objects.filter(o_id__in=order_ids)
+
+    # 将订单传递给模板
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'shop_order.html', context)
 
 def product_detail(request):
     return None
 
-def shop_order(request):
-    return render(request, 'shop_order.html')
-
-
 def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
-
-
-from django.db.models import Q
-
-
-
 
