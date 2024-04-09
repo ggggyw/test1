@@ -42,6 +42,68 @@
             text-align: center;
         }
 
+        .order-detail-toggle {
+            cursor: pointer;
+            background-color: #f9f9f9;
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #d3d3d3;
+        }
+
+        .order-details {
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* 将表格居中且宽度最大化，每列有一定的间距 */
+        table {
+            margin: 0 auto;
+            width: 90%;
+            border-collapse: separate;
+            border-spacing: 0 15px; /* 控制列之间的间距 */
+        }
+
+        /* 调整表格标题和内部文本的样式 */
+        th, td {
+            text-align: center;
+            padding: 10px 20px; /* 增加内填充以便有更多空间 */
+        }
+
+        /* 为表格标题设置一个背景颜色，字体颜色和字体大小 */
+        thead th {
+            background-color: #4CAF50; /* 示例背景颜色，可根据喜好修改 */
+            color: white; /* 示例字体颜色，可根据喜好修改 */
+            font-size: 1.1em;
+        }
+
+        /* 为表格每个单元格设置一个背景颜色 */
+        tbody td {
+            background-color: #f2f2f2; /* 示例背景颜色，可根据喜好修改 */
+            border-bottom: 1px solid #ddd; /* 为了清晰分隔各行 */
+        }
+
+        /* 为操作按钮增加一些样式来使其更加醒目 */
+        .order-detail-toggle {
+            border: none; /* 移除边框 */
+            color: white; /* 设置字体颜色 */
+            padding: 5px 10px; /* 设置内填充 */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            background-color: #008CBA; /* 背景颜色 */
+        }
+
+        /* 当鼠标悬停在操作按钮上时，改变其样式以提供反馈 */
+        .order-detail-toggle:hover {
+            background-color: #333;
+            color: white;
+        }
+
+        /* 其他样式保持不变 */
     </style>
 </head>
 <body>
@@ -74,54 +136,70 @@
 </div>
 <table>
     <thead>
-        <tr>
-            <th>订单ID</th>
-            <th>用户</th>
-            <th>状态</th>
-            <th>支付时间</th>
-            <th>订单时间</th>
-            <th>总价</th>
-        </tr>
+    <tr>
+        <th>订单ID</th>
+        <th>用户</th>
+        <th>状态</th>
+        <th>支付时间</th>
+        <th>订单时间</th>
+        <th>总价</th>
+        <th>操作</th> <!-- 添加一个标题用于展示操作按钮 -->
+    </tr>
     </thead>
     <tbody>
-        {% for order in orders %}
-            <tr>
-                <td>{{ order.o_id }}</td>
-                <td>{{ order.user.u_name }}</td>
-                <td>{{ order.status }}</td>
-                <td>{{ order.paid_time }}</td>
-                <td>{{ order.o_time }}</td>
-                <td>{{ order.total_price }}</td>
-            </tr>
-            <tr>
-                <td colspan="6">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>订单详情ID</th>
-                                <th>商品</th>
-                                <th>商店</th>
-                                <th>数量</th>
-                                <th>当前单价</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for detail in order.orderdetails_set.all %}
-                                <tr>
-                                    <td>{{ detail.order_detail_id }}</td>
-                                    <td>{{ detail.product.product.p_name }}</td>
-                                    <td>{{ detail.shop.s_name }}</td>
-                                    <td>{{ detail.quantity }}</td>
-                                    <td>{{ detail.current_single_price }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        {% endfor %}
+    {% for order in orders %}
+        <tr>
+            <td>{{ order.o_id }}</td>
+            <td>{{ order.user.u_name }}</td>
+            <td>{{ order.status }}</td>
+            <td>{{ order.paid_time }}</td>
+            <td>{{ order.o_time }}</td>
+            <td>{{ order.total_price }}</td>
+            <td>
+                <button class="order-detail-toggle" onclick="toggleOrderDetails('details-{{ order.o_id }}')">
+                    查看详情
+                </button>
+            </td>
+        </tr>
+        <tr id="details-{{ order.o_id }}" class="order-details">
+            <td colspan="7">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>订单详情ID</th>
+                        <th>商品</th>
+                        <th>商店</th>
+                        <th>数量</th>
+                        <th>当前单价</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detail in order.orderdetails_set.all %}
+                        <tr>
+                            <td>{{ detail.order_detail_id }}</td>
+                            <td>{{ detail.product.product.p_name }}</td>
+                            <td>{{ detail.shop.s_name }}</td>
+                            <td>{{ detail.quantity }}</td>
+                            <td>{{ detail.current_single_price }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 
+<script>
+    function toggleOrderDetails(detailId) {
+        var details = document.getElementById(detailId);
+        if (details.style.display === 'none' || details.style.display === '') {
+            details.style.display = 'table-row'; // 显示订单详情
+        } else {
+            details.style.display = 'none'; // 隐藏订单详情
+        }
+    }
+</script>
 </body>
 </html>
