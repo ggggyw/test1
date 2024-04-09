@@ -1,0 +1,93 @@
+.no-products-animation {
+    display: none;
+    animation: fadeInOut 3s ease infinite;
+    position: fixed; /* 使用 fixed 定位 */
+    top: 50%; /* 从顶部开始的位置 */
+    left: 50%; /* 从左边开始的位置 */
+    transform: translate(-50%, -50%); /* 使用 transform 居中 */
+}
+
+.no-products-animation p {
+    text-align: center;
+    font-size: 5em; /* 调整为您需要的大小 */
+    color: red;
+}
+
+.classes-items {
+    text-align: center;
+}
+
+.items {
+    text-align: center;
+}
+
+.classes {
+    background: #f4f4f4;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+/* ---------------------------------------------分页----------------------------------------------- */
+/* 分页控件基本样式 */
+#pagination {
+    text-align: center; /* 居中显示 */
+    margin: 20px 0; /* 顶部和底部间距 */
+    font-size: 16px; /* 文字大小 */
+}
+
+/* 页码按钮样式 */
+#pagination a,
+#pagination span {
+    display: inline-block; /* 使元素水平排列 */
+    margin: 0 10px; /* 页码之间的间距 */
+    padding: 8px 16px; /* 内填充，根据需要调整大小 */
+    background-color: #f9f9f9; /* 背景色 */
+    border: 1px solid #ddd; /* 边框 */
+    border-radius: 4px; /* 圆角边框 */
+    text-align: center;
+    min-width: 40px;
+    color: #337ab7;
+    text-decoration: none;
+}
+
+/* 激活页码的样式 */
+#pagination .current {
+    background-color: #337ab7; /* 激活页码的背景色 */
+    color: white; /* 激活页码的字体色 */
+    border-color: #337ab7; /* 激活页码的边框色 */
+}
+
+/* 鼠标悬浮页码按钮的样式 */
+#pagination a:hover {
+    background-color: #e9e9e9; /* 鼠标悬浮的背景色 */
+    color: #23527c; /* 鼠标悬浮的字体色 */
+    text-decoration: none;
+}
+
+/* 输入框和跳转按钮样式 */
+#pagination form {
+    display: inline-block;
+}
+
+#pagination input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    width: 80px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+#pagination input[type="submit"] {
+    padding: 8px 16px;
+    margin-left: 5px;
+    background-color: #337ab7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer; /* 鼠标悬浮时，指针变为手势 */
+}
+
+#pagination input[type="submit"]:hover {
+    background-color: #286090;
+}
