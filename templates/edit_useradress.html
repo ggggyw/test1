@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>地址管理</title>
+    <title>📍 地址管理</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -115,27 +115,34 @@
                 transform: translateY(0);
             }
         }
+        .icon {
+            margin-right: 5px;
+        }
     </style>
 </head>
 <body>
-    <h1>地址管理</h1>
+    <h1>📍 地址管理</h1>
 
     <form method="POST" action="{% url 'address_management' %}">
         {% csrf_token %}
         <div class="address-list">
-            <h2>默认地址</h2>
+            <h2>🏠 默认地址</h2>
             <div class="address-item default-address">
                 <textarea class="address-text" name="default_address">{{ default_address }}</textarea>
             </div>
 
             {% if other_addresses %}
-                <h2>其他地址</h2>
+                <h2>📜 其他地址</h2>
                 {% for address in other_addresses %}
                     <div class="address-item">
                         <textarea class="address-text" name="address_{{ address.address_id }}">{{ address.address }}</textarea>
                         <div class="address-actions">
-                            <a href="{% url 'set_default_address' address.address_id %}">设为默认</a>
-                            <a href="{% url 'delete_address' address.address_id %}">删除</a>
+                            <a href="{% url 'set_default_address' address.address_id %}">
+                                <span class="icon">⭐</span>设为默认
+                            </a>
+                            <a href="{% url 'delete_address' address.address_id %}">
+                                <span class="icon">🗑️</span>删除
+                            </a>
                         </div>
                     </div>
                 {% endfor %}
@@ -143,12 +150,16 @@
         </div>
 
         <div class="add-address">
-            <input type="text" name="new_address" placeholder="输入新地址" />
+            <input type="text" name="new_address" placeholder="✍️ 输入新地址" />
         </div>
 
         <div class="button-group">
-            <button type="submit">添加及保存</button>
-            <button type="button" onclick="goBack()">返回</button>
+            <button type="submit">
+                <span class="icon">➕</span>添加及保存
+            </button>
+            <button type="button" onclick="goBack()">
+                <span class="icon">⬅️</span>返回
+            </button>
         </div>
     </form>
 
