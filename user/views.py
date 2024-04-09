@@ -126,7 +126,6 @@ def userorder(request):
     u_id = request.session.get('u_id')
     orders=Orders.objects.filter(user_id=u_id)
     order_ids = [order.o_id for order in orders]
-    print(order_ids)
     context={
         'orders':orders,
         'ord_de':ord_de,
@@ -189,7 +188,7 @@ def update_quantity(request):
         request_data = json.loads(request.body)
         cart_id = request_data.get('cart_id')
         new_quantity = request_data.get('newQuantity')
-        print(new_quantity)
+        # print(new_quantity)
         try:
             # 更新数据库中对应商品的数量
             product = Carts.objects.get(id=cart_id)
@@ -203,10 +202,28 @@ def update_quantity(request):
 
 def user_orders(request):
     user_id = request.session.get('u_id')
+    status = request.GET.get('status')  # 获取 URL 参数中的 status 值
+    status_mapping = {
+        'all': None,
+        'pending': 2,
+        'shipped': 3,
+        'review': 4,
+        'recycle': 5
+    }
+
+    # 获取映射后的状态值
+    status_value = status_mapping.get(status)
     try:
-        orders = Orders.objects.filter(user_id=user_id).prefetch_related(
-            Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
-        )
+        # 如果 status_value 为 None，则获取所有订单
+        if status_value is None:
+            orders = Orders.objects.filter(user_id=user_id).prefetch_related(
+                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
+            )
+        else:
+            # 根据状态值过滤订单
+            orders = Orders.objects.filter(user_id=user_id, status=status_value).prefetch_related(
+                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
+            )
 
         orders_data = [{
             'order_id': order.o_id,
@@ -218,7 +235,7 @@ def user_orders(request):
             } for detail in order.orderdetails_set.all()],
             'total_amount': order.total_price,
             'status': order.status,
-            'user_id':order.user_id,
+            'user_id': order.user_id,
         } for order in orders]
 
         return JsonResponse({'orders': orders_data})
