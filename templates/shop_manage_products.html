@@ -152,6 +152,58 @@
             font-weight: bold; /* 当前页加粗显示 */
         }
 
+        /* 模态框的基本样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        /* 模态框内容 */
+        .modal-content {
+            background-color: #fcfcfc;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 350px; /* 可以根据需要调整宽度 */
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        /* 关闭按钮 */
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* 确定和取消按钮样式 */
+        .modal-actions button {
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+
+        .modal-actions button:hover {
+            opacity: 0.8;
+        }
+
     </style>
 </head>
 <body>
@@ -226,6 +278,7 @@
                 <th>现在价格</th>
                 <th>详情</th>
                 <th>修改</th>
+                <th>删除</th>
             </tr>
             {% for shop_product in shop_products %}
                 <tr>
@@ -256,6 +309,11 @@
                         <!-- 修改按钮 -->
                         <a href="{% url 'edit_product' shop_product.shop_product_id %}"
                            class="btn btn-primary">修改</a>
+                    </td>
+                    <td>
+                        <!-- 删除按钮 -->
+                        <a href="javascript:void(0);" onclick="confirmDelete({{ shop_product.shop_product_id }});"
+                           class="btn btn-danger">删除</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -290,19 +348,58 @@
             <p>还没有商品哦！</p>
         </div>
     {% endif %}
-    {% block javascript %}
-        <script>
-            // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
-            $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
-            $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
-            document.addEventListener("DOMContentLoaded", function () {
-                document.querySelector('.no-products-animation').style.display = 'block';
-            });
-        </script>
-    {% endblock %}
-
 </div>
+<!-- 模态框 -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <p>你确定要删除这个商品吗？此操作不可恢复！</p>
+        <div class="modal-actions">
+            <button id="confirmDelete">确定</button>
+            <button id="cancelDelete">取消</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector('.no-products-animation').style.display = 'block';
+    });
 
+    // 获取模态框元素
+    var modal = document.getElementById('confirmModal');
+    var span = document.getElementsByClassName("close")[0];
+    var confirmBtn = document.getElementById('confirmDelete');
+    var cancelBtn = document.getElementById('cancelDelete');
 
+    // 点击删除按钮时，显示模态框
+    function confirmDelete(productId) {
+        // 在显示模态框之前，为确定按钮绑定删除的动作
+        confirmBtn.onclick = function () {
+            window.location.href = "/shop/shoppage/manage_products/delete_product/" + productId + "/";
+        };
+        // 显示模态框
+        modal.style.display = "block";
+    }
+
+    // 点击关闭按钮或取消按钮关闭模态框
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    cancelBtn.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // 点击窗口外区域关闭模态框
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+    // 调整分页样式的代码可能需要移至更适宜的位置，以避免与其他脚本冲突
+    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'});
+    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'});
+
+</script>
 </body>
 </html>
