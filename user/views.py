@@ -29,7 +29,6 @@ def userpage(request):
     }
     return render(request, 'userpage.html', context)
 
-
 def userprofile(request):
     context = {}
     u_id = request.session.get('u_id')
@@ -88,7 +87,6 @@ def usercart(request):
     }
     return render(request,'usercart.html',context)
 
-
 @require_POST
 def add_to_cart(request):
     product_id = request.POST.get('product_id')
@@ -134,7 +132,6 @@ def userorder(request):
 def userserve(request):
     return render(request,'userserve.html')
 
-
 from django.db.models import Q
 import random
 
@@ -159,6 +156,7 @@ def product_details(request, p_id):
     # 获取当前商品的名称
     current_product_name = products2.p_name
 
+
     # 使用当前商品名称作为关键字搜索相关商品
     related_products = ShopProducts.objects.filter(
         Q(product__p_name__icontains=current_product_name) |
@@ -166,7 +164,8 @@ def product_details(request, p_id):
     ).select_related('product', 'shop').exclude(shop_product_id=p_id)
 
     # 随机选择4个相关商品作为推荐商品
-    recommend_products = random.sample(list(related_products), min(4, len(related_products)))
+    recommend_products = random.sample(list(related_products), min(8, len(related_products)))
+
 
     return render(request, 'productdetails.html',
                   {'product': product, 'products2': products2, 'u_id': u_id, 'role': role,
@@ -185,7 +184,6 @@ def delete_item(request):
         return JsonResponse({'message': 'Item deleted successfully'})
     else:
         return JsonResponse({'error': 'Invalid request method'})
-
 
 def checkout(request):
     if request.method == 'POST':
@@ -211,7 +209,6 @@ def checkout(request):
             return JsonResponse({'success': True, 'message': '结算成功'})
         except Exception as e:
             return JsonResponse({'success': False, 'message': '结算失败'})
-
 
 def update_quantity(request):
     #有bug，更改数字不可以输入enter键
@@ -241,7 +238,6 @@ def user_orders(request):
         'review': 4,
         'recycle': 5
     }
-
     # 获取映射后的状态值
     status_value = status_mapping.get(status)
     try:
@@ -293,8 +289,6 @@ def unfollow_shop(request, shop_id):
     user = get_object_or_404(Users, u_id=request.session.get('u_id'))
     Followers.objects.filter(u=user, s=shop).delete()
     return JsonResponse({'success': True})
-
-from django.db.models import Q
 
 def search_products(request):
     query = request.GET.get('q')
