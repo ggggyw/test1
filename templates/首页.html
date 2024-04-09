@@ -87,14 +87,9 @@
                         {% endif %}
                     {% endfor %}
                     <div class="price">
-                        <p>￥{{ product.original_price }}</p>
+                        <p>￥{{ product.current_price }}</p>
                         {#                    <s>￥499.00</s>#}
                     </div>
-                    {#                {% if product.sale %} <!-- 判断商品是否特卖 -->#}
-                    {#                <div class="sale">#}
-                    {#                    特卖#}
-                    {#                </div>#}
-                    {#                {% endif %}#}
                 </a>
             </div>
         {% endfor %}

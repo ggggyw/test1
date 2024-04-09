@@ -265,3 +265,20 @@ def unfollow_shop(request, shop_id):
     user = get_object_or_404(Users, u_id=request.session.get('u_id'))
     Followers.objects.filter(u=user, s=shop).delete()
     return JsonResponse({'success': True})
+
+
+from django.db.models import Q
+
+
+def search_products(request):
+    query = request.GET.get('q')
+    if query:
+        products = ShopProducts.objects.filter(
+            Q(product__p_name__icontains=query) |
+            Q(product_desc__icontains=query)
+        ).select_related('product', 'shop')
+    else:
+        products = ShopProducts.objects.none()
+
+    context = {'products': products, 'query': query}
+    return render(request, 'search_results.html', context)

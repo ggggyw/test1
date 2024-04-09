@@ -47,4 +47,5 @@ urlpatterns = [
     path('user_orders/', user_views.user_orders, name='user_orders'),
     path('follow-shop/<int:shop_id>/', follow_shop, name='follow_shop'),
     path('unfollow-shop/<int:shop_id>/', unfollow_shop, name='unfollow_shop'),
+    path('search/', views.search_products, name='search_products'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

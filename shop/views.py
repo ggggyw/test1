@@ -180,3 +180,8 @@ def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
 
 
+from django.db.models import Q
+
+
+
+
