@@ -121,6 +121,7 @@ def edit_product(request, product_id):
                 myfile = request.FILES['product_image']
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
             shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
