@@ -72,3 +72,56 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
 </div>
+<table>
+    <thead>
+        <tr>
+            <th>订单ID</th>
+            <th>用户</th>
+            <th>状态</th>
+            <th>支付时间</th>
+            <th>订单时间</th>
+            <th>总价</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.o_id }}</td>
+                <td>{{ order.user.u_name }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.paid_time }}</td>
+                <td>{{ order.o_time }}</td>
+                <td>{{ order.total_price }}</td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>订单详情ID</th>
+                                <th>商品</th>
+                                <th>商店</th>
+                                <th>数量</th>
+                                <th>当前单价</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detail in order.orderdetails_set.all %}
+                                <tr>
+                                    <td>{{ detail.order_detail_id }}</td>
+                                    <td>{{ detail.product.product.p_name }}</td>
+                                    <td>{{ detail.shop.s_name }}</td>
+                                    <td>{{ detail.quantity }}</td>
+                                    <td>{{ detail.current_single_price }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
