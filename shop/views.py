@@ -167,6 +167,8 @@ def add_product(request):
                 fs = FileSystemStorage(location='static/商品图片')
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
             shop_product.save()
 
             # 向用户显示成功消息并重定向到商品列表页面
