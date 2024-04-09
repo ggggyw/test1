@@ -87,16 +87,16 @@
 						<div class="fr">绑定邮箱：{{ email|slice:"0:2" }}****{{ email|slice:"-6:" }}</div>
 					</div>
     <div class="bott">
-						<div class="clearfix">
+						<div  class="clearfix">
 							<a href="http://127.0.0.1:8000/user/usercenter/#" class="fl"><img src="{% static '首页_files/gxin1.jpg' %}"></a>
 							<p class="fl"><span>待支付的订单：<strong>0</strong></span>
 								<a href="http://127.0.0.1:8000/user/usercenter/#">查看待支付订单&gt;</a>
 							</p>
 						</div>
 						<div class="clearfix">
-							<a href="http://127.0.0.1:8000/user/usercenter/#" class="fl"><img src="{% static '首页_files/gxin2.jpg' %}"></a>
+							<a href="http://127.0.0.1:8000/user/userorder?status=shipped" data-status="shipped" class="fl"><img src="{% static '首页_files/gxin2.jpg' %}"></a>
 							<p class="fl"><span>待收货的订单：<strong>0</strong></span>
-								<a href="http://127.0.0.1:8000/user/usercenter/#">查看待收货订单&gt;</a>
+                                <a href="http://127.0.0.1:8000/user/userorder?status=shipped" data-status="shipped">查看待收货订单&gt;</a>
 							</p>
 						</div>
 					</div>
@@ -108,4 +108,44 @@
 
 
 
-</body></html>
+</body>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 找到“查看待收货订单”链接
+    var viewShippedOrdersLink1 = document.querySelector('.fl a[data-status="shipped"]');
+    var viewShippedOrdersLink2 = document.querySelector('.bott a[data-status="shipped"]');
+
+    // 给链接添加点击事件监听器
+    if (viewShippedOrdersLink1) {
+        viewShippedOrdersLink1.addEventListener('click', function(event) {
+            handleShippedOrdersLink(event);
+        });
+    }
+
+    if (viewShippedOrdersLink2) {
+        viewShippedOrdersLink2.addEventListener('click', function(event) {
+            handleShippedOrdersLink(event);
+        });
+    }
+
+    // 处理点击事件
+    function handleShippedOrdersLink(event) {
+        // 阻止默认行为，即阻止跳转到链接的 href
+        event.preventDefault();
+        alert()
+        // 找到“待收货/使用”链接
+        var shippedOrdersLink = document.querySelector('div.order-options-container ul.order-options li a[data-status="shipped"]');
+        if (shippedOrdersLink) {
+            alert()
+            // 触发“待收货/使用”链接的点击事件
+            shippedOrdersLink.click();
+        } else {
+            // 如果找不到链接，则直接跳转到/user/userorder页面
+            window.location.href = '/user/userorder';
+        }
+    }
+});
+
+
+</script>
+</html>
