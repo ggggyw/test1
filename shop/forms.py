@@ -1,5 +1,7 @@
 # forms.py
 from django import forms
+from django.core.exceptions import ValidationError
+
 from common.models import ShopProducts, ProductCategories, Products
 
 
@@ -35,20 +37,40 @@ class ShopProductForm(forms.ModelForm):
         choices=STATUS_CHOICES,
         label="商品状态",
     )
-
-    product_image = forms.ImageField(required=False, label="商品图片")
-
+    discount = forms.DecimalField(max_digits=10, decimal_places=3)  # 设置最大位数和小数位数
+    current_price = forms.DecimalField(disabled=True)  # 设置为不可编辑
     class Meta:
         model = ShopProducts
-        fields = ['product_image', 'product_desc', 'product_status', 'stock_quantity',
+        fields = [ 'product_desc', 'product_status', 'stock_quantity',
                   'original_price', 'discount', 'current_price']
 
+    def clean_discount(self):
+        discount = self.cleaned_data.get('discount')
+
+        # 检查折扣是否在0到1的范围内，但不能等于1
+        if discount is not None and (discount < 0 or discount >= 1):
+            raise ValidationError('折扣必须在0到1的范围内，不能等于1')
+
+        return discount
+    def clean(self):
+        cleaned_data = super().clean()
+        # 获取原始价格和折扣
+        original_price = cleaned_data.get('original_price')
+        discount = cleaned_data.get('discount')
+
+        # 计算当前价格
+        if original_price is not None and discount is not None:
+            current_price = original_price * (1 - discount )
+            current_price = round(current_price, 2)  # 四舍五入到两位小数
+            cleaned_data['current_price'] = current_price
+
+        return cleaned_data
     def __init__(self, *args, **kwargs):
         super(ShopProductForm, self).__init__(*args, **kwargs)
         # 保留其他自定义标签设置
         self.fields['product_desc'].label = "商品描述"
         self.fields['stock_quantity'].label = "库存数量"
         self.fields['original_price'].label = "原始价格"
-        self.fields['discount'].label = "折扣"
-        self.fields['current_price'].label = "现价"
+        self.fields['discount'].label = "商品折扣"
+        self.fields['current_price'].label = "现在价格"
         # 商品状态的自定义标签已在上面通过ChoiceField设置
