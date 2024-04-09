@@ -48,9 +48,32 @@ def userprofile(request):
             'address': user.address,
             'created_at': user.created_at,
             'role': role,
-             # 添加更多需要的用户信息字段
         }
     return render(request, 'userprofile.html', context)
+
+def edit_userprofile(request):
+    context = {}
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
+    if role == 'user':
+        user = get_object_or_404(Users, u_id=u_id)
+        if request.method == 'POST':
+            # 处理表单提交
+            user.u_name = request.POST.get('u_name')
+            user.u_psw = request.POST.get('u_psw')
+            user.u_sex = request.POST.get('u_sex')
+            user.u_phone = request.POST.get('u_phone')
+            user.email = request.POST.get('email')
+            user.address = request.POST.get('address')
+            user.save()
+            return redirect('userprofile')
+        else:
+            # 显示表单
+            context = {
+                'user': user,
+                'role': role,
+            }
+    return render(request, 'edit_userprofile.html', context)
 
 def usercart(request):
     cart=Carts.objects.all()
@@ -255,9 +278,7 @@ def unfollow_shop(request, shop_id):
     Followers.objects.filter(u=user, s=shop).delete()
     return JsonResponse({'success': True})
 
-
 from django.db.models import Q
-
 
 def search_products(request):
     query = request.GET.get('q')

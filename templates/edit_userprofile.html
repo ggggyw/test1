@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>修改个人信息</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        <style>
+            body {
+                background-color: #f8f9fa;
+                background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .form-container {
+                max-width: 500px;
+                width: 100%;
+                padding: 40px;
+                background-color: #fff;
+                border-radius: 10px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                animation: fadeIn 1s;
+            }
+            @keyframes fadeIn {
+                0% {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            .form-container h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                color: #333;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+            .form-container .form-control {
+                border-radius: 20px;
+                padding: 12px 20px;
+                background-color: #f8f9fa;
+                border: none;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            }
+            .form-container .form-control:focus {
+                box-shadow: 0 2px 5px rgba(0, 123, 255, 0.5);
+            }
+            .form-container .btn {
+                border-radius: 20px;
+                padding: 12px 20px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            .form-container .btn-primary {
+                background-color: #007bff;
+                border-color: #007bff;
+            }
+            .form-container .btn-primary:hover {
+                background-color: #0069d9;
+                border-color: #0062cc;
+            }
+            .form-container .btn-secondary {
+                background-color: #6c757d;
+                border-color: #6c757d;
+            }
+            .form-container .btn-secondary:hover {
+                background-color: #5a6268;
+                border-color: #545b62;
+            }
+            .form-container .form-label {
+                font-weight: bold;
+                color: #333;
+            }
+            .form-container .form-select {
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23333'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 20px;
+                padding-right: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="form-container">
+            <h2><i class="fas fa-user-edit"></i> 修改个人信息</h2>
+            <form method="post" action="{% url 'edit_userprofile' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="u_name" class="form-label"><i class="fas fa-signature"></i> 姓名</label>
+                    <input type="text" class="form-control" id="u_name" name="u_name" value="{{ user.u_name }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="u_psw" class="form-label"><i class="fas fa-lock"></i> 密码</label>
+                    <input type="password" class="form-control" id="u_psw" name="u_psw" required>
+                </div>
+                <div class="mb-3">
+                    <label for="u_sex" class="form-label"><i class="fas fa-venus-mars"></i> 性别</label>
+                    <select class="form-select" id="u_sex" name="u_sex" required>
+                        <option value="男" {% if user.u_sex == '男' %}selected{% endif %}>男</option>
+                        <option value="女" {% if user.u_sex == '女' %}selected{% endif %}>女</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="u_phone" class="form-label"><i class="fas fa-phone"></i> 手机号</label>
+                    <input type="tel" class="form-control" id="u_phone" name="u_phone" value="{{ user.u_phone }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label"><i class="fas fa-envelope"></i> 邮箱</label>
+                    <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+                </div>
+                <div class="mb-3">
+                    <label for="address" class="form-label"><i class="fas fa-map-marker-alt"></i> 地址</label>
+                    <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}">
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存</button>
+                    <a href="{% url 'userprofile' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> 返回</a>
+                </div>
+            </form>
+        </div>
+    </body>
+</html>
