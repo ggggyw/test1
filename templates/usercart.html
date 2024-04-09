@@ -86,6 +86,16 @@
             cursor: pointer;
             margin-right: 30px;
         }
+
+        .current-price {
+          font-size: 1.2em; /* 设置当前价格的字体大小 */
+          color: red; /* 设置当前价格的颜色为红色 */
+        }
+
+        .original-price {
+          font-size: 0.8em; /* 设置原始价格的字体大小 */
+          color: #888; /* 设置原始价格的颜色为灰色 */
+        }
     </style>
 </head>
 <body>
@@ -158,7 +168,10 @@
                 {% endif %}
             {% endfor %}
             <div class="item-description">{{ b.product_desc }}</div>
-            <div class="item-price">{{ b.original_price }}</div>
+            <div class="item-price">
+                <span class="current-price">{{ b.current_price }}</span>
+                <span class="original-price">{{ b.original_price }}</span>
+            </div>
             <input type="number" class="item-quantity" value="{{ a.quantity }}">
             <div class="item-remove" >删除</div>
         </form>
@@ -294,6 +307,10 @@ var itemQuantities = []; // 存储每个商品的数量
 
 // 更新总价
 function updateTotal() {
+    var totalPrice = 0; // 初始化总价
+    var itemPrices = []; // 存储已选中项目的价格数组
+    var itemQuantities = []; // 存储已选中项目的数量数组
+
     document.querySelectorAll('.cart-item').forEach(function(item) {
         var checkbox = item.querySelector('.select-item');
         if (checkbox.checked) {
