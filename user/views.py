@@ -135,6 +135,9 @@ def userserve(request):
     return render(request,'userserve.html')
 
 
+from django.db.models import Q
+import random
+
 def product_details(request, p_id):
     u_id = request.session.get('u_id')
     role = request.session.get('role')
@@ -153,9 +156,22 @@ def product_details(request, p_id):
         except Users.DoesNotExist:
             pass
 
+    # 获取当前商品的名称
+    current_product_name = products2.p_name
+
+    # 使用当前商品名称作为关键字搜索相关商品
+    related_products = ShopProducts.objects.filter(
+        Q(product__p_name__icontains=current_product_name) |
+        Q(product_desc__icontains=current_product_name)
+    ).select_related('product', 'shop').exclude(shop_product_id=p_id)
+
+    # 随机选择4个相关商品作为推荐商品
+    recommend_products = random.sample(list(related_products), min(4, len(related_products)))
+
     return render(request, 'productdetails.html',
-                  {'product': product, 'products2': products2, 'u_id': u_id, 'role': role, 'is_following': is_following,
-                   'store_name': shop.s_name, 'shop': shop})
+                  {'product': product, 'products2': products2, 'u_id': u_id, 'role': role,
+                   'is_following': is_following, 'store_name': shop.s_name, 'shop': shop,
+                   'recommend_products': recommend_products})
 
 def delete_item(request):
     # print(request.body)
