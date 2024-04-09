@@ -102,7 +102,7 @@
 <!-- 商品信息添加表单 -->
 <div class="add-form">
     <!-- 使用POST方法发送表单数据 -->
-    <form method="post" action="{% url 'add_product' %}">
+    <form method="post" action="{% url 'add_product' %}" enctype="multipart/form-data">
         {% csrf_token %}
         {{ product_form.as_p }}
         {{ shop_product_form.as_p }}
