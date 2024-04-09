@@ -23,6 +23,10 @@
         font-size: 24px;
         font-weight: bold;
         }
+        .recommend-products {
+        margin: 0 auto;
+            width: 1200px;
+        }
     </style>
 </head>
 <body>
@@ -96,7 +100,7 @@
     <main class="product-details">
         <section class="product-gallery">
             {% load static %}
-            <img src="{% static '商品图片/'|add:product.product_image_url %}" alt="{{ product.name }}" class="product-image">
+            <img src="{% static '商品图片/'|add:product.product_image_url %}" alt="{{ product.name }}" onerror="this.onerror=null;this.src='{% static '商品图片/1.jpg' %}';" class="product-image">
             <!-- 产品图片下方的缩略图列表 -->
         </section>
         <section class="product-info">
@@ -269,7 +273,7 @@
                 {% for product in recommend_products %}
                     <div class="good">
                         <a href="{% url 'product_details' product.shop_product_id %}">
-                            <img src="{% static '商品图片/'|add:product.product_image_url %}" onerror="this.onerror=null;this.src='{% static '商品图片/暂无图片.png' %}';" width="285px" height="285px">
+                            <img src="{% static '商品图片/'|add:product.product_image_url %}" onerror="this.onerror=null;this.src='{% static '商品图片/1.jpg' %}';" width="285px" height="285px">
                             <p class="name">{{ product.product.p_name }}</p>
                             <div class="price">
                                 <p>￥{{ product.current_price }}</p>
