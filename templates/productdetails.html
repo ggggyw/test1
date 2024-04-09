@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
+    <link rel="stylesheet" href="{% static '商品详情页/base.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 </head>
@@ -90,26 +91,167 @@
             <!-- 产品图片下方的缩略图列表 -->
         </section>
         <section class="product-info">
-            <h1>{{ products2.p_name }}</h1>
-            <p class="price">￥{{ product.original_price }}</p>
-            <p>{{ product.description }}</p>
-            <div class="promotion">
-                <!-- 促销信息内容 -->
-            </div>
-            <div class="reviews">
-                <!-- 用户评价内容 -->
-            </div>
+            <h1>{{ product.p_name }}</h1>  <!-- 商品名 -->
+            <p class="price">原价价格：￥{{ product.original_price }}</p>  <!-- 打折前价格 -->
+            <p>现价：￥{{ product.current_price }}</p>  <!-- 现在价格 -->
+            <p>库存：{{ product.stock_quantity }}</p>  <!-- 商品剩余数量 -->
             <form action="/add-to-cart/" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="product_id" value="{{ product.shop_product_id }}">
-                <input type="hidden" name="user_id" value="{{ u_id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="buy-button">加入购物车</button>
-            </form>
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.shop_product_id }}">
+    <input type="hidden" name="user_id" value="{{ u_id }}">
+    <div class="quantity">
+        <button type="button" id="decrease">-</button>
+        <input type="number" id="quantity" name="quantity" value="1" min="1">
+        <button type="button" id="increase">+</button>
+    </div>
+    <button type="submit" class="buy-button">加入购物车</button>
+    <div id="cart-success-message" style="display:none;">加入购物车成功</div>
+</form>
+            <p>商品描述：{{ product.product_desc }}</p>  <!-- 商品描述 -->
         </section>
     </main>
     </div>
+<script>
 
+        var decreaseButton = document.getElementById('decrease');
+        var increaseButton = document.getElementById('increase');
+        var quantityInput = document.getElementById('quantity');
 
+        decreaseButton.addEventListener('click', function() {
+            var currentQuantity = parseInt(quantityInput.value, 10);
+            if (currentQuantity > 1) {
+                quantityInput.value = currentQuantity - 1;
+            }
+        });
+
+        increaseButton.addEventListener('click', function() {
+            var currentQuantity = parseInt(quantityInput.value, 10);
+            quantityInput.value = currentQuantity + 1;
+        });
+        // 在 buy-button 的点击事件中添加以下代码
+    var buyButton = document.querySelector('.buy-button');
+    var alertBar = document.createElement('div');
+    var alertMessage = document.createElement('span');
+    var alertCancel = document.createElement('button');
+    const cartSuccessMessage = document.getElementById('cart-success-message');
+
+    buyButton.addEventListener('click', function(event) {
+        {% if u_id %}
+        alert('加入购物车成功');
+    {% endif %}
+        {% if not u_id %}
+            event.preventDefault(); // 阻止表单提交
+
+            alertBar.id = 'alert-bar';
+            alertBar.style.position = 'fixed';
+            alertBar.style.top = '0';
+            alertBar.style.left = '0';
+            alertBar.style.right = '0';
+            alertBar.style.backgroundColor = alertBar.style.backgroundColor = 'red'; /* 将背景颜色改为红色 */
+            alertBar.style.color = 'white'; // 修改颜色为红色
+            alertBar.style.textAlign = 'center'; // 添加文字居中样式
+            alertBar.style.padding = '20px';
+            alertBar.style.zIndex = '9999';
+
+            alertMessage.id = 'alert-message';
+            alertMessage.textContent = '您尚未登录,即将跳转至登录界面,3...';
+
+            alertCancel.id = 'alert-cancel';
+            alertCancel.textContent = '取消';
+            alertCancel.style.padding = '8px 16px'; /* 增加按钮内边距 */
+            alertCancel.style.fontSize = '14px'; /* 增加字体大小 */
+            alertCancel.style.backgroundColor = 'white'; /* 设置背景颜色为白色 */
+            alertCancel.style.color = 'red'; /* 设置文字颜色为红色 */
+            alertCancel.style.border = 'none'; /* 移除边框 */
+            alertCancel.style.borderRadius = '4px'; /* 设置圆角边框 */
+            alertCancel.style.cursor = 'pointer'; /* 设置鼠标指针为手型 */
+
+            alertBar.appendChild(alertMessage);
+            alertBar.appendChild(alertCancel);
+            document.body.appendChild(alertBar);
+            var countdown = 2;
+            var intervalId = setInterval(function() {
+                if (countdown > 0) {
+                    alertMessage.textContent = '您尚未登录,即将跳转至登录界面,' + countdown + '...';
+                    countdown--;
+                } else {
+                    clearInterval(intervalId);
+                    window.location.href = '/user/login'; // 修改为您的登录页面 URL
+                }
+            }, 1000);
+
+            alertCancel.addEventListener('click', function() {
+                clearInterval(intervalId);
+                document.body.removeChild(alertBar);
+            });
+        {% endif %}
+    });
+
+    // 在页面卸载时移除提示条元素
+    window.addEventListener('beforeunload', function() {
+        if (alertBar && alertBar.parentNode) {
+            alertBar.parentNode.removeChild(alertBar);
+        }
+    });
+    function followShop(shopId) {
+            fetch(`/follow-shop/${shopId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 添加关注成功动画
+                    var followButton = document.querySelector('.follow-button button.follow');
+                    followButton.classList.add('follow-success');
+                    setTimeout(function() {
+                        followButton.classList.remove('follow-success');
+                    }, 500);
+                    location.reload(); // 刷新页面以更新关注状态
+                } else {
+                    console.error('Failed to follow shop');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        function unfollowShop(shopId) {
+            fetch(`/unfollow-shop/${shopId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload(); // 刷新页面以更新关注状态
+                } else {
+                    console.error('Failed to unfollow shop');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+</script>
+<footer>
+    <div class="store-name-follow">
+        <div class="store-name"> {{ store_name }}</div>
+        <div class="follow-button">
+            {% if u_id and is_following %}
+            <button class="followed" onclick="unfollowShop({{ shop.s_id }})">已关注</button>
+            {% elif u_id %}
+            <button class="follow" onclick="followShop({{ shop.s_id }})">关注店铺</button>
+            {% else %}
+            <a href="{% url 'login' %}"><button class="follow">关注店铺</button></a>
+            {% endif %}
+        </div>
+    </div>
+</footer>
 </body>
 </html>

@@ -1,15 +1,13 @@
 from django.core.paginator import Paginator
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 import json
-from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails
+from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers
 from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
 from django.utils import timezone
-
+from django.contrib import messages
 
 # Create your views here.
 def userpage(request):
@@ -52,34 +50,6 @@ def userprofile(request):
             'role': role,
              # 添加更多需要的用户信息字段
         }
-    elif role == 'shop':
-        # 获取并处理商户信息
-        shop = get_object_or_404(Shops, s_id=u_id)
-        context = {
-            's_id': shop.s_id,
-            's_name': shop.s_name,
-            's_acc': shop.s_acc,
-            's_psw': shop.s_psw,
-            's_phone': shop.s_phone,
-            'email': shop.email,
-            'address': shop.address,
-            'role': role,
-            # 添加更多需要的商户信息字段
-        }
-
-    elif role == 'admin':
-        # 获取并处理管理员信息
-        admin = get_object_or_404(Admin, ad_id=u_id)  # 假设你的管理员模型名为Admin
-        context = {
-            'ad_id': admin.ad_id,
-            'ad_acc': admin.ad_acc,
-            'ad_psw': admin.ad_psw,
-            'is_super': admin.is_super,
-            'role': role,
-            # 添加更多需要的管理员信息字段
-        }
-    else:
-        return HttpResponse('Invalid role.')  # 或者你可以选择重定向到错误页面
     return render(request, 'userprofile.html', context)
 
 def usercart(request):
@@ -99,11 +69,15 @@ def usercart(request):
 @require_POST
 def add_to_cart(request):
     product_id = request.POST.get('product_id')
-    user_id=request.POST.get('user_id')
+    user_id = request.POST.get('user_id')
+    if user_id is None or user_id == 'None':
+        messages.error(request, '请先登录')
+        return redirect('login')
+    user_id = int(user_id)  # 尝试将 user_id 转换为整数
     products = ShopProducts.objects.filter(product_id=product_id).first()
     products2 = Products.objects.filter(p_id=product_id).first()
     quantity = int(request.POST.get('quantity', 1))
-    shop_id=products.shop_id
+    shop_id = products.shop_id
 
     # 获取或创建购物车项
     cart, created = Carts.objects.get_or_create(
@@ -111,7 +85,7 @@ def add_to_cart(request):
         user_id=user_id,
         shop_id=shop_id,
         defaults={'quantity': 0,
-                  'join_time':'2023-03-19 00:00'}
+                  'join_time': '2023-03-19 00:00'}
     )
     role = request.session.get('role')
     # 更新数量
@@ -119,7 +93,8 @@ def add_to_cart(request):
     cart.join_time = timezone.now()
     cart.save()
     # 网页跳转问题，如何动态添加，暂时还没想好真的要用javascript吗？
-    return render(request,'productdetails.html',{'product': products,'products2':products2,'u_id':user_id,'role':role})
+    return render(request, 'productdetails.html', {'product': products, 'products2': products2, 'u_id': user_id, 'role': role})
+
 
 def userorder(request):
     ord_de=OrderDetails.objects.all()
@@ -135,12 +110,29 @@ def userorder(request):
     return render(request,'userorder.html',context)
 def userserve(request):
     return render(request,'userserve.html')
+
+
 def product_details(request, p_id):
-    u_id= request.session.get('u_id')
-    role= request.session.get('role')
+    u_id = request.session.get('u_id')
+    role = request.session.get('role')
     product = ShopProducts.objects.get(shop_product_id=p_id)
     products2 = Products.objects.get(p_id=product.product_id)
-    return render(request, 'productdetails.html', {'product': product,'products2':products2,'u_id':u_id,'role':role})
+
+    # 获取该商品所属的店铺
+    shop = product.shop
+
+    is_following = False
+    if u_id:
+        try:
+            user = Users.objects.get(u_id=u_id)
+            # 检查用户是否关注该店铺
+            is_following = Followers.objects.filter(u=user, s=shop).exists()
+        except Users.DoesNotExist:
+            pass
+
+    return render(request, 'productdetails.html',
+                  {'product': product, 'products2': products2, 'u_id': u_id, 'role': role, 'is_following': is_following,
+                   'store_name': shop.s_name, 'shop': shop})
 
 def delete_item(request):
     # print(request.body)
@@ -242,3 +234,40 @@ def user_orders(request):
     except Exception as e:
         print("Error:", e)
         return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)
+
+from django.shortcuts import redirect, get_object_or_404
+from django.utils import timezone
+from django.db import IntegrityError
+@require_POST
+def follow_shop(request, shop_id):
+    shop = get_object_or_404(Shops, pk=shop_id)
+    user = get_object_or_404(Users, u_id=request.session.get('u_id'))
+    try:
+        Followers.objects.create(u=user, s=shop, created_at=timezone.now())
+    except IntegrityError:
+        pass
+    return JsonResponse({'success': True})
+
+@require_POST
+def unfollow_shop(request, shop_id):
+    shop = get_object_or_404(Shops, pk=shop_id)
+    user = get_object_or_404(Users, u_id=request.session.get('u_id'))
+    Followers.objects.filter(u=user, s=shop).delete()
+    return JsonResponse({'success': True})
+
+
+from django.db.models import Q
+
+
+def search_products(request):
+    query = request.GET.get('q')
+    if query:
+        products = ShopProducts.objects.filter(
+            Q(product__p_name__icontains=query) |
+            Q(product_desc__icontains=query)
+        ).select_related('product', 'shop')
+    else:
+        products = ShopProducts.objects.none()
+
+    context = {'products': products, 'query': query}
+    return render(request, 'search_results.html', context)

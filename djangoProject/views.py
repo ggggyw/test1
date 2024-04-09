@@ -58,3 +58,31 @@ def get_products(request):
 
     content = render_to_string(template_name, {'products': shoppro,'products2':products2, 'category_id': category_id})
     return HttpResponse(content)
+
+
+from django.db.models import Q
+
+from django.core.paginator import Paginator
+
+
+def search_products(request):
+    query = request.GET.get('q')
+    page_num = request.GET.get('page', 1)
+
+    if query:
+        # 使用 p_id 进行搜索
+        ids = Products.objects.filter(
+            Q(p_name__icontains=query) |
+            Q(brand__icontains=query)
+        ).values_list('p_id', flat=True)
+        shoppro = ShopProducts.objects.filter(product_id__in=ids)
+
+        paginator = Paginator(shoppro, 12)  # 每页显示12个商品
+        page_obj = paginator.get_page(page_num)
+    else:
+        page_obj = ShopProducts.objects.none()
+
+    products2 = Products.objects.all()
+
+    context = {'products': page_obj, 'products2': products2, 'query': query}
+    return render(request, 'search_results.html', context)

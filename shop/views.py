@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -102,12 +103,19 @@ def edit_product(request, product_id):
     product = shop_product.product
 
     if request.method == "POST":
-        product_form = ProductForm(request.POST, instance=product)
-        shop_product_form = ShopProductForm(request.POST, instance=shop_product)
+        product_form = ProductForm(request.POST, request.FILES, instance=product)
+        shop_product_form = ShopProductForm(request.POST, request.FILES, instance=shop_product)
 
         if product_form.is_valid() and shop_product_form.is_valid():
             # 更新Products实例
             product_form.save()
+            shop_product = shop_product_form.save(commit=False)
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
             messages.success(request, '修改成功！')
@@ -128,6 +136,36 @@ def edit_product(request, product_id):
     }
     return render(request, 'shop_edit_product.html', context)
 
+def add_product(request):
+    if request.method == "POST":
+        product_form = ProductForm(request.POST)
+        shop_product_form = ShopProductForm(request.POST)
+        shop_id = request.session.get('u_id')
+
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 保存Products模型实例
+            product = product_form.save()
+
+            # 我们需要为ShopProducts设置外键关系
+            # 假设ProductForm的save方法返回新创建的Product实例
+            shop_product = shop_product_form.save(commit=False)
+            shop_product.product = product
+            shop_product.shop_id = shop_id
+            shop_product.save()
+
+            messages.success(request, '商品已成功添加！')
+            return redirect('add_product') # 这里假设你有一个商品列表的页面
+        else:
+            messages.error(request, '添加商品时出现错误。')
+    else:
+        product_form = ProductForm()
+        shop_product_form = ShopProductForm()
+
+    return render(request, 'shop_add_product.html', {
+        'product_form': product_form,
+        'shop_product_form': shop_product_form
+    })
+
 def delete_product(request):
     return None
 
@@ -140,5 +178,10 @@ def shop_order(request):
 
 def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
+
+
+from django.db.models import Q
+
+
 
 

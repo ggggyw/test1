@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
-    <title>shop_edit_product</title>
+    <title>shop_add_product</title>
     <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
     <style>
         .messages {
@@ -26,9 +26,19 @@
             border-radius: 5px; /* 边框圆角 */
         }
 
-        ul.errorlist li {
-            color: red;
+        .add-form {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 10; /* 确保不在消息提示框之下 */
+            width: 300px; /* 设置宽度，视情况适当调整 */
+            padding: 20px; /* 内边距 */
+            background-color: white; /* 背景色 */
+            border-radius: 10px; /* 边框圆角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影 */
         }
+
 
         /* 淡出动画 */
         @keyframes fadeOut {
@@ -89,41 +99,16 @@
                 href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=9">智能家居设备</a></li>
     </ul>
 </div>
-<div class="content">
-    <!-- 显示旧的商品信息 -->
-    <div class="product-info">
-        <!-- 在这里显示原来的商品信息 -->
-        <p>商品名称: {{ shop_products.product.p_name }}</p>
-        <!-- 显示商品图片和其他信息 -->
-        <p>商品类别: {{ shop_products.product.p_type.category_name }}</p>
-        <p>品牌名称: {{ shop_products.product.brand }}</p>
-        <p>当前价格: {{ shop_products.current_price }}</p>
-        <p>商品描述: {{ shop_products.product_desc }}</p>
-        <p>商品状态: {{ shop_products.product_status }}</p>
-        <p>库存数量: {{ shop_products.stock_quantity }}</p>
-        <p>原始价格: {{ shop_products.original_price }}</p>
-        <p>商品折扣: {{ shop_products.discount }}</p>
-        <p>现在价格: {{ shop_products.current_price }}</p>
-        <p>商品图片: </p>
-        <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
-             height="200px">
-    </div>
-
-    <!-- 商品信息编辑表单 -->
-    <div class="edit-form">
-        <!-- 使用POST方法发送表单数据 -->
-        <!-- 注意这里添加了 enctype="multipart/form-data" -->
-        <form method="post" action="{% url 'edit_product' shop_products.shop_product_id %}"
-              enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ product_form.as_p }}
-            {{ shop_product_form.as_p }}
-            <img id="preview" src="" alt="上传修改的商品图片" width="200px" height="200px">
-            <input id="product_image" type="file" name="product_image" onchange="previewImage(this)">
-            <!-- 提交按钮 -->
-            <input type="submit" value="更新商品信息">
-        </form>
-    </div>
+<!-- 商品信息添加表单 -->
+<div class="add-form">
+    <!-- 使用POST方法发送表单数据 -->
+    <form method="post" action="{% url 'add_product' %}">
+        {% csrf_token %}
+        {{ product_form.as_p }}
+        {{ shop_product_form.as_p }}
+        <!-- 提交按钮 -->
+        <input type="submit" value="添加商品信息">
+    </form>
 </div>
 {% if messages %}
     <div id="message-container" class="messages">
@@ -149,18 +134,7 @@
             }, 2000); // 你可以调整这里的时间来控制消息显示多久
         }
     };
-
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                document.getElementById('preview').src = e.target.result;
-            }
-
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
 </script>
+
 </body>
 </html>
