@@ -1,0 +1,191 @@
+/* 在这里开始添加您的CSS代码 */
+.classes {
+    background: #f4f4f4;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+.classes-items {
+    text-align: center;
+}
+
+.items {
+    text-align: center;
+}
+/* -------------------------------------模态框的基本样式 --------------------------*/
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.4);
+    padding-top: 60px;
+}
+
+/* 模态框内容 */
+.modal-content {
+    background-color: #fcfcfc;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 350px; /* 可以根据需要调整宽度 */
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* 关闭按钮 */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 确定和取消按钮样式 */
+.modal-actions button {
+    padding: 10px 20px;
+    margin: 10px;
+    cursor: pointer;
+}
+
+.modal-actions button:hover {
+    opacity: 0.8;
+}
+
+/*---------------------------------------表格-------------------------------------------*/
+table {
+    margin: 20px auto;
+    width: 100%; /* 或者根据页面布局调整宽度 */
+    border-collapse: collapse; /* 移除单元格之间的间隔 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 给表格增加阴影效果 */
+}
+
+/* 调整表头的样式 */
+th {
+    background-color: #4CAF50; /* 示例背景颜色，可根据喜好修改 */
+    color: white;
+    font-size: 16px;
+    text-align: left;
+    padding: 10px 15px;
+}
+
+/* 调整单元格的样式 */
+td {
+    padding: 10px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* 在单元格下方添加一条边框线 */
+}
+
+/* 鼠标悬浮在单元格上时改变背景色，增强交互体验 */
+tr:hover {
+    background-color: #f5f5f5;
+}
+/* 调整表格中详情、修改和删除按钮所在列的宽度 */
+th:nth-last-child(-n+3),
+td:nth-last-child(-n+3) {
+    width: 7%; /* 调整为所需的宽度 */
+}
+
+/*---------------------------------------分页控件-------------------------------------------*/
+.pagination {
+    text-align: center; /* 居中分页控件 */
+    margin-top: 20px; /* 顶部距离，可根据需要调整 */
+    margin-bottom: 20px; /* 底部距离，可根据需要调整 */
+}
+
+.pagination .step-links span.current {
+    font-weight: bold; /* 当前页加粗显示 */
+}
+
+/* 页码相关样式 */
+.pagination .step-links a,
+.pagination .step-links span {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    color: #337ab7;
+    text-decoration: none;
+}
+
+.pagination .step-links span.current {
+    font-weight: bold;
+    background-color: #337ab7;
+    color: white;
+    border-color: #337ab7;
+}
+
+/* ---------------------------------------------------按钮样式调整 -------------------------------------*/
+.btn {
+    padding: 8px 12px;
+    color: white;
+    background-color: #5cb85c; /* 示例按钮背景颜色 */
+    border: none;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+table .btn-info,
+table .btn-primary,
+table .btn-danger {
+    font-size: 12px; /* 调整字体大小为您想要的尺寸 */
+    padding: 5px 10px; /* 可以适当减小按钮的填充来使整体尺寸变小 */
+}
+.btn-primary {
+    background-color: #0275d8;
+    font-size: 14px;
+}
+
+.btn-info {
+    background-color: #5bc0de;
+    font-size: 14px;
+}
+
+.btn-danger {
+    background-color: #d9534f;
+    font-size: 14px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.add-product-button {
+    text-align: center; /* 居中添加商品按钮 */
+    margin-bottom: 20px; /* 添加与下面内容的间隔 */
+}
+
+.add-product-button .btn {
+    font-size: 20px; /* 增大文字大小，更加引人注目 */
+    padding: 10px 20px; /* 增加按钮的填充，使它看起来更大 */
+}
+
+/* ---------------------------------------------没有商品的提示----------------------------------------------- */
+
+.no-products-animation {
+    display: none;
+    animation: fadeInOut 3s ease infinite;
+    position: fixed; /* 使用 fixed 定位 */
+    top: 50%; /* 从顶部开始的位置 */
+    left: 50%; /* 从左边开始的位置 */
+    transform: translate(-50%, -50%); /* 使用 transform 居中 */
+}
+
+.no-products-animation p {
+    text-align: center;
+    font-size: 5em; /* 调整为您需要的大小 */
+    color: red;
+}
+
