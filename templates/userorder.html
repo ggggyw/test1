@@ -190,6 +190,31 @@
 
 
 <script>
+    $(document).ready(function() {
+    // 获取当前 URL 中的 status 参数
+    var urlParams = new URLSearchParams(window.location.search);
+    var status = urlParams.get('status');
+
+    // 如果 status 参数为 'shipped'，延迟 1 秒后触发对应按钮的点击事件
+    if (status === 'shipped') {
+        setTimeout(function() {
+            $('a[data-status="shipped"]').trigger('click');
+        }, 300);
+    }
+    else if (status === 'pending')
+    {
+        setTimeout(function() {
+            $('a[data-status="pending"]').trigger('click');
+        }, 300);
+    }
+    $('.order-options a').click(function(e) {
+        e.preventDefault();
+        var clickedStatus = $(this).attr('data-status');
+        getOrdersByStatus(clickedStatus);
+    });
+});
+
+
 $(document).ready(function() {
     $.ajax({
         url: '/user_orders/',  // 后端 API 地址
@@ -241,65 +266,61 @@ success: function(response) {
     });
 });
 
-$(document).ready(function() {
-    $('.order-options a').click(function(e) {
-        e.preventDefault();
-        var status = $(this).attr('data-status');
-        $.ajax({
-            url: '/user_orders/',
-            type: 'GET',
-            data: {
-                status: status
-            },
-            success: function(response) {
-                // 清除旧的订单内容
-                $('#order-details-container .oorder-container').remove();
-                // 插入新的订单内容
-                var ordersData = response.orders;
-                var ordersContent = '';
-                for (var i = 0; i < ordersData.length; i++) {
-                    var order = ordersData[i];
-                    var orderDetailsContent = '';
-                    for (var j = 0; j < order.order_details.length; j++) {
-                        var orderDetail = order.order_details[j];
-                        orderDetailsContent += '<div class="oorder-product">' +
-                            '<div class="oorder-product-details">' +
-                            '<img src="{% static '商品图片/' %}' + orderDetail.product_image_url + '">' +
-                            '<div>'+
-                            '<p>' + orderDetail.product_name + '</p>' +
-                            '<p>数量：' + orderDetail.quantity + '</p>' +
-                            '<p>单价：' + orderDetail.price + '</p>' +
-                            '</div>'+
-                            '</div></div>';
-                    }
-                    ordersContent += '<div class="oorder-container">' +
-                        '<div >' +
-                        '<div class="oorder-details">' + orderDetailsContent + '</div>' +
-                        '</div>' +
-                        '<div class="user_id">' +
-                        '<p>' + order.user_id + '</p>' +
-                        '</div>' +
-                        '<div class="total-amount">' +
-                        '<p>' + order.total_amount +'元'+ '</p>' +
-                        '</div>' +
-                        '<div class="status">' +
-                        '<p>' + order.status + '</p>' +
-                        '</div>' +
-                        '<div class="caozuo">' +
-                            '<button>' + "再次购买" + '</button>' +
-                            '<button>' + "删除" + '</button>' +
-                        '</div>' +
-                        '</div>';
+function getOrdersByStatus(status) {
+    $.ajax({
+        url: '/user_orders/',
+        type: 'GET',
+        data: {
+            status: status
+        },
+        success: function(response) {
+            // 清除旧的订单内容
+            $('#order-details-container .oorder-container').remove();
+            // 插入新的订单内容
+            var ordersData = response.orders;
+            var ordersContent = '';
+            for (var i = 0; i < ordersData.length; i++) {
+                var order = ordersData[i];
+                var orderDetailsContent = '';
+                for (var j = 0; j < order.order_details.length; j++) {
+                    var orderDetail = order.order_details[j];
+                    orderDetailsContent += '<div class="oorder-product">' +
+                        '<div class="oorder-product-details">' +
+                        '<img src="{% static '商品图片/' %}' + orderDetail.product_image_url + '">' +
+                        '<div>'+
+                        '<p>' + orderDetail.product_name + '</p>' +
+                        '<p>数量：' + orderDetail.quantity + '</p>' +
+                        '<p>单价：' + orderDetail.price + '</p>' +
+                        '</div>'+
+                        '</div></div>';
                 }
-                $('#order-details-container').append(ordersContent);
-            },
-            error: function(xhr, status, error) {
-                console.error(error);
-                $('#order-details-container').html('<p>获取订单失败</p>');
+                ordersContent += '<div class="oorder-container">' +
+                    '<div >' +
+                    '<div class="oorder-details">' + orderDetailsContent + '</div>' +
+                    '</div>' +
+                    '<div class="user_id">' +
+                    '<p>' + order.user_id + '</p>' +
+                    '</div>' +
+                    '<div class="total-amount">' +
+                    '<p>' + order.total_amount +'元'+ '</p>' +
+                    '</div>' +
+                    '<div class="status">' +
+                    '<p>' + order.status + '</p>' +
+                    '</div>' +
+                    '<div class="caozuo">' +
+                        '<button>' + "再次购买" + '</button>' +
+                        '<button>' + "删除" + '</button>' +
+                    '</div>' +
+                    '</div>';
             }
-        });
+            $('#order-details-container').append(ordersContent);
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+            $('#order-details-container').html('<p>获取订单失败</p>');
+        }
     });
-});
+}
 
 
 </script>
