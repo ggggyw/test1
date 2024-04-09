@@ -112,8 +112,13 @@ def edit_product(request, product_id):
             product_form.save()
             shop_product = shop_product_form.save(commit=False)
             if 'product_image' in request.FILES:
-                myfile = request.FILES['product_image']
+                # 创建一个文件系统存储对象
                 fs = FileSystemStorage(location='static/商品图片')
+                # 如果已经存在旧的图片，就先删除旧的图片
+                if shop_product.product_image_url:
+                    fs.delete(shop_product.product_image_url)
+                # 保存新的图片
+                myfile = request.FILES['product_image']
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
             shop_product.save()
@@ -182,8 +187,17 @@ def add_product(request):
     return render(request, 'shop_add_product.html', context)
 
 
-def delete_product(request):
-    return None
+def delete_product(request, product_id):
+    if product_id is not None:
+        shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
+        if shop_product:
+            image_path = shop_product.product_image_url  # 获取商品图片的路径
+            fs = FileSystemStorage(location='static/商品图片')  # 创建一个文件系统存储对象
+            fs.delete(shop_product.product_image_url)  # 删除图片文件
+            if fs.exists(shop_product.product_image_url):  # 检查文件是否仍然存在
+                print("删除图片错误")  # 如果文件仍然存在，打印一条错误消息
+            shop_product.delete()  # 删除对应的商品
+    return redirect('manage_products')  # 重定向到manage_products视图
 
 
 def product_detail(request):
