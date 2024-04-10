@@ -263,8 +263,8 @@
     {% if users.paginator.num_pages > 1 %}
     <div class="pagination" id="userPagination">
       {% if users.has_previous %}
-        <a href="?page=1" onclick="moveTables(1, {{ users.number }})">第一页</a>
-        <a href="?page={{ users.previous_page_number }}" onclick="moveTables({{ users.previous_page_number }}, {{ users.number }})">上一页</a>
+        <a href="?table=user&user_page=1" onclick="moveTables(1, {{ users.number }},'userTable')">第一页</a>
+        <a href="?table=user&user_page={{ users.previous_page_number }}" onclick="moveTables({{ users.previous_page_number }}, {{ users.number }},'userTable')">上一页</a>
       {% endif %}
 
       {% with users.number|add:"-2" as prev_range %}
@@ -278,7 +278,7 @@
               {% if page_num == users.number %}
                 <span class="current-page">{{ page_num }}</span>
               {% else %}
-                <a href="?page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ users.number }})">{{ page_num }}</a>
+                <a href="?table=user&user_page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ users.number }},'userTable')">{{ page_num }}</a>
               {% endif %}
             {% endif %}
           {% endfor %}
@@ -290,9 +290,45 @@
       {% endwith %}
 
       {% if users.has_next %}
-        <a href="?page={{ users.next_page_number }}" onclick="moveTables({{ users.next_page_number }}, {{ users.number }})">下一页</a>
-        <a href="?page={{ users.paginator.num_pages }}" onclick="moveTables({{ users.paginator.num_pages }}, {{ users.number }})">最后一页</a>
+        <a href="?table=user&user_page={{ users.next_page_number }}" onclick="moveTables({{ users.next_page_number }}, {{ users.number }},'userTable')">下一页</a>
+        <a href="?table=user&user_page={{ users.paginator.num_pages }}" onclick="moveTables({{ users.paginator.num_pages }}, {{ users.number }},'userTable')">最后一页</a>
       {% endif %}
+    </div>
+    {% endif %}
+    <!-- 商家分页器 -->
+      {% if shops.paginator.num_pages > 1 %}
+    <div class="pagination" id="shopPagination" style="display: none;">
+        {% if shops.has_previous %}
+            <a href="?table=shop&shop_page=1" onclick="moveTables(1, {{ shops.number }}, 'shopTable')">第一页</a>
+            <a href="?table=shop&shop_page={{ shops.previous_page_number }}" onclick="moveTables({{ shops.previous_page_number }}, {{ shops.number }}, 'shopTable')">上一页</a>
+        {% endif %}
+
+        {% with shops.number|add:"-2" as prev_range %}
+            {% with shops.number|add:"2" as next_range %}
+            {% if prev_range > 2 %}
+                <span>...</span>
+            {% endif %}
+
+            {% for page_num in shops.paginator.page_range %}
+                {% if page_num >= prev_range and page_num <= next_range %}
+                {% if page_num == shops.number %}
+                    <span class="current-page">{{ page_num }}</span>
+                {% else %}
+                    <a href="?table=shop&shop_page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ shops.number }}, 'shopTable')">{{ page_num }}</a>
+                {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if next_range < shops.paginator.num_pages|add:"-1" %}
+                <span>...</span>
+            {% endif %}
+            {% endwith %}
+        {% endwith %}
+
+        {% if shops.has_next %}
+            <a href="?table=shop&shop_page={{ shops.next_page_number }}" onclick="moveTables({{ shops.next_page_number }}, {{ shops.number }}, 'shopTable')">下一页</a>
+            <a href="?table=shop&shop_page={{ shops.paginator.num_pages }}" onclick="moveTables({{ shops.paginator.num_pages }}, {{ shops.number }}, 'shopTable')">最后一页</a>
+        {% endif %}
     </div>
     {% endif %}
   </div>
@@ -310,6 +346,19 @@
   </div>
 
   <script>
+      window.onload = function() {
+  var params = new URLSearchParams(window.location.search);
+  var table = params.get('table');
+  switch (table) {
+    case 'user':
+      switchTable('userTable');
+      break;
+    case 'shop':
+      switchTable('shopTable');
+      break;
+    // 添加更多的 case 以处理其他的表格
+  }
+};
     // 获取模态框元素
     var modal = document.getElementById("editModal");
 
@@ -335,9 +384,9 @@
     }
 
     // 修改后的函数
-    function moveTables(targetPage, currentPage) {
-      var tableContainer = document.querySelector('.table-container');
-      var table = tableContainer.querySelector('table');
+    function moveTables(targetPage, currentPage, tableName) {
+        var tableContainer = document.querySelector('.table-container');
+      var table = tableContainer.querySelector('#' + tableName);
       var tableWidth = table.offsetWidth;
 
       // 计算表格应该移动的距离
@@ -348,7 +397,8 @@
 
       // 加载新的页面内容
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', '?page=' + targetPage, true);
+      var pageParam = tableName === 'userTable' ? 'user_page' : 'shop_page';
+      xhr.open('GET', '?table=' + tableName + '&' + pageParam + '=' + targetPage, true);
       xhr.onreadystatechange = function() {
         if (xhr.readyState == 4 && xhr.status == 200) {
           var newTable = document.createElement('table');
@@ -369,45 +419,50 @@
           };
         }
       };
+
       xhr.send();
     }
-    // 切换表格的函数
-    function switchTable(tableId) {
-      // 隐藏所有的表格
-      var tables = document.getElementsByTagName('table');
-      for (var i = 0; i < tables.length; i++) {
-        tables[i].style.display = 'none';
-      }
+function switchTable(tableId) {
+  // 隐藏所有的表格
+  var tables = document.getElementsByTagName('table');
+  for (var i = 0; i < tables.length; i++) {
+    tables[i].style.display = 'none';
+  }
 
-      // 显示对应的表格
-      var table = document.getElementById(tableId);
-      table.style.display = '';
+  // 显示对应的表格
+  var table = document.getElementById(tableId);
+  table.style.display = '';
 
-      // 隐藏所有的分页器
-    var paginations = document.getElementsByClassName('pagination');
-    for (var i = 0; i < paginations.length; i++) {
-      paginations[i].style.display = 'none';
-    }
+  // 隐藏所有的分页器
+  var paginations = document.getElementsByClassName('pagination');
+  for (var i = 0; i < paginations.length; i++) {
+    paginations[i].style.display = 'none';
+  }
 
-    // 显示对应的分页器
-    var paginationId = tableId.replace('Table', 'Pagination');
-    var pagination = document.getElementById(paginationId);
-    if (pagination) {
-      pagination.style.display = '';
-    }
+  // 显示对应的分页器
+  var paginationId = tableId.replace('Table', 'Pagination');
+  var pagination = document.getElementById(paginationId);
+  if (pagination) {
+    pagination.style.display = '';
+  }
 
-      // 修改页面标题
-      var pageTitle = document.getElementById('pageTitle');
-      switch (tableId) {
-        case 'userTable':
-          pageTitle.textContent = '用户信息';
-          break;
-        case 'shopTable':
-          pageTitle.textContent = '商家信息';
-          break;
-        // 添加更多的 case 以处理其他的表格
-      }
-    }
+  // 修改页面标题
+  var pageTitle = document.getElementById('pageTitle');
+  var params = new URLSearchParams(window.location.search);
+  var pageParam = tableName === 'userTable' ? 'user_page' : 'shop_page';
+  var page = params.get(pageParam) || 1;
+  switch (tableId) {
+    case 'userTable':
+      pageTitle.textContent = '用户信息';
+      window.history.pushState({}, '', '?table=user&user_page=' + page);
+      break;
+    case 'shopTable':
+      pageTitle.textContent = '商家信息';
+      window.history.pushState({}, '', '?table=shop&shop_page=' + page);
+      break;
+    // 添加更多的 case 以处理其他的表格
+  }
+}
   </script>
 </body>
 </html>
