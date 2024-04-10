@@ -28,8 +28,6 @@ def logout_view(request):
     logout(request)  # Django的logout函数会结束用户的session
     return redirect('home')  # 将用户重定向到登录页面或者首页
 
-
-
 def get_products(request):
     category_id = request.GET.get('category_id')
     if category_id is not None and category_id != '0':
