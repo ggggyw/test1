@@ -26,9 +26,9 @@ def login(request):
                 try:
                     admin = Admin.objects.get(ad_acc=user_acc)
                     if admin.ad_psw == password:
-                        request.session['u_id'] = admin.ad_id
+                        request.session['ad_id'] = admin.ad_id
                         request.session['role'] = role
-                        return redirect(reverse('userpage'))
+                        return redirect(reverse('adminpage'))
                     else:
                         messages.error(request, 'Invalid username or password.')
                 except Admin.DoesNotExist:
