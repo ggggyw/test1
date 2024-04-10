@@ -12,11 +12,15 @@ def adminpage(request):
     paginator = Paginator(users, 6)  # 每页显示 6 个用户
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    shops = Shops.objects.all()
+    shop_paginator = Paginator(shops, 6)  # 每页显示 6 个商店
+    shop_page_number = request.GET.get('shop_page')
+    shop_page_obj = shop_paginator.get_page(shop_page_number)
     context = {
         'admin': admin,
         'is_super': admin.is_super,
         'users': page_obj,
-        'shops': Shops.objects.all(),
+        'shops': shop_page_obj,
         'orders': Orders.objects.all(),
         'order_details': OrderDetails.objects.all(),
         'products': Products.objects.all(),
