@@ -175,15 +175,15 @@
     .table-container table {
       position: relative;
       left: 0;
-      transition: left 0.5s ease;
+      transition: left 0.7s ease;
     }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <h2>管理员界面</h2>
-    <a href="#">用户管理</a>
-    <a href="#">商家管理</a>
+    <a href="#" onclick="switchTable('userTable')">用户管理</a>
+    <a href="#" onclick="switchTable('shopTable')">商家管理</a>
     <a href="#">商品管理</a>
     <a href="#">订单管理</a>
     <a href="#">个人设置</a>
@@ -192,9 +192,10 @@
   </div>
 
   <div class="main-content">
-    <h2>用户信息</h2>
+    <h2 id="pageTitle">用户信息</h2>
     <div class="table-container">
-      <table>
+      <!-- 用户信息表格 -->
+      <table id="userTable">
         <thead>
           <tr>
             <th>用户 ID</th>
@@ -226,10 +227,41 @@
           {% endfor %}
         </tbody>
       </table>
+    <!-- 商家信息表格 -->
+      <table id="shopTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>商家 ID</th>
+            <th>商家名</th>
+            <th>账号</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>地址</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 用 Django 渲染商家信息数据 -->
+          {% for shop in shops %}
+          <tr>
+            <td>{{ shop.s_id }}</td>
+            <td>{{ shop.s_name }}</td>
+            <td>{{ shop.s_acc }}</td>
+            <td>{{ shop.s_phone }}</td>
+            <td>{{ shop.email }}</td>
+            <td>{{ shop.address }}</td>
+            <td>
+              <button onclick="openEditModal('{{ shop.s_id }}')">编辑</button>
+              <button>删除</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-
+    <!-- 用户分页器 -->
     {% if users.paginator.num_pages > 1 %}
-    <div class="pagination">
+    <div class="pagination" id="userPagination">
       {% if users.has_previous %}
         <a href="?page=1" onclick="moveTables(1, {{ users.number }})">第一页</a>
         <a href="?page={{ users.previous_page_number }}" onclick="moveTables({{ users.previous_page_number }}, {{ users.number }})">上一页</a>
@@ -313,6 +345,68 @@
 
       // 移动表格
       table.style.left = distance + 'px';
+
+      // 加载新的页面内容
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '?page=' + targetPage, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          var newTable = document.createElement('table');
+          newTable.innerHTML = xhr.responseText;
+          newTable.style.position = 'absolute';
+          newTable.style.left = (targetPage > currentPage ? tableWidth : -tableWidth) + 'px';
+          tableContainer.appendChild(newTable);
+
+          // 在新的表格加载完成后移动表格
+          newTable.onload = function() {
+            table.style.left = (targetPage > currentPage ? -tableWidth : tableWidth) + 'px';
+            newTable.style.left = '0px';
+
+            // 在表格移动完成后删除旧的表格
+            table.addEventListener('transitionend', function() {
+              tableContainer.removeChild(table);
+            });
+          };
+        }
+      };
+      xhr.send();
+    }
+    // 切换表格的函数
+    function switchTable(tableId) {
+      // 隐藏所有的表格
+      var tables = document.getElementsByTagName('table');
+      for (var i = 0; i < tables.length; i++) {
+        tables[i].style.display = 'none';
+      }
+
+      // 显示对应的表格
+      var table = document.getElementById(tableId);
+      table.style.display = '';
+
+      // 隐藏所有的分页器
+    var paginations = document.getElementsByClassName('pagination');
+    for (var i = 0; i < paginations.length; i++) {
+      paginations[i].style.display = 'none';
+    }
+
+    // 显示对应的分页器
+    var paginationId = tableId.replace('Table', 'Pagination');
+    var pagination = document.getElementById(paginationId);
+    if (pagination) {
+      pagination.style.display = '';
+    }
+
+      // 修改页面标题
+      var pageTitle = document.getElementById('pageTitle');
+      switch (tableId) {
+        case 'userTable':
+          pageTitle.textContent = '用户信息';
+          break;
+        case 'shopTable':
+          pageTitle.textContent = '商家信息';
+          break;
+        // 添加更多的 case 以处理其他的表格
+      }
     }
   </script>
 </body>
