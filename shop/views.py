@@ -79,7 +79,7 @@ def manage_products(request):
     # 从会话中获取用户的ID
     u_id = request.session.get('u_id')
     category_id = request.GET.get('category_id')
-    if category_id is not None and category_id != '0':
+    if category_id is not None and category_id != '0' and category_id != '':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
         shop_products = ShopProducts.objects.filter(shop__s_id=u_id, product_id__in=ids)
@@ -91,10 +91,49 @@ def manage_products(request):
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
+    # 初始化表单实例
+    product_form = ProductForm(request.POST or None, request.FILES or None)
+    shop_product_form = ShopProductForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST":
+        # 获取当前登录的商家ID
+        shop_id = request.session.get('u_id')
+
+        # 验证两个表单是否都有效
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 保存Products模型实例
+            product = product_form.save()
+
+            # 我们需要为ShopProducts设置外键关系
+            # 假设ProductForm的save方法返回新创建的Product实例
+            shop_product = shop_product_form.save(commit=False)
+            shop_product.product = product
+            shop_product.shop_id = shop_id
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            shop_product.save()
+
+            # 向用户显示成功消息并重定向到商品列表页面
+            messages.success(request, '商品已成功添加！')
+            return redirect('manage_products')  # 这里假设你有一个商品列表的页面
+        else:
+            messages.error(request, '添加商品时出现错误。')
+    else:
+        # GET 请求，创建表单并填充当前模型实例数据
+        product_form = ProductForm()
+        shop_product_form = ShopProductForm()
     context = {
         'shop_products': paged_products,
         'products': products,
         'user_id': u_id,
+        'category_id': category_id,
+        'product_form': product_form,
+        'shop_product_form': shop_product_form
     }
     return render(request, 'shop_manage_products.html', context)
 
