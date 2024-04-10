@@ -307,9 +307,9 @@ var itemQuantities = []; // 存储每个商品的数量
 
 // 更新总价
 function updateTotal() {
-    var totalPrice = 0; // 初始化总价
-    var itemPrices = []; // 存储已选中项目的价格数组
-    var itemQuantities = []; // 存储已选中项目的数量数组
+    totalPrice = 0; // 移除了变量重新声明
+    itemPrices = []; // 移除了变量重新声明
+    itemQuantities = []; // 移除了变量重新声明
 
     document.querySelectorAll('.cart-item').forEach(function(item) {
         var checkbox = item.querySelector('.select-item');
@@ -335,7 +335,6 @@ document.querySelector('.checkout-btn').addEventListener('click', function() {
     selectedItems.forEach(function(item) {
         selectedProductIds.push(item.closest('.cart-item').dataset.itemId);
     });
-
     // 发送选中的商品的 id、单价数组和数量数组给后端
     fetch('/checkout/', {
         method: 'POST',

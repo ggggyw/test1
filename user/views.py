@@ -115,7 +115,6 @@ def add_to_cart(request):
     cart.quantity += quantity
     cart.join_time = timezone.now()
     cart.save()
-    # 网页跳转问题，如何动态添加，暂时还没想好真的要用javascript吗？
     return render(request, 'productdetails.html', {'product': products, 'products2': products2, 'u_id': user_id, 'role': role})
 
 
