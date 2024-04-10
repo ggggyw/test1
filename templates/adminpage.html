@@ -165,6 +165,18 @@
       font-weight: bold; /* 加粗 */
       padding: 8px 13px; /* 稍微增加内边距 */
     }
+
+    /* 新增的样式 */
+    .table-container {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .table-container table {
+      position: relative;
+      left: 0;
+      transition: left 0.5s ease;
+    }
   </style>
 </head>
 <body>
@@ -181,73 +193,76 @@
 
   <div class="main-content">
     <h2>用户信息</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>用户 ID</th>
-          <th>用户名</th>
-          <th>姓名</th>
-          <th>性别</th>
-          <th>手机号</th>
-          <th>邮箱</th>
-          <th>注册时间</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- 用 Django 渲染用户信息数据 -->
-        {% for user in users %}
-        <tr>
-          <td>{{ user.u_id }}</td>
-          <td>{{ user.u_acc }}</td>
-          <td>{{ user.u_name }}</td>
-          <td>{{ user.u_sex }}</td>
-          <td>{{ user.u_phone }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.created_at }}</td>
-          <td>
-            <button onclick="openEditModal('{{ user.u_id }}')">编辑</button>
-            <button>删除</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-{% if users.paginator.num_pages > 1 %}
-<div class="pagination">
-  {% if users.has_previous %}
-    <a href="?page=1">第一页</a>
-    <a href="?page={{ users.previous_page_number }}">上一页</a>
-  {% endif %}
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>用户 ID</th>
+            <th>用户名</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>注册时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 用 Django 渲染用户信息数据 -->
+          {% for user in users %}
+          <tr>
+            <td>{{ user.u_id }}</td>
+            <td>{{ user.u_acc }}</td>
+            <td>{{ user.u_name }}</td>
+            <td>{{ user.u_sex }}</td>
+            <td>{{ user.u_phone }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.created_at }}</td>
+            <td>
+              <button onclick="openEditModal('{{ user.u_id }}')">编辑</button>
+              <button>删除</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
 
-  {% with users.number|add:"-2" as prev_range %}
-    {% with users.number|add:"2" as next_range %}
-      {% if prev_range > 2 %}
-        <span>...</span>
+    {% if users.paginator.num_pages > 1 %}
+    <div class="pagination">
+      {% if users.has_previous %}
+        <a href="?page=1" onclick="moveTables(1, {{ users.number }})">第一页</a>
+        <a href="?page={{ users.previous_page_number }}" onclick="moveTables({{ users.previous_page_number }}, {{ users.number }})">上一页</a>
       {% endif %}
 
-      {% for page_num in users.paginator.page_range %}
-        {% if page_num >= prev_range and page_num <= next_range %}
-          {% if page_num == users.number %}
-            <span class="current-page">{{ page_num }}</span>
-          {% else %}
-            <a href="?page={{ page_num }}">{{ page_num }}</a>
+      {% with users.number|add:"-2" as prev_range %}
+        {% with users.number|add:"2" as next_range %}
+          {% if prev_range > 2 %}
+            <span>...</span>
           {% endif %}
-        {% endif %}
-      {% endfor %}
 
-      {% if next_range < users.paginator.num_pages|add:"-1" %}
-        <span>...</span>
+          {% for page_num in users.paginator.page_range %}
+            {% if page_num >= prev_range and page_num <= next_range %}
+              {% if page_num == users.number %}
+                <span class="current-page">{{ page_num }}</span>
+              {% else %}
+                <a href="?page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ users.number }})">{{ page_num }}</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {% if next_range < users.paginator.num_pages|add:"-1" %}
+            <span>...</span>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+
+      {% if users.has_next %}
+        <a href="?page={{ users.next_page_number }}" onclick="moveTables({{ users.next_page_number }}, {{ users.number }})">下一页</a>
+        <a href="?page={{ users.paginator.num_pages }}" onclick="moveTables({{ users.paginator.num_pages }}, {{ users.number }})">最后一页</a>
       {% endif %}
-    {% endwith %}
-  {% endwith %}
-
-  {% if users.has_next %}
-    <a href="?page={{ users.next_page_number }}">下一页</a>
-    <a href="?page={{ users.paginator.num_pages }}">最后一页</a>
-  {% endif %}
-</div>
-{% endif %}
+    </div>
+    {% endif %}
   </div>
 
   <!-- 编辑用户信息的模态框 -->
@@ -285,6 +300,19 @@
       if (event.target == modal) {
         modal.style.display = "none";
       }
+    }
+
+    // 修改后的函数
+    function moveTables(targetPage, currentPage) {
+      var tableContainer = document.querySelector('.table-container');
+      var table = tableContainer.querySelector('table');
+      var tableWidth = table.offsetWidth;
+
+      // 计算表格应该移动的距离
+      var distance = (targetPage - currentPage) * -tableWidth;
+
+      // 移动表格
+      table.style.left = distance + 'px';
     }
   </script>
 </body>
