@@ -141,6 +141,30 @@
     .logout-btn:hover {
       background-color: #777;
     }
+
+    /* 分页样式 */
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .pagination a,
+    .pagination span.current-page {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #333;
+      color: #fff;
+      text-decoration: none;
+      margin: 0 5px;
+      border-radius: 3px;
+    }
+
+    .pagination span.current-page {
+      background-color: #555;
+      font-weight: bold; /* 加粗 */
+      padding: 8px 13px; /* 稍微增加内边距 */
+    }
   </style>
 </head>
 <body>
@@ -161,8 +185,8 @@
       <thead>
         <tr>
           <th>用户 ID</th>
-          <th>用户账号</th>
           <th>用户名</th>
+          <th>姓名</th>
           <th>性别</th>
           <th>手机号</th>
           <th>邮箱</th>
@@ -189,6 +213,41 @@
         {% endfor %}
       </tbody>
     </table>
+{% if users.paginator.num_pages > 1 %}
+<div class="pagination">
+  {% if users.has_previous %}
+    <a href="?page=1">第一页</a>
+    <a href="?page={{ users.previous_page_number }}">上一页</a>
+  {% endif %}
+
+  {% with users.number|add:"-2" as prev_range %}
+    {% with users.number|add:"2" as next_range %}
+      {% if prev_range > 2 %}
+        <span>...</span>
+      {% endif %}
+
+      {% for page_num in users.paginator.page_range %}
+        {% if page_num >= prev_range and page_num <= next_range %}
+          {% if page_num == users.number %}
+            <span class="current-page">{{ page_num }}</span>
+          {% else %}
+            <a href="?page={{ page_num }}">{{ page_num }}</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if next_range < users.paginator.num_pages|add:"-1" %}
+        <span>...</span>
+      {% endif %}
+    {% endwith %}
+  {% endwith %}
+
+  {% if users.has_next %}
+    <a href="?page={{ users.next_page_number }}">下一页</a>
+    <a href="?page={{ users.paginator.num_pages }}">最后一页</a>
+  {% endif %}
+</div>
+{% endif %}
   </div>
 
   <!-- 编辑用户信息的模态框 -->
