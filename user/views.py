@@ -255,6 +255,16 @@ def again_buy(request):
     else:
         # Return error response if request method is not POST
         return JsonResponse({'error': '请求方法不支持'}, status=400)
+
+@csrf_exempt
+def delete_order(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        order_id = data.get('order_id', {})
+        Orders.objects.filter(o_id=order_id).update(status=5)
+        return JsonResponse({'message': '删除成功'}, status=200)
+    else:
+        return JsonResponse({'error': '删除失败'}, status=400)
 def user_orders(request):
     user_id = request.session.get('u_id')
     status = request.GET.get('status')  # 获取 URL 参数中的 status 值

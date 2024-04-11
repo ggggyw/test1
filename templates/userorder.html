@@ -321,6 +321,7 @@ success: function(response) {
         ordersContent += '<div class="oorder-container">' +
             '<div >' +
             {#'<p>订单号：' + order.order_id + '</p>' +#}
+            '<input type="hidden" name="orders[]" value="' + order.order_id + '">' +
             '<div class="oorder-details">' + orderDetailsContent + '</div>' +
             '</div>' +
              '<div class="user_id">' +
@@ -421,6 +422,7 @@ function getOrdersByStatus(status) {
                 }
                 ordersContent += '<div class="oorder-container">' +
                     '<div >' +
+                    '<input type="hidden" name="orders[]" value="' + order.order_id + '">' +
                     '<div class="oorder-details">' + orderDetailsContent + '</div>' +
                     '</div>' +
                     '<div class="user_id">' +
@@ -446,6 +448,28 @@ function getOrdersByStatus(status) {
         }
     });
 }
+
+
+$(document).on('click', '.caozuo button:last-child', function() {
+    var orderContainerr = $(this).closest('.oorder-container');
+    var orderId = $(orderContainerr).find('input[name="orders[]"]').val();
+    // 发送删除订单请求到后端
+    $.ajax({
+        url: '/delete_order/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ order_id: orderId }),
+        success: function(response) {
+
+            alert('订单删除成功');
+            orderContainerr.remove();
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+            alert('订单删除失败，请重试');
+        }
+    });
+});
 
 
 </script>

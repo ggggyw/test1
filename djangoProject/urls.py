@@ -41,6 +41,7 @@ urlpatterns = [
     path('delete_item/',user_views.delete_item, name='delete_item'),
     path('checkout/',user_views.checkout, name='delete_item'),
     path('again_buy/',user_views.again_buy, name='again_buy'),
+    path('delete_order/',user_views.delete_order, name='delete_order'),
     path('update_quantity/',user_views.update_quantity, name='update_quantity'),
     path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),
     path('home/', views.home, name='home'),
