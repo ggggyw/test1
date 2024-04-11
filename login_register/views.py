@@ -69,7 +69,7 @@ def register(request):
                     u_psw=password,
                     created_at=timezone.now()  # 使用 Django 的 timezone.now() 设置当前时间
                 )
-                messages.success(request, '用户注册成功！快去登录吧！')
+                messages.success(request, '用户注册成功！快去登录吧！\n还需完善个人信息，您可以在登录后点击右上角的查看个人信息按钮完善个人信息')
                 return redirect('/user/login/')
 
         elif role == 'shop':
