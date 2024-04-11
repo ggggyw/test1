@@ -325,7 +325,7 @@ button:hover::before {
         <div class="total">
             总价: <span class="total-price">¥0.00</span>
         </div>
-        <button> <span>结算</span></button>
+        <button class="jiesuan"> <span>结算</span></button>
     </div>
 
     <script>
@@ -464,7 +464,7 @@ function updateTotal() {
 }
 
 // 结算按钮的事件监听器
-document.querySelector('.checkout-btn').addEventListener('click', function() {
+document.querySelector('.jiesuan').addEventListener('click', function() {
     // 获取所有被选中的商品项
     var selectedItems = document.querySelectorAll('.select-item:checked');
     var selectedProductIds = [];
