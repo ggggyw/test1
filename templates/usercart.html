@@ -46,7 +46,6 @@
             height: auto;
             margin-right: 15px;
         }
-        .select-all,
         .item-select,
         .item-name,
         .item-description,
@@ -96,6 +95,141 @@
           font-size: 0.8em; /* 设置原始价格的字体大小 */
           color: #888; /* 设置原始价格的颜色为灰色 */
         }
+
+    {#按钮--------------------------------------------------------------------#}
+   button {
+ outline: none;
+ cursor: pointer;
+ border: none;
+ padding: 0.9rem 2rem;
+ margin: 0;
+ font-family: inherit;
+ font-size: inherit;
+ position: relative;
+ display: inline-block;
+ letter-spacing: 0.05rem;
+ font-weight: 700;
+ font-size: 17px;
+ border-radius: 500px;
+ overflow: hidden;
+ background: #66ff66;
+ color: ghostwhite;
+}
+
+button span {
+ position: relative;
+ z-index: 10;
+ transition: color 0.4s;
+}
+
+button:hover span {
+ color: black;
+}
+
+button::before,
+button::after {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ z-index: 0;
+}
+
+button::before {
+ content: "";
+ background: #000;
+ width: 120%;
+ left: -10%;
+ transform: skew(30deg);
+ transition: transform 0.4s cubic-bezier(0.3, 1, 0.8, 1);
+}
+
+button:hover::before {
+ transform: translate3d(100%, 0, 0);
+}
+    {#按钮-------------------------------------------------------------#}
+{#   select checkbox     #}
+        /* Hide the default checkbox */
+.select-all input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.select-all {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  --clr: #0B6E4F;
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 1.3em;
+  width: 1.3em;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: 300ms;
+}
+
+/* When the checkbox is checked, add a blue background */
+.select-all input:checked ~ .checkmark {
+  background-color: var(--clr);
+  border-radius: .5rem;
+  animation: pulse 500ms ease-in-out;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.select-all input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the checkmark/indicator */
+.select-all .checkmark:after {
+  left: 0.45em;
+  top: 0.25em;
+  width: 0.25em;
+  height: 0.5em;
+  border: solid #E0E0E2;
+  border-width: 0 0.15em 0.15em 0;
+  transform: rotate(45deg);
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 #0B6E4F90;
+    rotate: 20deg;
+  }
+
+  50% {
+    rotate: -20deg;
+  }
+
+  75% {
+    box-shadow: 0 0 0 10px #0B6E4F60;
+  }
+
+  100% {
+    box-shadow: 0 0 0 13px #0B6E4F30;
+    rotate: 0;
+  }
+}
+
     </style>
 </head>
 <body>
@@ -143,8 +277,10 @@
     <div class="shopping-cart">
         <div class="cart-header">
             <div class="select-all">
-                <input type="checkbox" id="select-all" />
-                <label for="select-all">全选</label>
+                <label class="select-all">
+                  <input type="checkbox" id="select-all-footer" />
+                  <div class="checkmark"></div>
+                </label>
             </div>
             <div style="flex: 0 0 160px;">商品图片</div>
             <div style="flex: 0 0 200px;">名称</div>
@@ -180,14 +316,16 @@
         {% endfor %}
     </div>
     <div class="cart-footer">
-        <div class="select-all">
-            <input type="checkbox" id="select-all-footer" />
-            <label for="select-all-footer">全选</label>
-        </div>
+
+        <label class="select-all">
+          <input type="checkbox" id="select-all-footer" />
+          <div class="checkmark"></div>
+            {#全选#}
+        </label>
         <div class="total">
             总价: <span class="total-price">¥0.00</span>
         </div>
-        <button class="checkout-btn">结算</button>
+        <button class="jiesuan"> <span>结算</span></button>
     </div>
 
     <script>
@@ -326,7 +464,7 @@ function updateTotal() {
 }
 
 // 结算按钮的事件监听器
-document.querySelector('.checkout-btn').addEventListener('click', function() {
+document.querySelector('.jiesuan').addEventListener('click', function() {
     // 获取所有被选中的商品项
     var selectedItems = document.querySelectorAll('.select-item:checked');
     var selectedProductIds = [];
