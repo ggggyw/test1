@@ -31,9 +31,13 @@
             var container = document.querySelector('.message-container');
             if(container){
                 container.style.display = 'block';
-                setTimeout(function(){
-                    container.style.display = 'none';
-                }, 2000);
+            }
+        }
+
+        function hideMessage() {
+            var container = document.querySelector('.message-container');
+            if(container){
+                container.style.display = 'none';
             }
         }
     </script>
@@ -46,6 +50,7 @@
                 {{ message }}
             </div>
         {% endfor %}
+        <button onclick="hideMessage()">确认</button>
     </div>
     {% endif %}
     <div class="container">
