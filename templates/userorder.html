@@ -242,6 +242,7 @@ success: function(response) {
                 '<p>' + orderDetail.product_name + '</p>' +
                 '<p>数量：' + orderDetail.quantity + '</p>' +
                 '<p>单价：' + orderDetail.price + '</p>' +
+                '<input type="hidden" name="product_ids[]" value="' + orderDetail.product_id + '">' +
                 '</div>'+
                 '</div></div>';
         }
@@ -272,6 +273,48 @@ success: function(response) {
             $('#order-details-container').html('<p>获取订单失败</p>');
         }
     });
+ $(document).on('click', '.caozuo button:first-child', function() {
+        var orderContainer = $(this).closest('.oorder-container');
+        var orderDetails = orderContainer.find('.oorder-product');
+
+        var products = [];
+        var order = {};
+        // 从订单详情中提取商品信息
+        orderDetails.each(function() {
+            var product = {};
+            product.product_id = $(this).find('input[name="product_ids[]"]').val();
+            product.product_name = $(this).find('p:nth-child(1)').text();
+            product.quantity = $(this).find('p:nth-child(2)').text().split('：')[1];
+            product.price = $(this).find('p:nth-child(3)').text().split('：')[1];
+            products.push(product);
+        });
+        order.user_id = orderContainer.find('.user_id p').text();
+        var totalPriceText = orderContainer.find('.total-amount p').text();
+        order.total_price = parseFloat(totalPriceText.substring(0, totalPriceText.length - 1));
+        order.status = orderContainer.find('.status p').text();
+
+        // 发送再次购买请求到后端
+        $.ajax({
+            url: '/again_buy/',
+            type: 'POST',
+            contentType: 'application/json', // Specify JSON content type
+            data: JSON.stringify({
+                products: products,
+                order: order
+            }),
+            success: function(response) {
+                // Handle success response
+                alert('再次购买成功');
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error(error);
+                alert('再次购买失败，请重试');
+            }
+        });
+
+    });
+
 });
 
 function getOrdersByStatus(status) {

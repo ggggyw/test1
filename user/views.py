@@ -2,6 +2,9 @@ from django.core.paginator import Paginator
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
 import json
+
+from django.views.decorators.csrf import csrf_exempt
+
 from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers
 from common.models import Products
 from django.shortcuts import render
@@ -184,7 +187,7 @@ def delete_item(request):
     else:
         return JsonResponse({'error': 'Invalid request method'})
 
-def checkout(request):
+def checkout(request):#以下内容shopid没有定下来-----------两个时间错乱
     if request.method == 'POST':
         request_data = json.loads(request.body)
         itemPrices=request_data.get('itemPrices')
@@ -227,6 +230,31 @@ def update_quantity(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': '更新失败'})
 
+#以下再次购买逻辑有问题------------------------------------------------应该根据status决定是否应该再次购买
+# --应连同前面一并修改
+@csrf_exempt
+def again_buy(request):
+    if request.method == 'POST':
+        data = json.loads(request.body.decode('utf-8'))
+        products = data.get('products', [])
+        u_id = request.session.get('u_id')
+        order = data.get('order', {})
+        # print(order)
+        new_order = Orders.objects.create(
+            status='1', paid_time=timezone.localtime(timezone.now()),
+            o_time=timezone.localtime(timezone.now()),
+            total_price=order.get('total_price', 0), user_id=u_id)
+
+        for product in products:
+            OrderDetails.objects.create(quantity=product.get('quantity', 0),
+                                        current_single_price=product.get('price', 0),
+                                        order_id=new_order.o_id, product_id=product.get('product_id'), shop_id=1)
+
+        # Return success response
+        return JsonResponse({'message': '再次购买成功'}, status=200)
+    else:
+        # Return error response if request method is not POST
+        return JsonResponse({'error': '请求方法不支持'}, status=400)
 def user_orders(request):
     user_id = request.session.get('u_id')
     status = request.GET.get('status')  # 获取 URL 参数中的 status 值
@@ -258,6 +286,7 @@ def user_orders(request):
                 'product_image_url': detail.product.product_image_url,
                 'quantity': detail.quantity,
                 'price': detail.current_single_price,
+                'product_id':detail.product_id
             } for detail in order.orderdetails_set.all()],
             'total_amount': order.total_price,
             'status': order.status,
