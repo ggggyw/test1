@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理员界面</title>
+  <style>
+    /* 引入 Google Fonts 中的 Roboto 字体 */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background-color: #333;
+      color: #fff;
+      padding: 30px;
+      width: 200px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: width 0.3s ease;
+      position: relative;
+    }
+
+    .sidebar:hover {
+      width: 220px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #fff;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #555;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 40px 50px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f2f2f2;
+    }
+
+    th {
+      background-color: #333;
+      color: #fff;
+    }
+
+    button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    /* 新增的样式 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 30%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    /* 新增的样式 */
+    .logout-btn {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      text-decoration: none;
+      color: #fff;
+      background-color: #555;
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #777;
+    }
+
+    /* 分页样式 */
+    .pagination {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+
+    .pagination a,
+    .pagination span.current-page {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #333;
+      color: #fff;
+      text-decoration: none;
+      margin: 0 5px;
+      border-radius: 3px;
+    }
+
+    .pagination span.current-page {
+      background-color: #555;
+      font-weight: bold; /* 加粗 */
+      padding: 8px 13px; /* 稍微增加内边距 */
+    }
+
+    /* 新增的样式 */
+    .table-container {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .table-container table {
+      position: relative;
+      left: 0;
+      transition: left 0.7s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>管理员界面</h2>
+    <a href="#" onclick="switchTable('userTable')">用户管理</a>
+    <a href="#" onclick="switchTable('shopTable')">商家管理</a>
+    <a href="#">商品管理</a>
+    <a href="#">订单管理</a>
+    <a href="#">个人设置</a>
+    <!-- 添加退出登录按钮 -->
+    <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
+  </div>
+
+  <div class="main-content">
+    <h2 id="pageTitle">用户信息</h2>
+    <div class="table-container">
+      <!-- 用户信息表格 -->
+      <table id="userTable">
+        <thead>
+          <tr>
+            <th>用户 ID</th>
+            <th>用户名</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>注册时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 用 Django 渲染用户信息数据 -->
+          {% for user in users %}
+          <tr>
+            <td>{{ user.u_id }}</td>
+            <td>{{ user.u_acc }}</td>
+            <td>{{ user.u_name }}</td>
+            <td>{{ user.u_sex }}</td>
+            <td>{{ user.u_phone }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.created_at }}</td>
+            <td>
+              <button onclick="openEditModal('{{ user.u_id }}')">编辑</button>
+              <button>删除</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    <!-- 商家信息表格 -->
+      <table id="shopTable" style="display: none;">
+        <thead>
+          <tr>
+            <th>商家 ID</th>
+            <th>商家名</th>
+            <th>账号</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>地址</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 用 Django 渲染商家信息数据 -->
+          {% for shop in shops %}
+          <tr>
+            <td>{{ shop.s_id }}</td>
+            <td>{{ shop.s_name }}</td>
+            <td>{{ shop.s_acc }}</td>
+            <td>{{ shop.s_phone }}</td>
+            <td>{{ shop.email }}</td>
+            <td>{{ shop.address }}</td>
+            <td>
+              <button onclick="openEditModal('{{ shop.s_id }}')">编辑</button>
+              <button>删除</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <!-- 用户分页器 -->
+    {% if users.paginator.num_pages > 1 %}
+    <div class="pagination" id="userPagination">
+      {% if users.has_previous %}
+        <a href="?table=user&user_page=1" onclick="moveTables(1, {{ users.number }},'userTable')">第一页</a>
+        <a href="?table=user&user_page={{ users.previous_page_number }}" onclick="moveTables({{ users.previous_page_number }}, {{ users.number }},'userTable')">上一页</a>
+      {% endif %}
+
+      {% with users.number|add:"-2" as prev_range %}
+        {% with users.number|add:"2" as next_range %}
+          {% if prev_range > 2 %}
+            <span>...</span>
+          {% endif %}
+
+          {% for page_num in users.paginator.page_range %}
+            {% if page_num >= prev_range and page_num <= next_range %}
+              {% if page_num == users.number %}
+                <span class="current-page">{{ page_num }}</span>
+              {% else %}
+                <a href="?table=user&user_page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ users.number }},'userTable')">{{ page_num }}</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {% if next_range < users.paginator.num_pages|add:"-1" %}
+            <span>...</span>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+
+      {% if users.has_next %}
+        <a href="?table=user&user_page={{ users.next_page_number }}" onclick="moveTables({{ users.next_page_number }}, {{ users.number }},'userTable')">下一页</a>
+        <a href="?table=user&user_page={{ users.paginator.num_pages }}" onclick="moveTables({{ users.paginator.num_pages }}, {{ users.number }},'userTable')">最后一页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+    <!-- 商家分页器 -->
+      {% if shops.paginator.num_pages > 1 %}
+    <div class="pagination" id="shopPagination" style="display: none;">
+        {% if shops.has_previous %}
+            <a href="?table=shop&shop_page=1" onclick="moveTables(1, {{ shops.number }}, 'shopTable')">第一页</a>
+            <a href="?table=shop&shop_page={{ shops.previous_page_number }}" onclick="moveTables({{ shops.previous_page_number }}, {{ shops.number }}, 'shopTable')">上一页</a>
+        {% endif %}
+
+        {% with shops.number|add:"-2" as prev_range %}
+            {% with shops.number|add:"2" as next_range %}
+            {% if prev_range > 2 %}
+                <span>...</span>
+            {% endif %}
+
+            {% for page_num in shops.paginator.page_range %}
+                {% if page_num >= prev_range and page_num <= next_range %}
+                {% if page_num == shops.number %}
+                    <span class="current-page">{{ page_num }}</span>
+                {% else %}
+                    <a href="?table=shop&shop_page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ shops.number }}, 'shopTable')">{{ page_num }}</a>
+                {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if next_range < shops.paginator.num_pages|add:"-1" %}
+                <span>...</span>
+            {% endif %}
+            {% endwith %}
+        {% endwith %}
+
+        {% if shops.has_next %}
+            <a href="?table=shop&shop_page={{ shops.next_page_number }}" onclick="moveTables({{ shops.next_page_number }}, {{ shops.number }}, 'shopTable')">下一页</a>
+            <a href="?table=shop&shop_page={{ shops.paginator.num_pages }}" onclick="moveTables({{ shops.paginator.num_pages }}, {{ shops.number }}, 'shopTable')">最后一页</a>
+        {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- 编辑用户信息的模态框 -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>编辑用户信息</h2>
+      <form>
+        <!-- 渲染用户信息表单字段 -->
+        <!-- 不显示密码和地址字段 -->
+      </form>
+    </div>
+  </div>
+
+  <script>
+      window.onload = function() {
+  var params = new URLSearchParams(window.location.search);
+  var table = params.get('table');
+  switch (table) {
+    case 'user':
+      switchTable('userTable');
+      break;
+    case 'shop':
+      switchTable('shopTable');
+      break;
+    // 添加更多的 case 以处理其他的表格
+  }
+};
+    // 获取模态框元素
+    var modal = document.getElementById("editModal");
+
+    // 获取关闭按钮元素
+    var span = document.getElementsByClassName("close")[0];
+
+    // 打开模态框
+    function openEditModal(userId) {
+      modal.style.display = "block";
+      // 在此处填写获取用户信息并渲染到表单的代码
+    }
+
+    // 关闭模态框
+    span.onclick = function() {
+      modal.style.display = "none";
+    }
+
+    // 当用户点击模态框外部时关闭模态框
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+    // 修改后的函数
+    function moveTables(targetPage, currentPage, tableName) {
+        var tableContainer = document.querySelector('.table-container');
+      var table = tableContainer.querySelector('#' + tableName);
+      var tableWidth = table.offsetWidth;
+
+      // 计算表格应该移动的距离
+      var distance = (targetPage - currentPage) * -tableWidth;
+
+      // 移动表格
+      table.style.left = distance + 'px';
+
+      // 加载新的页面内容
+      var xhr = new XMLHttpRequest();
+      var pageParam = tableName === 'userTable' ? 'user_page' : 'shop_page';
+      xhr.open('GET', '?table=' + tableName + '&' + pageParam + '=' + targetPage, true);
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          var newTable = document.createElement('table');
+          newTable.innerHTML = xhr.responseText;
+          newTable.style.position = 'absolute';
+          newTable.style.left = (targetPage > currentPage ? tableWidth : -tableWidth) + 'px';
+          tableContainer.appendChild(newTable);
+
+          // 在新的表格加载完成后移动表格
+          newTable.onload = function() {
+            table.style.left = (targetPage > currentPage ? -tableWidth : tableWidth) + 'px';
+            newTable.style.left = '0px';
+
+            // 在表格移动完成后删除旧的表格
+            table.addEventListener('transitionend', function() {
+              tableContainer.removeChild(table);
+            });
+          };
+        }
+      };
+
+      xhr.send();
+    }
+function switchTable(tableId) {
+  // 隐藏所有的表格
+  var tables = document.getElementsByTagName('table');
+  for (var i = 0; i < tables.length; i++) {
+    tables[i].style.display = 'none';
+  }
+
+  // 显示对应的表格
+  var table = document.getElementById(tableId);
+  table.style.display = '';
+
+  // 隐藏所有的分页器
+  var paginations = document.getElementsByClassName('pagination');
+  for (var i = 0; i < paginations.length; i++) {
+    paginations[i].style.display = 'none';
+  }
+
+  // 显示对应的分页器
+  var paginationId = tableId.replace('Table', 'Pagination');
+  var pagination = document.getElementById(paginationId);
+  if (pagination) {
+    pagination.style.display = '';
+  }
+
+  // 修改页面标题
+  var pageTitle = document.getElementById('pageTitle');
+  var params = new URLSearchParams(window.location.search);
+  var pageParam = tableName === 'userTable' ? 'user_page' : 'shop_page';
+  var page = params.get(pageParam) || 1;
+  switch (tableId) {
+    case 'userTable':
+      pageTitle.textContent = '用户信息';
+      window.history.pushState({}, '', '?table=user&user_page=' + page);
+      break;
+    case 'shopTable':
+      pageTitle.textContent = '商家信息';
+      window.history.pushState({}, '', '?table=shop&shop_page=' + page);
+      break;
+    // 添加更多的 case 以处理其他的表格
+  }
+}
+  </script>
+</body>
+</html>

@@ -3,23 +3,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
+    <title>shop_manage_products</title>
     <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
     <link rel="stylesheet" href="{% static '商家_files/shop_manage_products.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
+
     </style>
 </head>
 <body>
@@ -45,7 +36,7 @@
     <ul class="classes-items">
 
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
@@ -76,7 +67,6 @@
     <div class="add-product-button">
         <a href="{% url 'add_product' %}" class="btn btn-success">增加商品</a>
     </div>
-
     {% if shop_products %}
         <table>
             <tr>
@@ -134,26 +124,25 @@
                 </tr>
             {% endfor %}
         </table>
+        <!-- 分页 -->
         <div class="pagination">
-        <span class="step-links">
-            {% if shop_products.has_previous %}
-                <a href="?page=1">&laquo; 第一页</a>
-                <a href="?page={{ shop_products.previous_page_number }}">上一页</a>
-            {% endif %}
-
-            <span class="current">
-                第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
-            </span>
-
-            {% if shop_products.has_next %}
-                <a href="?page={{ shop_products.next_page_number }}">下一页</a>
-                <a href="?page={{ shop_products.paginator.num_pages }}">最后一页 &raquo;</a>
-            {% endif %}
+         <span class="step-links">
+        {% if shop_products.has_previous %}
+            <a href="?page=1&category_id={{ category_id }}">&laquo; 第一页</a>
+            <a href="?page={{ shop_products.previous_page_number }}&category_id={{ category_id }}">上一页</a>
+        {% endif %}
+             <span class="current">
+            第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
         </span>
-
-            <!-- 页码跳转表单 -->
+             {% if shop_products.has_next %}
+                 <a href="?page={{ shop_products.next_page_number }}&category_id={{ category_id }}">下一页</a>
+                 <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}">最后一页 &raquo;</a>
+             {% endif %}
+        </span>
+            <!-- 页码跳转表单，同时也传递category_id -->
             <form action="" method="get" style="display: inline-block;">
                 <!-- 如果有其他查询参数，务必在这里添加相应的input hidden字段 -->
+                <input type="hidden" name="category_id" value="{{ category_id }}">
                 <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
                        placeholder="页码" style="margin-left: 10px;">
                 <input type="submit" value="跳转">
@@ -165,14 +154,45 @@
         </div>
     {% endif %}
 </div>
+<!-- 消息提示 -->
+{% if messages %}
+    <div id="message-container" class="messages">
+        {% for message in messages %}
+            <div class="{{ message.tags }} message">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
 <!-- 模态框 -->
-<div id="confirmModal" class="modal">
+<!-- 添加商品模态框 -->
+<div id="addProductModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
+        <h2>添加商品</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ product_form.as_p }}
+            {{ shop_product_form.as_p }}
+            <div>
+                <label for="id_current_price">现在价格:</label>
+                <input id="id_current_price" type="text" name="current_price" readonly>
+            </div>
+            <div class="image-preview-container">
+                <img id="preview" src="{% static '商品图片/暂无图片.png' %}" alt="上传修改的商品图片" width="200px"
+                     height="200px">
+                <input id="product_image" type="file" name="product_image" onchange="previewImage(this)">
+            </div>
+            <button type="submit" class="btn btn-success">添加商品</button>
+        </form>
+    </div>
+</div>
+<!-- 模态框 - 删除商品确认 -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close-delete-modal">&times;</span>
         <p>你确定要删除这个商品吗？此操作不可恢复！</p>
         <div class="modal-actions">
             <button id="confirmDelete">确定</button>
-            <button id="cancelDelete">取消</button>
+            <button class="cancel-delete-modal">取消</button>
         </div>
     </div>
 </div>
@@ -181,40 +201,98 @@
         document.querySelector('.no-products-animation').style.display = 'block';
     });
 
-    // 获取模态框元素
-    var modal = document.getElementById('confirmModal');
-    var span = document.getElementsByClassName("close")[0];
-    var confirmBtn = document.getElementById('confirmDelete');
-    var cancelBtn = document.getElementById('cancelDelete');
+    // 获取添加商品模态框元素
+    var addProductModal = document.getElementById('addProductModal');
+    var closeButtonAddProduct = addProductModal.getElementsByClassName("close")[0];
 
-    // 点击删除按钮时，显示模态框
+    // 获取删除商品模态框元素
+    var deleteConfirmModal = document.getElementById('deleteConfirmModal');
+    var closeButtonDeleteModal = deleteConfirmModal.getElementsByClassName("close-delete-modal")[0];
+    var cancelDeleteButton = deleteConfirmModal.getElementsByClassName("cancel-delete-modal")[0];
+
+    // 点击添加商品按钮时，显示添加商品模态框
+    document.querySelector('.add-product-button a').onclick = function (event) {
+        event.preventDefault();
+        addProductModal.style.display = "block";
+    }
+
+    // 点击关闭按钮关闭添加商品模态框
+    closeButtonAddProduct.onclick = function () {
+        addProductModal.style.display = "none";
+    }
+
+    // 点击删除按钮时，显示删除商品模态框
     function confirmDelete(productId) {
-        // 在显示模态框之前，为确定按钮绑定删除的动作
-        confirmBtn.onclick = function () {
+        document.getElementById('confirmDelete').onclick = function () {
             window.location.href = "/shop/shoppage/manage_products/delete_product/" + productId + "/";
         };
-        // 显示模态框
-        modal.style.display = "block";
+        deleteConfirmModal.style.display = "block";
     }
 
-    // 点击关闭按钮或取消按钮关闭模态框
-    span.onclick = function () {
-        modal.style.display = "none";
+    // 点击关闭按钮关闭删除商品模态框
+    closeButtonDeleteModal.onclick = function () {
+        deleteConfirmModal.style.display = "none";
     }
 
-    cancelBtn.onclick = function () {
-        modal.style.display = "none";
+    // 点击取消按钮关闭删除商品模态框
+    cancelDeleteButton.onclick = function () {
+        deleteConfirmModal.style.display = "none";
     }
 
-    // 点击窗口外区域关闭模态框
+    // 点击窗口外区域关闭任何打开的模态框
     window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == addProductModal) {
+            addProductModal.style.display = "none";
+        } else if (event.target == deleteConfirmModal) {
+            deleteConfirmModal.style.display = "none";
         }
     }
-    // 调整分页样式的代码可能需要移至更适宜的位置，以避免与其他脚本冲突
-    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'});
-    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'});
+
+    window.onload = function () {
+        // 查找消息容器并准备淡出效果
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            // 设置5秒后执行淡出动画
+            setTimeout(function () {
+                messageContainer.style.opacity = '0'; // 设置透明度为 0 触发消失效果
+                setTimeout(function () {
+                    messageContainer.style.display = 'none'; // 设置display为none来完全隐藏
+                }, 1000); // 额外的时间确保透明度动画完成
+            }, 2000); // 你可以调整这里的时间来控制消息显示多久
+        }
+
+        // 获取输入框，定义updateCurrentPrice函数，添加事件监听器
+        var originalPriceInput = document.getElementById('id_original_price');
+        var discountInput = document.getElementById('id_discount');
+        var currentPriceInput = document.getElementById('id_current_price');
+
+        function updateCurrentPrice() {
+            var originalPrice = parseFloat(originalPriceInput.value);
+            var discount = parseFloat(discountInput.value);
+            if (!isNaN(originalPrice) && !isNaN(discount)) {
+                var currentPrice = originalPrice * (1 - discount);
+                currentPriceInput.value = currentPrice.toFixed(2);
+            }
+        }
+
+        // 现在手动计算并更新当前价格
+        updateCurrentPrice();
+
+        originalPriceInput.addEventListener('input', updateCurrentPrice);
+        discountInput.addEventListener('input', updateCurrentPrice);
+    };
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById('preview').src = e.target.result;
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
 </script>
 </body>
