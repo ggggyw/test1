@@ -24,6 +24,21 @@
         margin: 0 auto;
             width: 1200px;
         }
+        .product-details ,.store-name-follow,.recommend-products {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
     </style>
 </head>
 <body>
@@ -258,7 +273,7 @@
     });
 });
     document.addEventListener('DOMContentLoaded', function() {
-    var elements = document.querySelectorAll('.search, .classes, .goods-model,.product-details,.store-name-follow,.recommend-products');
+    var elements = document.querySelectorAll('.product-details,.store-name-follow,.recommend-products');
     var delay = 0.1;
 
     elements.forEach(function(element) {
