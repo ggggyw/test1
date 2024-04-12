@@ -24,7 +24,7 @@ from django.conf.urls.static import static
 from login_register import views as login_register_views
 from user.views import follow_shop, unfollow_shop
 from admin import views as admin_views
-
+from shop import views as shop_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -56,4 +56,5 @@ urlpatterns = [
     path('set_default_address/<int:address_id>/', user_views.set_default_address,name='set_default_address'),
     path('delete_address/<int:address_id>/', user_views.delete_address, name='delete_address'),
     path('adminpage/', admin_views.adminpage, name='adminpage'),
+    path('shoppage/sales_analysis/', shop_views.sales_analysis, name='sales_analysis'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
