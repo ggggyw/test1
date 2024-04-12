@@ -126,6 +126,15 @@
     // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
     $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
     $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+    document.addEventListener('DOMContentLoaded', function() {
+    var goods = document.querySelectorAll('.good');
+    var delay = 0.1;
+
+    goods.forEach(function(good) {
+        good.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
 </script>
 
 </body>

@@ -1,11 +1,11 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
-from common.models import ShopProducts, ProductCategories, Products
+from common.models import ShopProducts, ProductCategories, Products, Users
 import pandas as pd
 from sqlalchemy import create_engine
 from dateutil.relativedelta import relativedelta
@@ -261,6 +261,16 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
+def user_detail(request, user_id):
+    user = get_object_or_404(Users, pk=user_id)
+    data = {
+        'u_name': user.u_name,
+        'u_sex': user.u_sex,
+        'u_address': user.address,
+        'u_email': user.email,
+        'u_u_phone': user.u_phone,
+    }
+    return JsonResponse(data)
 
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
@@ -340,3 +350,5 @@ def rfm_analysis(request):
 
     # 渲染模板，并将上下文传递给模板
     return render(request, 'rfm.html', context)
+
+

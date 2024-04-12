@@ -251,6 +251,15 @@
                 console.error('Error:', error);
             });
         }
+        document.addEventListener('DOMContentLoaded', function() {
+    var goods = document.querySelectorAll('.good');
+    var delay = 0.1;
+
+    goods.forEach(function(good) {
+        good.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
 </script>
 <footer>
     <div class="store-name-follow">

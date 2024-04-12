@@ -321,6 +321,19 @@ a {
     height: 371px;
     background-color: #ffffff;
     overflow: hidden;
+    opacity: 0;
+    animation: flowIn 0.5s ease forwards;
+}
+
+@keyframes flowIn {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .good > a > p.name {

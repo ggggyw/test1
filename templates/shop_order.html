@@ -9,18 +9,6 @@
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
-
         .classes {
             background: #f4f4f4;
             padding: 10px 0;
@@ -28,11 +16,6 @@
             border-bottom: 1px solid #ccc;
         }
 
-        .no-products-animation p {
-            text-align: center;
-            font-size: 5em; /* 调整为您需要的大小 */
-            color: red;
-        }
 
         .classes-items {
             text-align: center;
@@ -103,6 +86,40 @@
             color: white;
         }
 
+        .modal {
+            display: none; /* 默认不显示模态框 */
+            position: fixed; /* 固定定位 */
+            z-index: 1; /* z-index 确保模态框在其他内容上方 */
+            left: 0;
+            top: 0;
+            width: 100%; /* 宽度为整个视窗的宽 */
+            height: 100%; /* 高度为整个视窗的高 */
+            overflow: auto; /* 如果内容过多，出现滚动条 */
+            background-color: rgba(0, 0, 0, 0.4); /* 背景颜色带透明度 */
+        }
+
+        .modal-content {
+            background-color: #fefefe; /* 模态框内容背景颜色 */
+            margin: 15% auto; /* 上下外边距及自动居中 */
+            padding: 20px; /* 内边距 */
+            border: 1px solid #888; /* 边框 */
+            width: 80%; /* 宽度 */
+        }
+
+        .close {
+            color: #aaa; /* 关闭按钮颜色 */
+            float: right; /* 右浮动 */
+            font-size: 28px; /* 字号 */
+            font-weight: bold; /* 字重 */
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black; /* 鼠标悬浮或聚焦时颜色改变 */
+            text-decoration: none;
+            cursor: pointer;
+        }
+
         /* 其他样式保持不变 */
     </style>
 </head>
@@ -129,7 +146,7 @@
     <ul class="classes-items">
 
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
     </ul>
@@ -150,7 +167,7 @@
     {% for order in orders %}
         <tr>
             <td>{{ order.o_id }}</td>
-            <td>{{ order.user.u_name }}</td>
+            <td onclick="showUserModal({{ order.user.u_id }})">{{ order.user.u_name }}</td>
             <td>{{ order.status }}</td>
             <td>{{ order.paid_time }}</td>
             <td>{{ order.o_time }}</td>
@@ -177,8 +194,8 @@
                     {% for detail in order.orderdetails_set.all %}
                         <tr>
                             <td>{{ detail.order_detail_id }}</td>
-                            <td>{{ detail.product.product.p_name }}</td>
-                            <td>{{ detail.shop.s_name }}</td>
+                            <td onclick="openModal('productModal', '这里是商品信息内容...')">{{ detail.product.product.p_name }}</td>
+                            <td onclick="openModal('shopModal', '这里是商店信息内容...')">{{ detail.shop.s_name }}</td>
                             <td>{{ detail.quantity }}</td>
                             <td>{{ detail.current_single_price }}</td>
                         </tr>
@@ -190,6 +207,51 @@
     {% endfor %}
     </tbody>
 </table>
+<!-- 用户信息模态框 -->
+<div id="userModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('userModal')">&times;</span>
+        <h2>用户信息</h2>
+        <!-- 用户信息显示位置 -->
+        <div id="userInfo">
+            <p>用户名: <span id="userModal_u_name"></span></p>
+            <p>性别: <span id="userModal_u_sex"></span></p>
+            <p>手机号: <span id="userModal_u_phone"></span></p>
+            <p>邮箱: <span id="userModal_email"></span></p>
+            <p>地址: <span id="userModal_address"></span></p>
+        </div>
+    </div>
+</div>
+
+<!-- 商品信息模态框 -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('productModal')">&times;</span>
+        <h2>商品信息</h2>
+        <!-- 商品信息显示位置 -->
+        <div id="productInfo">
+            <p>商品名称: <span id="productModal_p_name"></span></p>
+            <p>商品类型: <span id="productModal_p_type"></span></p>
+            <p>品牌: <span id="productModal_brand"></span></p>
+        </div>
+    </div>
+</div>
+
+<!-- 商店信息模态框 -->
+<div id="shopModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('shopModal')">&times;</span>
+        <h2>商店信息</h2>
+        <!-- 商店信息显示位置 -->
+        <div id="shopInfo">
+            <p>商店名称: <span id="shopModal_s_name"></span></p>
+            <p>商店账号: <span id="shopModal_s_acc"></span></p>
+            <p>手机号: <span id="shopModal_s_phone"></span></p>
+            <p>邮箱: <span id="shopModal_email"></span></p>
+            <p>地址: <span id="shopModal_address"></span></p>
+        </div>
+    </div>
+</div>
 
 <script>
     function toggleOrderDetails(detailId) {
@@ -200,6 +262,37 @@
             details.style.display = 'none'; // 隐藏订单详情
         }
     }
+
+    // 打开模态框的函数
+    function openModal(modalId, content) {
+        // 将内容添加到模态框中
+        document.getElementById(modalId + 'Info').innerHTML = content;
+        // 显示模态框
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    // 关闭模态框的函数
+    function closeModal(modalId) {
+        // 隐藏模态框
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    // 示例函数，用于通过AJAX请求获取用户信息并显示在模态框中
+    function showUserModal(userId) {
+        // 发起AJAX请求获取用户信息
+        fetch('/shop_order/user/' + userId + '/')
+            .then(response => response.json())
+            .then(data => {
+                // 填充模态框
+                document.getElementById('userModal_u_name').innerText = data.u_name;
+                document.getElementById('userModal_u_sex').innerText = data.u_sex;
+                document.getElementById('userModal_u_u_phone').innerText = data.u_u_phone;
+                document.getElementById('userModal_u_email').innerText = data.u_email;
+                document.getElementById('userModal_u_address').innerText = data.u_address;
+                openModal('userModal');
+            });
+    }
+
 </script>
 </body>
 </html>
