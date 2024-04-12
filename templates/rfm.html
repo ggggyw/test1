@@ -3,28 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>RFM 消费者类型分析</title>
+    <style>
+        /* 添加一些样式来美化表格 */
+        table {
+            width: 80%; /* 表格宽度为页面宽度的80% */
+            border-collapse: collapse; /* 边框合并 */
+            margin: 0 auto; /* 表格居中 */
+        }
+        th, td {
+            border: 1px solid black; /* 添加边框 */
+            text-align: center; /* 文本居中 */
+            padding: 8px; /* 单元格内边距 */
+        }
+        th {
+            background-color: #f2f2f2; /* 表头背景颜色 */
+        }
+    </style>
 </head>
 <body>
     <h1 align="center">RFM 消费者类型分析</h1>
-        <div>
-            <table align="center">
-                <thead>
+    <div>
+        <table align="center">
+            <thead>
+                <tr>
+                    <th>用户 ID</th>
+                    <th>最近一次购买(天)</th>
+                    <th>最近购买频率(次)</th>
+                    <th>最近购买金额(元)</th>
+                    <th>RFM 类别</th>
+                    <th>消费者类型</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in RFM_data %}
                     <tr>
-                        <th>用户 ID</th>
-                        <th>RFM 类别</th>
-                        <th>消费者类型</th>
+                        <td>{{ item.u_id }}</td>
+                        <td>{{ item.Recency }}</td>
+                        <td>{{ item.Frequency }}</td>
+                        <td>{{ item.Monetary }}</td>
+                        <td>{{ item.RFM_Class }}</td>
+                        <td>{{ item.RFM_Label }}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {% for item in RFM_data %}
-                        <tr>
-                            <td>{{ item.u_id }}</td>
-                            <td>{{ item.RFM_Class }}</td>
-                            <td>{{ item.RFM_Label }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
