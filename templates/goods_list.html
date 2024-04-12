@@ -1,0 +1,19 @@
+<!-- goods_list.html -->
+{% load static %}
+<div class="goods-content">
+    {% for product in products %} <!-- 遍历所有商品对象 -->
+        <div class="good">
+            <a href="{% url 'product_details' product.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                <img src="{% static '商品图片/'|add:product.product_image_url %}" onerror="this.onerror=null;this.src='{% static '商品图片/1.jpg' %}';" width="285px" height="285px">
+                {% for product2 in products2 %}
+                    {% if product.product_id == product2.p_id %}
+                        <p class="name">{{ product2.p_name }}</p>
+                    {% endif %}
+                {% endfor %}
+                <div class="price">
+                    <p>￥{{ product.current_price }}</p>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+</div>
