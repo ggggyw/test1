@@ -265,11 +265,6 @@ def shop_order(request):
 def product_detail(request):
     return None
 
-
-def shop_order(request):
-    return render(request, 'shop_order.html')
-
-
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
     products_data = pd.read_sql_query('select * from products', engine)
