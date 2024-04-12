@@ -6,12 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ product.name }}</title>
     <link rel="stylesheet" href="{% static '首页_files/style.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/carts.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/reset.css' %}">
-    <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
     <link rel="stylesheet" href="{% static '商品详情页/base.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
@@ -257,6 +254,15 @@
 
     goods.forEach(function(good) {
         good.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
+    document.addEventListener('DOMContentLoaded', function() {
+    var elements = document.querySelectorAll('.search, .classes, .goods-model,.product-details,.store-name-follow,.recommend-products');
+    var delay = 0.1;
+
+    elements.forEach(function(element) {
+        element.style.animationDelay = delay + 's';
         delay += 0.1;
     });
 });

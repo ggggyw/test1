@@ -5,7 +5,7 @@ import json
 
 from django.views.decorators.csrf import csrf_exempt
 
-from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers
+from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers,ProductCategories
 from common.models import Products
 from django.shortcuts import render
 from django.views.decorators.http import require_POST
@@ -33,6 +33,21 @@ def userpage(request):
     }
     return render(request, 'userpage.html', context)
 
+def get_goods_list(request):
+    category_id = request.GET.get('category_id', 0)
+    products = ShopProducts.objects.filter(product__p_type__category_id=category_id).order_by('shop_product_id')
+    products2 = Products.objects.all()
+    paginator = Paginator(products, 24)  # 假设每页显示多少个商品
+
+    page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
+    paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
+
+    context = {
+        'products': paged_products,
+        'products2': products2,
+        'category_id': category_id
+    }
+    return render(request, 'goods_list.html', context)
 def userprofile(request):
     context = {}
     u_id = request.session.get('u_id')
