@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RFM 消费者类型分析</title>
+</head>
+<body>
+    <h1 align="center">RFM 消费者类型分析</h1>
+        <div>
+            <table align="center">
+                <thead>
+                    <tr>
+                        <th>用户 ID</th>
+                        <th>RFM 类别</th>
+                        <th>消费者类型</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in RFM_data %}
+                        <tr>
+                            <td>{{ item.u_id }}</td>
+                            <td>{{ item.RFM_Class }}</td>
+                            <td>{{ item.RFM_Label }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+</body>
+</html>
