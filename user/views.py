@@ -106,33 +106,40 @@ def usercart(request):
     }
     return render(request,'usercart.html',context)
 
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.utils import timezone
+
 @require_POST
 def add_to_cart(request):
-    product_id = request.POST.get('product_id')
-    user_id = request.POST.get('user_id')
-    if user_id is None or user_id == 'None':
-        messages.error(request, '请先登录')
-        return redirect('login')
-    user_id = int(user_id)  # 尝试将 user_id 转换为整数
-    Shopproducts = ShopProducts.objects.get(shop_product_id=product_id)
-    products2 = Products.objects.get(p_id=Shopproducts.product_id)
-    quantity = int(request.POST.get('quantity', 1))
-    shop_id = Shopproducts.shop_id
+   product_id = request.POST.get('product_id')
+   user_id = request.POST.get('user_id')
+   if user_id is None or user_id == 'None':
+       return JsonResponse({'error': '请先登录'})
+   user_id = int(user_id)  # 尝试将 user_id 转换为整数
+   shop_product = ShopProducts.objects.get(shop_product_id=product_id)
+   product = Products.objects.get(p_id=shop_product.product_id)
+   quantity = int(request.POST.get('quantity', 1))
+   shop_id = shop_product.shop_id
 
-    # 获取或创建购物车项
-    cart, created = Carts.objects.get_or_create(
-        product_id=product_id,
-        user_id=user_id,
-        shop_id=shop_id,
-        defaults={'quantity': 0,
-                  'join_time': '2023-03-19 00:00'}
-    )
-    role = request.session.get('role')
-    # 更新数量
-    cart.quantity += quantity
-    cart.join_time = timezone.now()
-    cart.save()
-    return render(request, 'productdetails.html', {'product': Shopproducts, 'products2': products2, 'u_id': user_id, 'role': role})
+   # 获取或创建购物车项
+   cart, created = Carts.objects.get_or_create(
+       product_id=product_id,
+       user_id=user_id,
+       shop_id=shop_id,
+       defaults={'quantity': 0, 'join_time': timezone.now()}
+   )
+
+   # 更新数量
+   cart.quantity += quantity
+   cart.join_time = timezone.now()
+   cart.save()
+
+   # 根据具体情况返回 JSON 或重定向
+   return JsonResponse({'success': True})
+
 
 
 def userorder(request):
