@@ -99,10 +99,10 @@ def add_to_cart(request):
         messages.error(request, '请先登录')
         return redirect('login')
     user_id = int(user_id)  # 尝试将 user_id 转换为整数
-    products = ShopProducts.objects.filter(product_id=product_id).first()
-    products2 = Products.objects.filter(p_id=product_id).first()
+    Shopproducts = ShopProducts.objects.get(shop_product_id=product_id)
+    products2 = Products.objects.get(p_id=Shopproducts.product_id)
     quantity = int(request.POST.get('quantity', 1))
-    shop_id = products.shop_id
+    shop_id = Shopproducts.shop_id
 
     # 获取或创建购物车项
     cart, created = Carts.objects.get_or_create(
@@ -117,7 +117,7 @@ def add_to_cart(request):
     cart.quantity += quantity
     cart.join_time = timezone.now()
     cart.save()
-    return render(request, 'productdetails.html', {'product': products, 'products2': products2, 'u_id': user_id, 'role': role})
+    return render(request, 'productdetails.html', {'product': Shopproducts, 'products2': products2, 'u_id': user_id, 'role': role})
 
 
 def userorder(request):
