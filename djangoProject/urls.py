@@ -25,7 +25,6 @@ from login_register import views as login_register_views
 from user.views import follow_shop, unfollow_shop
 from admin import views as admin_views
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('logout/', logout_view, name='logout'),

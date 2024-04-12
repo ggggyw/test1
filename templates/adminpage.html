@@ -177,6 +177,29 @@
       left: 0;
       transition: left 0.7s ease;
     }
+
+    /* 新增的样式 */
+    .edit-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .edit-form label {
+      margin-bottom: 10px;
+    }
+
+    .edit-form input[type="text"],
+    .edit-form input[type="email"],
+    .edit-form select {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 15px;
+    }
+
+    .edit-form button {
+      align-self: flex-end;
+    }
   </style>
 </head>
 <body>

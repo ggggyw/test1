@@ -5,6 +5,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
+from common.models import ShopProducts, ProductCategories, Products
+import pandas as pd
+from sqlalchemy import create_engine
+from dateutil.relativedelta import relativedelta
 from common.models import ShopProducts, ProductCategories, Products, Orders, OrderDetails
 
 
@@ -12,20 +16,20 @@ from common.models import ShopProducts, ProductCategories, Products, Orders, Ord
 # 商家页面
 def shoppage(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
-    shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+    s_id = request.session.get('s_id')
+    shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
     paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('u_id')
     role = request.session.get('role')
 
     context = {
         'shop_products': paged_products,
         'products': products,
-        'user_id': u_id,
+        's_id': s_id,
         'role': role
     }
     return render(request, 'shoppage.html', context)
@@ -33,16 +37,16 @@ def shoppage(request):
 
 def myproducts(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     # 从GET请求中获取类别ID
     category_id = request.GET.get('category_id')
     if category_id is not None and category_id != '0':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id, product_id__in=ids)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
     else:
         # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
 
     products = Products.objects.all()
 
@@ -54,7 +58,7 @@ def myproducts(request):
     shop_products = paginator.get_page(page)
 
     # 检查用户是否已经登录
-    if 'u_id' in request.session:
+    if 's_id' in request.session:
         # 如果用户已经登录
         template_name = 'shop_my_products.html'
     else:
@@ -67,25 +71,25 @@ def myproducts(request):
 
 
 def shop_productdetails(request, p_id):
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     role = request.session.get('role')
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
     products = Products.objects.get(p_id=shop_product.product_id)
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 'u_id': u_id, 'role': role})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role})
 
 
 def manage_products(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     category_id = request.GET.get('category_id')
     if category_id is not None and category_id != '0' and category_id != '':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id, product_id__in=ids)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
     else:
         # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
     paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
@@ -97,7 +101,7 @@ def manage_products(request):
 
     if request.method == "POST":
         # 获取当前登录的商家ID
-        shop_id = request.session.get('u_id')
+        shop_id = request.session.get('s_id')
 
         # 验证两个表单是否都有效
         if product_form.is_valid() and shop_product_form.is_valid():
@@ -130,7 +134,7 @@ def manage_products(request):
     context = {
         'shop_products': paged_products,
         'products': products,
-        'user_id': u_id,
+        's_id': s_id,
         'category_id': category_id,
         'product_form': product_form,
         'shop_product_form': shop_product_form
@@ -190,7 +194,7 @@ def add_product(request):
 
     if request.method == "POST":
         # 获取当前登录的商家ID
-        shop_id = request.session.get('u_id')
+        shop_id = request.session.get('s_id')
 
         # 验证两个表单是否都有效
         if product_form.is_valid() and shop_product_form.is_valid():
@@ -229,6 +233,7 @@ def add_product(request):
     return render(request, 'shop_add_product.html', context)
 
 
+
 def delete_product(request, product_id):
     if product_id is not None:
         shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
@@ -244,7 +249,7 @@ def delete_product(request, product_id):
 
 def shop_order(request):
     # 从会话中获取当前登录的商家ID
-    shop_id = request.session.get('u_id')
+    shop_id = request.session.get('s_id')
 
     # 查询这个商家的所有订单
     order_ids = OrderDetails.objects.filter(shop__s_id=shop_id).values_list('order__o_id', flat=True)
@@ -256,9 +261,82 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
-def product_detail(request):
-    return None
 
-def sales_analysis(request):
-    return render(request, 'shop_sales_analysis.html')
+def rfm_analysis(request):
+    engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
+    products_data = pd.read_sql_query('select * from products', engine)
+    orders_data = pd.read_sql_query("select * from orders", engine)
+    order_details_data = pd.read_sql_query("select * from order_details", engine)
 
+    # 转换时间类型
+    orders_data['o_time'] = pd.to_datetime(orders_data['o_time'])
+    orders_data['paid_time'] = pd.to_datetime(orders_data['paid_time'])
+    # 将表融合
+    merged_data = pd.merge(orders_data, order_details_data, left_on='o_id', right_on='order_id')
+    merged_data = pd.merge(merged_data, products_data, left_on='product_id', right_on='p_id')
+
+    merged_data.head(1)
+
+    # 筛选出一年之内的购买记录
+    current_time = pd.Timestamp.now()
+    two_years_ago = current_time - relativedelta(years=1)
+    filtered_data = merged_data[(merged_data['paid_time'] >= two_years_ago) &
+                                (merged_data['paid_time'] <= current_time)]
+
+    shop_id = request.session.get('s_id')
+    filtered_data = filtered_data.query(f'shop_id == {shop_id}')
+    filtered_data.head(1)
+
+    # 创建一个空的DataFrame来存储RFM值
+    RFM = pd.DataFrame()
+    # 计算R（最近一次购买时间）注意，这个R是dataframe格式
+    R = filtered_data.groupby('user_id')['paid_time'].max().reset_index()
+    R.columns = ['u_id', 'last_purchase_time']  # 重命名列以避免混淆
+    RFM['u_id'] = R['u_id']
+    RFM['Recency'] = (pd.Timestamp.now() - R['last_purchase_time']).dt.days
+    # 计算F（购买频次）
+    F = filtered_data.groupby('user_id').size().reset_index(name='frequency')
+    # 使用size()来计算每个组的行数,即该u_id在这一段时间内共出现了多少次。
+    RFM['Frequency'] = F['frequency']
+    # 计算M（总消费金额）
+    M = filtered_data.groupby('user_id')['total_price'].sum().reset_index()
+    RFM['Monetary'] = M['total_price']
+
+    R_threshold = RFM['Recency'].mean()
+    F_threshold = RFM['Frequency'].mean()
+    M_threshold = RFM['Monetary'].mean()
+    print(R_threshold)
+    print(F_threshold)
+    print(M_threshold)
+
+    # 标识高于(1)或低于(0)平均值
+    RFM['R'] = (RFM['Recency'] < R_threshold).astype(int)
+    RFM['F'] = (RFM['Frequency'] > F_threshold).astype(int)
+    RFM['M'] = (RFM['Monetary'] > M_threshold).astype(int)
+
+    RFM['RFM_Class'] = RFM['R'].astype(str) + RFM['F'].astype(str) + RFM['M'].astype(str)
+
+    # 创建中文标签映射
+    rfm_labels = {
+        '111': '重要价值客户',
+        '110': '潜力客户',
+        '101': '重要深耕客户',
+        '100': '新客户',
+        '011': '重要唤回客户',
+        '010': '一般维持用户',
+        '001': '重要挽留客户',
+        '000': '流失用户'
+    }
+
+    RFM['RFM_Label'] = RFM['RFM_Class'].map(rfm_labels)
+
+    RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
+
+    # 创建一个字典，其中包含您想要在模板中使用的数据
+    context = {
+        'RFM_data': RFM_data,
+        # 如果您还有其他数据需要传递，可以在这里添加
+    }
+
+    # 渲染模板，并将上下文传递给模板
+    return render(request, 'rfm.html', context)
