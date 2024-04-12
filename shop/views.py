@@ -288,12 +288,38 @@ def product_detail(request, p_id):
         'stock_quantity': shop_product.stock_quantity,
         'original_price': shop_product.original_price,
         'discount': shop_product.discount,
-        'product_image_url':  shop_product.product_image_url,
+        'product_image_url': shop_product.product_image_url,
     }
 
     # 返回 JSON 形式的响应
     return JsonResponse(data)
 
+
+def ship_product(request, o_id):
+    if request.method == 'POST':
+        try:
+            # 在数据库中查找订单实例
+            order = Orders.objects.get(o_id=o_id)
+            # 检查订单状态是否为"待发货"
+            if order.status == '待发货':
+                # 修改订单状态为"待收货"
+                order.status = '待收货'
+                # 保存更改
+                order.save()
+                # 返回一个成功的响应
+                return JsonResponse({'success': True, 'new_status': '待收货'})
+            else:
+                # 如果订单状态不允许发货，则返回一个错误响应
+                return JsonResponse({'success': False, 'error': 'Invalid order status for shipment'})
+        except Orders.DoesNotExist:
+            # 订单不存在时的错误响应
+            return JsonResponse({'success': False, 'error': 'Order does not exist'})
+        except Exception as e:
+            # 捕获其它异常，返回一个错误信息
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        # 对于非POST请求，返回一个错误响应
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')

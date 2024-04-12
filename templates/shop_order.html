@@ -86,6 +86,27 @@
             color: white;
         }
 
+        /* 为发货按钮增加一些样式来使其更加醒目 */
+        .order-ship-toggle {
+            border: none; /* 移除边框 */
+            color: white; /* 设置字体颜色 */
+            padding: 5px 10px; /* 设置内填充 */
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+            background-color: #29ce01; /* 背景颜色 */
+        }
+
+        /* 当鼠标悬停在发货按钮上时，改变其样式以提供反馈 */
+        .order-ship-toggle:hover {
+            background-color: #333;
+            color: white;
+        }
+
         .modal {
             display: none; /* 默认不显示模态框 */
             position: fixed; /* 固定定位 */
@@ -169,14 +190,20 @@
         <tr>
             <td>{{ order.o_id }}</td>
             <td onclick="showUserModal({{ order.user.u_id }})">{{ order.user.u_name }}</td>
-            <td>{{ order.status }}</td>
+            <td id="status-{{ order.o_id }}">{{ order.status }}</td>
             <td>{{ order.paid_time }}</td>
             <td>{{ order.o_time }}</td>
             <td>{{ order.total_price }}</td>
             <td>
                 <button class="order-detail-toggle" onclick="toggleOrderDetails('details-{{ order.o_id }}')">
-                    查看详情
+                    详情
                 </button>
+                <!-- 根据订单状态显示发货按钮 -->
+                {% if order.status == '待发货' %}
+                    <button class="order-ship-toggle" onclick="shipOrder({{ order.o_id }})">
+                        发货
+                    </button>
+                {% endif %}
             </td>
         </tr>
         <tr id="details-{{ order.o_id }}" class="order-details">
@@ -256,18 +283,17 @@
         }
     }
 
-    // 打开模态框的函数
-    function openModal(modalId, content) {
-        // 将内容添加到模态框中
-        document.getElementById(modalId + 'Info').innerHTML = content;
-        // 显示模态框
-        document.getElementById(modalId).style.display = 'block';
-    }
-
     // 关闭模态框的函数
     function closeModal(modalId) {
         // 隐藏模态框
         document.getElementById(modalId).style.display = 'none';
+    }
+
+    // 点击窗口外区域关闭任何打开的模态框
+    window.onclick = function (event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = 'none';
+        }
     }
 
     // 在用户点击用户名时调用的函数
@@ -329,6 +355,59 @@
 
     }
 
+    function shipOrder(orderId) {
+        // 发起POST请求到服务器，以执行发货操作
+        fetch('/shop/shoppage/shop_order/ship/' + orderId + '/', {
+            method: 'POST', // 指定请求方法为POST
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'), // 从cookie中获取CSRF token
+                'Content-Type': 'application/json' // 设置内容类型为JSON
+            },
+            body: JSON.stringify({'order_id': orderId}), // 将订单ID作为JSON格式的字符串发送
+            credentials: 'same-origin'  // 确保发送请求的时候包含cookies
+        })
+            .then(response => {
+                // 确认响应成功返回
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); // 解析服务器响应的JSON数据
+            })
+            .then(data => {
+                // 这里可以根据返回的数据进行操作，比如更新页面上的订单状态
+                if (data.success) {
+                    document.getElementById('status-' + orderId).textContent = '待收货';
+                    // 隐藏发货按钮，因为已经发货
+                    // 定义一个定时器，3秒后刷新页面
+                    setTimeout(function () {
+                        location.reload(); // 刷新页面
+                    }, 2000);
+                } else {
+                    // 处理服务器返回的错误，比如弹出提醒
+                    alert(data.error);
+                }
+            })
+            .catch(error => {
+                // 请求出错时的处理
+                console.error('There was a problem with the fetch operation:', error);
+            });
+    }
+
+    // 辅助函数用于获取cookie值
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
 
 </body>
