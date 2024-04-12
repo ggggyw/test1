@@ -47,7 +47,7 @@ body {
 .link {
 	color: var(--gray);
 	font-size: 0.9rem;
-	margin: 1.5rem 0;
+	margin: 0.7rem 0;
 	text-decoration: none;
 }
 
@@ -294,11 +294,22 @@ body {
 			<input type="text" placeholder="用户" class="input" name="nname"/>
 {#			<input type="email" placeholder="电子邮件" class="input" />#}
 			<input type="password" placeholder="密码" class="input" name="ppassword"/>
-			<select name="role">
-                <option value="user">用户</option>
-                <option value="admin">管理员</option>
-                <option value="shop">商家</option>
-            </select>
+            <p> </p>
+            <div class="radio-input" name="role">
+              <label>
+                <input value="user" name="role" id="value-1" type="radio" checked="">
+                <span>用户</span>
+              </label>
+              <label>
+                <input value="shop" name="role" id="value-2" type="radio">
+                <span>商家</span>
+              </label>
+              <label>
+                <input value="admin" name="role" id="value-3" type="radio">
+                <span>管理员</span>
+              </label>
+              <span class="selection"></span>
+            </div>
             <input type="submit" class="btn" value="注册">
 
 		</form>
@@ -310,6 +321,7 @@ body {
 			<h2 class="form__title">登录</h2>
             <input type="text" placeholder="用户" class="input" name="name"/>
 			<input type="password" placeholder="密码" class="input" name="password" />
+            <p></p>
 
             <div class="radio-input" name="role">
               <label>
@@ -350,6 +362,9 @@ const signUpBtn = document.getElementById("signUp");
 const firstForm = document.getElementById("form1");
 const secondForm = document.getElementById("form2");
 const container = document.querySelector(".container");
+
+// 默认显示登录表单
+container.classList.remove("right-panel-active");
 
 signInBtn.addEventListener("click", () => {
     container.classList.remove("right-panel-active");
