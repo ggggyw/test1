@@ -229,7 +229,21 @@ button:hover::before {
     rotate: 0;
   }
 }
+        .cart-header ,.cart-item, .cart-footer {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
 
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
     </style>
 </head>
 <body>
@@ -504,7 +518,15 @@ document.querySelector('.jiesuan').addEventListener('click', function() {
         alert("请求失败，请检查网络连接或稍后重试");
     });
 });
+        document.addEventListener('DOMContentLoaded', function() {
+    var elements = document.querySelectorAll('.cart-header,.cart-item,.cart-footer');
+    var delay = 0.1;
 
+    elements.forEach(function(element) {
+        element.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
     </script>
 </body>
 </html>
