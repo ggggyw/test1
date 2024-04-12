@@ -120,6 +120,7 @@
             cursor: pointer;
         }
 
+
         /* 其他样式保持不变 */
     </style>
 </head>
@@ -194,8 +195,8 @@
                     {% for detail in order.orderdetails_set.all %}
                         <tr>
                             <td>{{ detail.order_detail_id }}</td>
-                            <td onclick="openModal('productModal', '这里是商品信息内容...')">{{ detail.product.product.p_name }}</td>
-                            <td onclick="openModal('shopModal', '这里是商店信息内容...')">{{ detail.shop.s_name }}</td>
+                            <td onclick="showProductModal({{ detail.product.product.p_id }})">{{ detail.product.product.p_name }}</td>
+                            <td>{{ detail.shop.s_name }}</td>
                             <td>{{ detail.quantity }}</td>
                             <td>{{ detail.current_single_price }}</td>
                         </tr>
@@ -213,12 +214,12 @@
         <span class="close" onclick="closeModal('userModal')">&times;</span>
         <h2>用户信息</h2>
         <!-- 用户信息显示位置 -->
-        <div id="userInfo">
+        <div id="userModalInfo">
             <p>用户名: <span id="userModal_u_name"></span></p>
             <p>性别: <span id="userModal_u_sex"></span></p>
             <p>手机号: <span id="userModal_u_phone"></span></p>
-            <p>邮箱: <span id="userModal_email"></span></p>
-            <p>地址: <span id="userModal_address"></span></p>
+            <p>邮箱: <span id="userModal_u_email"></span></p>
+            <p>地址: <span id="userModal_u_address"></span></p>
         </div>
     </div>
 </div>
@@ -233,22 +234,14 @@
             <p>商品名称: <span id="productModal_p_name"></span></p>
             <p>商品类型: <span id="productModal_p_type"></span></p>
             <p>品牌: <span id="productModal_brand"></span></p>
-        </div>
-    </div>
-</div>
-
-<!-- 商店信息模态框 -->
-<div id="shopModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('shopModal')">&times;</span>
-        <h2>商店信息</h2>
-        <!-- 商店信息显示位置 -->
-        <div id="shopInfo">
-            <p>商店名称: <span id="shopModal_s_name"></span></p>
-            <p>商店账号: <span id="shopModal_s_acc"></span></p>
-            <p>手机号: <span id="shopModal_s_phone"></span></p>
-            <p>邮箱: <span id="shopModal_email"></span></p>
-            <p>地址: <span id="shopModal_address"></span></p>
+            <p>当前价格: <span id="productModal_current_price"></span></p>
+            <p>商品描述: <span id="productModal_product_desc"></span></p>
+            <p>商品状态: <span id="productModal_product_status"></span></p>
+            <p>库存数量: <span id="productModal_stock_quantity"></span></p>
+            <p>原始价格: <span id="productModal_original_price"></span></p>
+            <p>商品折扣: <span id="productModal_discount"></span></p>
+            <p>商品图片:</p>
+            <img id="productModal_product_image" src="" alt="" width="200" height="200">
         </div>
     </div>
 </div>
@@ -277,22 +270,67 @@
         document.getElementById(modalId).style.display = 'none';
     }
 
-    // 示例函数，用于通过AJAX请求获取用户信息并显示在模态框中
+    // 在用户点击用户名时调用的函数
     function showUserModal(userId) {
-        // 发起AJAX请求获取用户信息
-        fetch('/shop_order/user/' + userId + '/')
-            .then(response => response.json())
-            .then(data => {
-                // 填充模态框
-                document.getElementById('userModal_u_name').innerText = data.u_name;
-                document.getElementById('userModal_u_sex').innerText = data.u_sex;
-                document.getElementById('userModal_u_u_phone').innerText = data.u_u_phone;
-                document.getElementById('userModal_u_email').innerText = data.u_email;
-                document.getElementById('userModal_u_address').innerText = data.u_address;
-                openModal('userModal');
+        // 发起 AJAX 请求以获取用户信息
+        fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(user => {
+                // 以下代码是将获取到的用户数据填充到模态框
+                document.getElementById('userModal_u_name').textContent = user.u_name;
+                document.getElementById('userModal_u_sex').textContent = user.u_sex;
+                document.getElementById('userModal_u_phone').textContent = user.u_phone;
+                document.getElementById('userModal_u_email').textContent = user.u_email;
+                document.getElementById('userModal_u_address').textContent = user.u_address;
+                // 显示模态框
+                document.getElementById('userModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
             });
     }
 
+    function showProductModal(p_id) {
+        // 发起 AJAX 请求以获取商品信息
+        fetch('/shop/shoppage/shop_order/product/' + p_id + '/')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(product => {
+                // 以下代码是将获取到的商品数据填充到模态框
+                document.getElementById('productModal_p_name').textContent = product.p_name;
+                document.getElementById('productModal_p_type').textContent = product.p_type;
+                document.getElementById('productModal_brand').textContent = product.brand;
+                // 如果您想显示其他信息，那么以下是示例
+                // 确保这些元素在商品信息模态框中有对应的 span 标签
+                document.getElementById('productModal_current_price').textContent = product.current_price;
+                document.getElementById('productModal_product_desc').textContent = product.product_desc;
+                document.getElementById('productModal_product_status').textContent = product.product_status;
+                document.getElementById('productModal_stock_quantity').textContent = product.stock_quantity;
+                document.getElementById('productModal_original_price').textContent = product.original_price;
+                document.getElementById('productModal_discount').textContent = product.discount;
+                // 设置商品图片
+                var productImage = document.getElementById('productModal_product_image');
+                var imageUrl = product.product_image_url ? '{% static "商品图片/" %}' + product.product_image_url : '{% static "商品图片/暂无图片.png" %}';
+                productImage.src = imageUrl;
+                productImage.alt = product.p_name || '商品图片'; // 使用商品名称作为图片的alt文本，如果没有名称则使用'商品图片'
+
+                // 显示模态框
+                document.getElementById('productModal').style.display = 'block';
+            })
+
+    }
+
 </script>
+
 </body>
+
 </html>

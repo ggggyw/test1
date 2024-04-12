@@ -55,4 +55,5 @@ urlpatterns = [
     path('set_default_address/<int:address_id>/', user_views.set_default_address,name='set_default_address'),
     path('delete_address/<int:address_id>/', user_views.delete_address, name='delete_address'),
     path('adminpage/', admin_views.adminpage, name='adminpage'),
+    path('get_goods_list/', user_views.get_goods_list, name='get_goods_list'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -233,7 +233,6 @@ def add_product(request):
     return render(request, 'shop_add_product.html', context)
 
 
-
 def delete_product(request, product_id):
     if product_id is not None:
         shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
@@ -261,6 +260,7 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
+
 def user_detail(request, user_id):
     user = get_object_or_404(Users, pk=user_id)
     data = {
@@ -268,9 +268,32 @@ def user_detail(request, user_id):
         'u_sex': user.u_sex,
         'u_address': user.address,
         'u_email': user.email,
-        'u_u_phone': user.u_phone,
+        'u_phone': user.u_phone,
     }
     return JsonResponse(data)
+
+
+def product_detail(request, p_id):
+    # 根据 p_id 获取 ShopProducts 实例
+    shop_product = get_object_or_404(ShopProducts, pk=p_id)
+    # 从相关联的 Products 实例中获取产品信息
+    product = shop_product.product
+    data = {
+        'p_name': product.p_name,
+        'p_type': product.p_type.category_name,  # 假设 ProductCategories 有一个 'category_name' 字段
+        'brand': product.brand,
+        'current_price': shop_product.current_price,
+        'product_desc': shop_product.product_desc,
+        'product_status': shop_product.product_status,
+        'stock_quantity': shop_product.stock_quantity,
+        'original_price': shop_product.original_price,
+        'discount': shop_product.discount,
+        'product_image_url':  shop_product.product_image_url,
+    }
+
+    # 返回 JSON 形式的响应
+    return JsonResponse(data)
+
 
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
@@ -350,5 +373,3 @@ def rfm_analysis(request):
 
     # 渲染模板，并将上下文传递给模板
     return render(request, 'rfm.html', context)
-
-

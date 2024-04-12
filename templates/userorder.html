@@ -201,6 +201,21 @@ button {
   border: none;
   background: transparent;
 }
+.oorder-container, .oorder-product, .oorder-product-details, .oorder-details, .oorder-details-block, .total-amount, .user_id, .caozuo ,.order-options,.order-details{
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 {#按钮--------------------------------------------------------------------------------------------------#}
 </style>
 
@@ -247,7 +262,7 @@ button {
 </div>
 <div class="order-options-container">
     <ul class="order-options">
-        <li><a href="/user/userorder" data-status="all">全部订单</a></li>
+        <li><a href="/user/userorder" data-status="all" class="title">全部订单</a></li>
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
         <li><a href="/user/userorder?status=review" data-status="review">待评价</a></li>
@@ -340,12 +355,14 @@ success: function(response) {
             '</div>';
     }
     $('#order-details-container').append(ordersContent);
+    showOrdersWithAnimation();
 },
         error: function(xhr, status, error) {
             console.error(error);
             $('#order-details-container').html('<p>获取订单失败</p>');
         }
     });
+
  $(document).on('click', '.caozuo button:first-child', function() {
         var orderContainer = $(this).closest('.oorder-container');
         var orderDetails = orderContainer.find('.oorder-product');
@@ -390,7 +407,14 @@ success: function(response) {
     });
 
 });
-
+function showOrdersWithAnimation() {
+        $('.oorder-container').each(function(index) {
+            $(this).css('opacity', 0).delay(index * 200).animate({
+                opacity: 1,
+                top: '0'
+            }, 500);
+        });
+    }
 function getOrdersByStatus(status) {
     $.ajax({
         url: '/user_orders/',
@@ -441,13 +465,16 @@ function getOrdersByStatus(status) {
                     '</div>';
             }
             $('#order-details-container').append(ordersContent);
-        },
-        error: function(xhr, status, error) {
-            console.error(error);
-            $('#order-details-container').html('<p>获取订单失败</p>');
-        }
-    });
-}
+
+                // 依次显示订单容器
+                showOrdersWithAnimation();
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                $('#order-details-container').html('<p>获取订单失败</p>');
+            }
+        });
+    }
 
 
 $(document).on('click', '.caozuo button:last-child', function() {
@@ -470,7 +497,15 @@ $(document).on('click', '.caozuo button:last-child', function() {
         }
     });
 });
+        document.addEventListener('DOMContentLoaded', function() {
+    var elements = document.querySelectorAll('.oorder-container, .oorder-product, .oorder-product-details, .oorder-details, .oorder-details-block, .total-amount, .status, .user_id, .order-options,.order-details');
+    var delay = 0.1;
 
+    elements.forEach(function(element) {
+        element.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
 
 </script>
 

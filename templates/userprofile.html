@@ -12,6 +12,23 @@
     <link rel="stylesheet" href="{% static '首页_files/mygxin.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
+    <style>
+        .fl {
+    opacity: 0;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+    </style>
 </head>
 <body>
 
@@ -105,7 +122,17 @@
 
             </div>
             </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+    var elements = document.querySelectorAll('.fl');
+    var delay = 0.1;
 
+    elements.forEach(function(element) {
+        element.style.animationDelay = delay + 's';
+        delay += 0.1;
+    });
+});
+</script>
 
 
 </body></html>
