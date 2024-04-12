@@ -5,6 +5,10 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
+from common.models import ShopProducts, ProductCategories, Products
+import pandas as pd
+from sqlalchemy import create_engine
+from dateutil.relativedelta import relativedelta
 from common.models import ShopProducts, ProductCategories, Products, Orders, OrderDetails
 
 
@@ -229,6 +233,7 @@ def add_product(request):
     return render(request, 'shop_add_product.html', context)
 
 
+
 def delete_product(request, product_id):
     if product_id is not None:
         shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
@@ -256,9 +261,89 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
+
 def product_detail(request):
     return None
 
+
+def shop_order(request):
+    return render(request, 'shop_order.html')
+
+
+def rfm_analysis(request):
+    engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
+    products_data = pd.read_sql_query('select * from products', engine)
+    orders_data = pd.read_sql_query("select * from orders", engine)
+    order_details_data = pd.read_sql_query("select * from order_details", engine)
+
+    # 转换时间类型
+    orders_data['o_time'] = pd.to_datetime(orders_data['o_time'])
+    orders_data['paid_time'] = pd.to_datetime(orders_data['paid_time'])
+    # 将表融合
+    merged_data = pd.merge(orders_data, order_details_data, left_on='o_id', right_on='order_id')
+    merged_data = pd.merge(merged_data, products_data, left_on='product_id', right_on='p_id')
+
+    merged_data.head(1)
+
+    # 筛选出一年之内的购买记录
+    current_time = pd.Timestamp.now()
+    two_years_ago = current_time - relativedelta(years=1)
+    filtered_data = merged_data[(merged_data['paid_time'] >= two_years_ago) &
+                                (merged_data['paid_time'] <= current_time)]
+    filtered_data.head(1)
+
+    # 创建一个空的DataFrame来存储RFM值
+    RFM = pd.DataFrame()
+    # 计算R（最近一次购买时间）注意，这个R是dataframe格式
+    R = filtered_data.groupby('user_id')['paid_time'].max().reset_index()
+    R.columns = ['u_id', 'last_purchase_time']  # 重命名列以避免混淆
+    RFM['u_id'] = R['u_id']
+    RFM['Recency'] = (pd.Timestamp.now() - R['last_purchase_time']).dt.days
+    # 计算F（购买频次）
+    F = filtered_data.groupby('user_id').size().reset_index(name='frequency')
+    # 使用size()来计算每个组的行数,即该u_id在这一段时间内共出现了多少次。
+    RFM['Frequency'] = F['frequency']
+    # 计算M（总消费金额）
+    M = filtered_data.groupby('user_id')['total_price'].sum().reset_index()
+    RFM['Monetary'] = M['total_price']
 def sales_analysis(request):
     return render(request, 'shop_sales_analysis.html')
 
+    R_threshold = RFM['Recency'].mean()
+    F_threshold = RFM['Frequency'].mean()
+    M_threshold = RFM['Monetary'].mean()
+    print(R_threshold)
+    print(F_threshold)
+    print(M_threshold)
+
+    # 标识高于(1)或低于(0)平均值
+    RFM['R'] = (RFM['Recency'] < R_threshold).astype(int)
+    RFM['F'] = (RFM['Frequency'] > F_threshold).astype(int)
+    RFM['M'] = (RFM['Monetary'] > M_threshold).astype(int)
+
+    RFM['RFM_Class'] = RFM['R'].astype(str) + RFM['F'].astype(str) + RFM['M'].astype(str)
+
+    # 创建中文标签映射
+    rfm_labels = {
+        '111': '重要价值客户',
+        '110': '潜力客户',
+        '101': '重要深耕客户',
+        '100': '新客户',
+        '011': '重要唤回客户',
+        '010': '一般维持用户',
+        '001': '重要挽留客户',
+        '000': '流失用户'
+    }
+
+    RFM['RFM_Label'] = RFM['RFM_Class'].map(rfm_labels)
+
+    RFM_data = RFM[['u_id', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
+
+    # 创建一个字典，其中包含您想要在模板中使用的数据
+    context = {
+        'RFM_data': RFM_data,
+        # 如果您还有其他数据需要传递，可以在这里添加
+    }
+
+    # 渲染模板，并将上下文传递给模板
+    return render(request, 'rfm.html', context)
