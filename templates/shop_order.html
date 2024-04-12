@@ -121,14 +121,66 @@
 
         .modal-content {
             background-color: #fefefe; /* 模态框内容背景颜色 */
-            margin: 15% auto; /* 上下外边距及自动居中 */
+            margin: 5% auto; /* 上下外边距及自动居中 */
             padding: 20px; /* 内边距 */
             border: 1px solid #888; /* 边框 */
-            width: 80%; /* 宽度 */
+            width: 50%; /* 宽度 */
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+            position: relative; /* 相对定位 */
+            overflow: hidden; /* 隐藏溢出的内容 */
+            border-radius: 10px; /* 圆角边框 */
+        }
+
+        /* 模态框标题样式 */
+        .modal-content h2 {
+            background-color: #4CAF50; /* 标题背景颜色 */
+            color: white; /* 标题文本颜色 */
+            padding: 10px 20px; /* 标题内填充 */
+            margin: -20px -20px 20px -20px; /* 标题外边距 */
+            border-top-left-radius: 10px; /* 左上角圆角 */
+            border-top-right-radius: 10px; /* 右上角圆角 */
+            text-align: center; /* 文本居中 */
+        }
+
+        /* 模态框关闭按钮样式 */
+        .close {
+            position: absolute; /* 绝对定位 */
+            top: 10px; /* 距离顶部 */
+            right: 20px; /* 距离右侧 */
+            color: #aaa; /* 颜色 */
+            text-shadow: none; /* 禁用文本阴影 */
+            font-weight: normal; /* 字重 */
+        }
+
+        /* 模态框中的段落样式 */
+        .modal-content p {
+            font-size: 16px; /* 字体大小 */
+            line-height: 1.6; /* 行高 */
+            margin-bottom: 15px; /* 段落之间的间距 */
+            text-align: left; /* 文本左对齐 */
+            border-bottom: 1px solid #eee; /* 可选：每个信息项之间的分割线 */
+            padding-bottom: 10px; /* 可选：分割线上方的内边距 */
+        }
+
+        /* 最后一个段落的样式，没有底部边框 */
+        .modal-content p:last-of-type {
+            border-bottom: none; /* 去掉最后一个段落的分割线 */
+            margin-bottom: 0; /* 调整最后一个段落的外边距 */
+            padding-bottom: 0; /* 调整最后一个段落的内边距 */
+        }
+
+        /* 模态框中图片的样式 */
+        .modal-content img {
+            margin-top: 10px; /* 图片上方的外边距 */
+            display: block; /* 使图片块状显示 */
+            margin-left: auto; /* 左自动外边距 */
+            margin-right: auto; /* 右自动外边距 */
+            max-width: 100%; /* 最大宽度为容器宽度 */
+            height: auto; /* 高度自动 */
         }
 
         .close {
-            color: #aaa; /* 关闭按钮颜色 */
+            color: #0c0c0c; /* 关闭按钮颜色 */
             float: right; /* 右浮动 */
             font-size: 28px; /* 字号 */
             font-weight: bold; /* 字重 */
@@ -136,13 +188,45 @@
 
         .close:hover,
         .close:focus {
-            color: black; /* 鼠标悬浮或聚焦时颜色改变 */
+            color: #e11111; /* 鼠标悬浮或聚焦时颜色改变 */
             text-decoration: none;
             cursor: pointer;
         }
 
+        /* 点击时的高亮背景颜色 */
+        .highlight {
+            background-color: #ffff99; /* 浅黄色的背景 */
+        }
 
-        /* 其他样式保持不变 */
+
+        tbody tr.order-row:hover {
+            font-size: 13px; /* 设定鼠标悬停时的字体大小 */
+            cursor: pointer; /* 可选，显示鼠标悬停效果 */
+            transition: font-size 0.8s ease; /* 平滑的字体大小变化 */
+            color: #008CBA; /* 蓝色字体 */
+        }
+
+        /* “详情”行在悬停时的样式 */
+        tbody tr.order-detail-row:hover {
+            color: #008CBA;
+            font-size: 13px; /* 设定鼠标悬停时的字体大小 */
+            cursor: default;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 设置为链接的用户名字和商品名字的样式 */
+        .dialogue-link {
+            cursor: pointer;
+            color: #008CBA; /* 蓝色字体 */
+            text-decoration: underline; /* 文字下划线 */
+            transition: font-size 0.5s ease; /* 平滑的字体大小变化 */
+        }
+
+        /* 鼠标悬停在用户名字和商品名字上时的样式 */
+        .dialogue-link:hover {
+            font-size: 20px; /* 鼠标悬停时字体大小变大 */
+            color: #f51111; /* 鼠标悬停时字体颜色的变化 */
+        }
     </style>
 </head>
 <body>
@@ -187,15 +271,20 @@
     </thead>
     <tbody>
     {% for order in orders %}
-        <tr>
+        <tr class="order-row" data-order-id="{{ order.o_id }}">
             <td>{{ order.o_id }}</td>
-            <td onclick="showUserModal({{ order.user.u_id }})">{{ order.user.u_name }}</td>
+            <td>
+            <span class="dialogue-link" onclick="showUserModal({{ order.user.u_id }})">
+                {{ order.user.u_name }}
+            </span>
+            </td>
             <td id="status-{{ order.o_id }}">{{ order.status }}</td>
             <td>{{ order.paid_time }}</td>
             <td>{{ order.o_time }}</td>
             <td>{{ order.total_price }}</td>
             <td>
-                <button class="order-detail-toggle" onclick="toggleOrderDetails('details-{{ order.o_id }}')">
+                <button class="order-detail-toggle"
+                        onclick="toggleOrderDetails('details-{{ order.o_id }}'); event.stopPropagation();">
                     详情
                 </button>
                 <!-- 根据订单状态显示发货按钮 -->
@@ -220,9 +309,14 @@
                     </thead>
                     <tbody>
                     {% for detail in order.orderdetails_set.all %}
-                        <tr>
+                        <tr class="order-detail-row" data-order-id="{{ order.o_id }}">
                             <td>{{ detail.order_detail_id }}</td>
-                            <td onclick="showProductModal({{ detail.product.product.p_id }})">{{ detail.product.product.p_name }}</td>
+                            <td>
+                                <span class="dialogue-link"
+                                      onclick="showProductModal({{ detail.product.product.p_id }})">
+                                           {{ detail.product.product.p_name }}
+                                </span>
+                            </td>
                             <td>{{ detail.shop.s_name }}</td>
                             <td>{{ detail.quantity }}</td>
                             <td>{{ detail.current_single_price }}</td>
@@ -298,6 +392,11 @@
 
     // 在用户点击用户名时调用的函数
     function showUserModal(userId) {
+        // 获取用户名字的元素并添加高亮类
+        var userNameElem = document.querySelector('td[onclick="showUserModal(' + userId + ')"]');
+        if (userNameElem) {
+            userNameElem.classList.add('highlight');
+        }
         // 发起 AJAX 请求以获取用户信息
         fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变
             .then(response => {
@@ -322,6 +421,11 @@
     }
 
     function showProductModal(p_id) {
+        // 获取商品名字的元素并添加高亮类
+        var productNameElem = document.querySelector('td[onclick="showProductModal(' + p_id + ')"]');
+        if (productNameElem) {
+            productNameElem.classList.add('highlight');
+        }
         // 发起 AJAX 请求以获取商品信息
         fetch('/shop/shoppage/shop_order/product/' + p_id + '/')
             .then(response => {
@@ -408,6 +512,22 @@
         }
         return cookieValue;
     }
+
+    // 函数：当点击表格行时切换订单详情的显示
+    function onRowClick(orderId) {
+        toggleOrderDetails('details-' + orderId);
+    }
+
+    // 当文档加载完毕后，绑定事件到所有的订单行
+    document.addEventListener('DOMContentLoaded', function () {
+        var orderRows = document.querySelectorAll('.order-row');
+        orderRows.forEach(function (row) {
+            row.addEventListener('click', function () {
+                var orderId = this.getAttribute('data-order-id');
+                onRowClick(orderId);
+            });
+        });
+    });
 </script>
 
 </body>
