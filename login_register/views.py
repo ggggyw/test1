@@ -55,8 +55,8 @@ def login(request):
 
 def register(request):
     if request.method == 'POST':
-        username = request.POST['name']
-        password = request.POST['password']
+        username = request.POST['nname']
+        password = request.POST['ppassword']
         role = request.POST['role']
 
         if role == 'user':
@@ -84,5 +84,5 @@ def register(request):
             messages.error(request, '选择了无效的角色')
 
     # 显示register.html页面
-    return render(request, 'registration.html')
+    return render(request, 'login.html')
 

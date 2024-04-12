@@ -223,12 +223,19 @@ body {
 <body>
 <div class="container right-panel-active">
 	<div class="container__form container--signup">
-		<form action="{% url 'login' %}" class="form" id="form1">
-			<h2 class="form__title">注册</h2>
-			<input type="text" placeholder="用户" class="input" />
-			<input type="email" placeholder="电子邮件" class="input" />
-			<input type="password" placeholder="密码" class="input" />
-			<button class="btn">注册</button>
+		<form action="/user/register/" class="form" id="form1" method="post">
+            {% csrf_token %}
+            <h2 class="form__title">注册</h2>
+			<input type="text" placeholder="用户" class="input" name="nname"/>
+{#			<input type="email" placeholder="电子邮件" class="input" />#}
+			<input type="password" placeholder="密码" class="input" name="ppassword"/>
+			<select name="role">
+                <option value="user">用户</option>
+                <option value="admin">管理员</option>
+                <option value="shop">商家</option>
+            </select>
+            <input type="submit" class="btn" value="注册">
+
 		</form>
 	</div>
 
