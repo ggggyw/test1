@@ -37,7 +37,7 @@ def login(request):
                 try:
                     shop = Shops.objects.get(s_acc=user_acc)
                     if shop.s_psw == password:
-                        request.session['u_id'] = shop.s_id
+                        request.session['s_id'] = shop.s_id
                         request.session['role'] = role
                         return redirect(reverse('shoppage'))
                     else:
