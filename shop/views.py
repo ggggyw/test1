@@ -12,20 +12,20 @@ from common.models import ShopProducts, ProductCategories, Products, Orders, Ord
 # 商家页面
 def shoppage(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
-    shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+    s_id = request.session.get('s_id')
+    shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
     paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('u_id')
     role = request.session.get('role')
 
     context = {
         'shop_products': paged_products,
         'products': products,
-        'user_id': u_id,
+        's_id': s_id,
         'role': role
     }
     return render(request, 'shoppage.html', context)
@@ -33,16 +33,16 @@ def shoppage(request):
 
 def myproducts(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     # 从GET请求中获取类别ID
     category_id = request.GET.get('category_id')
     if category_id is not None and category_id != '0':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id, product_id__in=ids)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
     else:
         # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
 
     products = Products.objects.all()
 
@@ -54,7 +54,7 @@ def myproducts(request):
     shop_products = paginator.get_page(page)
 
     # 检查用户是否已经登录
-    if 'u_id' in request.session:
+    if 's_id' in request.session:
         # 如果用户已经登录
         template_name = 'shop_my_products.html'
     else:
@@ -67,25 +67,25 @@ def myproducts(request):
 
 
 def shop_productdetails(request, p_id):
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     role = request.session.get('role')
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
     products = Products.objects.get(p_id=shop_product.product_id)
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 'u_id': u_id, 'role': role})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role})
 
 
 def manage_products(request):
     # 从会话中获取用户的ID
-    u_id = request.session.get('u_id')
+    s_id = request.session.get('s_id')
     category_id = request.GET.get('category_id')
     if category_id is not None and category_id != '0' and category_id != '':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id, product_id__in=ids)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
     else:
         # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=u_id)
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
     paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
@@ -97,7 +97,7 @@ def manage_products(request):
 
     if request.method == "POST":
         # 获取当前登录的商家ID
-        shop_id = request.session.get('u_id')
+        shop_id = request.session.get('s_id')
 
         # 验证两个表单是否都有效
         if product_form.is_valid() and shop_product_form.is_valid():
@@ -130,7 +130,7 @@ def manage_products(request):
     context = {
         'shop_products': paged_products,
         'products': products,
-        'user_id': u_id,
+        's_id': s_id,
         'category_id': category_id,
         'product_form': product_form,
         'shop_product_form': shop_product_form
@@ -190,7 +190,7 @@ def add_product(request):
 
     if request.method == "POST":
         # 获取当前登录的商家ID
-        shop_id = request.session.get('u_id')
+        shop_id = request.session.get('s_id')
 
         # 验证两个表单是否都有效
         if product_form.is_valid() and shop_product_form.is_valid():
@@ -244,7 +244,7 @@ def delete_product(request, product_id):
 
 def shop_order(request):
     # 从会话中获取当前登录的商家ID
-    shop_id = request.session.get('u_id')
+    shop_id = request.session.get('s_id')
 
     # 查询这个商家的所有订单
     order_ids = OrderDetails.objects.filter(shop__s_id=shop_id).values_list('order__o_id', flat=True)
