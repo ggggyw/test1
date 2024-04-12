@@ -266,10 +266,6 @@ def product_detail(request):
     return None
 
 
-def shop_order(request):
-    return render(request, 'shop_order.html')
-
-
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
     products_data = pd.read_sql_query('select * from products', engine)
@@ -290,6 +286,9 @@ def rfm_analysis(request):
     two_years_ago = current_time - relativedelta(years=1)
     filtered_data = merged_data[(merged_data['paid_time'] >= two_years_ago) &
                                 (merged_data['paid_time'] <= current_time)]
+
+    shop_id = request.session.get('s_id')
+    filtered_data = filtered_data.query(f'shop_id == {shop_id}')
     filtered_data.head(1)
 
     # 创建一个空的DataFrame来存储RFM值
@@ -306,8 +305,6 @@ def rfm_analysis(request):
     # 计算M（总消费金额）
     M = filtered_data.groupby('user_id')['total_price'].sum().reset_index()
     RFM['Monetary'] = M['total_price']
-def sales_analysis(request):
-    return render(request, 'shop_sales_analysis.html')
 
     R_threshold = RFM['Recency'].mean()
     F_threshold = RFM['Frequency'].mean()
@@ -337,7 +334,7 @@ def sales_analysis(request):
 
     RFM['RFM_Label'] = RFM['RFM_Class'].map(rfm_labels)
 
-    RFM_data = RFM[['u_id', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
+    RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
 
     # 创建一个字典，其中包含您想要在模板中使用的数据
     context = {
