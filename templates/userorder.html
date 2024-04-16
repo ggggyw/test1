@@ -479,7 +479,7 @@ $(document).on('click', '.caozuo button:last-child', function() {
     var orderContainer = $(this).closest('.oorder-container');
     var orderId = orderContainer.find('input[name="orders[]"]').val();
     var status = orderContainer.find('.status').text().trim();
-    if (status === '待评价') {
+    if (status === '待评价' || status === '回收') {
         // 发送删除订单请求到后端
         $.ajax({
             url: '/delete_order/',
@@ -496,7 +496,7 @@ $(document).on('click', '.caozuo button:last-child', function() {
             }
         });
     } else {
-        alert('只有待评价状态的订单可以删除');
+        alert('只有待评价或回收状态的订单可以删除');
     }
 });
         document.addEventListener('DOMContentLoaded', function() {

@@ -285,10 +285,22 @@ def delete_order(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         order_id = data.get('order_id', {})
-        Orders.objects.filter(o_id=order_id).update(status=5)
-        return JsonResponse({'message': '删除成功'}, status=200)
+        order = Orders.objects.filter(o_id=order_id).first()
+
+        if order:
+            if order.status == '回收':
+                order.status = 0
+                order.save()
+            else:
+                order.status = '回收'
+                order.save()
+
+            return JsonResponse({'message': '删除成功'}, status=200)
+        else:
+            return JsonResponse({'error': '订单不存在'}, status=404)
     else:
         return JsonResponse({'error': '删除失败'}, status=400)
+
 def user_orders(request):
     user_id = request.session.get('u_id')
     status = request.GET.get('status')  # 获取 URL 参数中的 status 值
@@ -304,7 +316,7 @@ def user_orders(request):
     try:
         # 如果 status_value 为 None，则获取所有订单
         if status_value is None:
-            orders = Orders.objects.filter(user_id=user_id).prefetch_related(
+            orders = Orders.objects.filter(user_id=user_id).exclude(status=0).prefetch_related(
                 Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
             )
         else:
