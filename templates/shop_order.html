@@ -38,6 +38,11 @@
             margin-top: 10px;
         }
 
+        .rfm{
+            display: none;
+            margin-top:10px;
+        }
+
         /* 将表格居中且宽度最大化，每列有一定的间距 */
         table {
             margin: 0 auto;
@@ -107,7 +112,7 @@
             color: white;
         }
 
-        .modal {
+        .Model {
             display: none; /* 默认不显示模态框 */
             position: fixed; /* 固定定位 */
             z-index: 1; /* z-index 确保模态框在其他内容上方 */
@@ -119,7 +124,7 @@
             background-color: rgba(0, 0, 0, 0.4); /* 背景颜色带透明度 */
         }
 
-        .modal-content {
+        .Model-content {
             background-color: #fefefe; /* 模态框内容背景颜色 */
             margin: 5% auto; /* 上下外边距及自动居中 */
             padding: 20px; /* 内边距 */
@@ -132,7 +137,7 @@
         }
 
         /* 模态框标题样式 */
-        .modal-content h2 {
+        .Model-content h2 {
             background-color: #4CAF50; /* 标题背景颜色 */
             color: white; /* 标题文本颜色 */
             padding: 10px 20px; /* 标题内填充 */
@@ -153,7 +158,7 @@
         }
 
         /* 模态框中的段落样式 */
-        .modal-content p {
+        .Model-content p {
             font-size: 16px; /* 字体大小 */
             line-height: 1.6; /* 行高 */
             margin-bottom: 15px; /* 段落之间的间距 */
@@ -163,14 +168,14 @@
         }
 
         /* 最后一个段落的样式，没有底部边框 */
-        .modal-content p:last-of-type {
+        .Model-content p:last-of-type {
             border-bottom: none; /* 去掉最后一个段落的分割线 */
             margin-bottom: 0; /* 调整最后一个段落的外边距 */
             padding-bottom: 0; /* 调整最后一个段落的内边距 */
         }
 
         /* 模态框中图片的样式 */
-        .modal-content img {
+        .Model-content img {
             margin-top: 10px; /* 图片上方的外边距 */
             display: block; /* 使图片块状显示 */
             margin-left: auto; /* 左自动外边距 */
@@ -254,7 +259,7 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
 </div>
 <table>
@@ -274,7 +279,7 @@
         <tr class="order-row" data-order-id="{{ order.o_id }}">
             <td>{{ order.o_id }}</td>
             <td>
-            <span class="dialogue-link" onclick="showUserModal({{ order.user.u_id }})">
+            <span class="dialogue-link" onclick="showUserModel({{ order.user.u_id }})">
                 {{ order.user.u_name }}
             </span>
             </td>
@@ -313,7 +318,7 @@
                             <td>{{ detail.order_detail_id }}</td>
                             <td>
                                 <span class="dialogue-link"
-                                      onclick="showProductModal({{ detail.product.product.p_id }})">
+                                      onclick="showProductModel({{ detail.product.product.p_id }})">
                                            {{ detail.product.product.p_name }}
                                 </span>
                             </td>
@@ -330,42 +335,43 @@
     </tbody>
 </table>
 <!-- 用户信息模态框 -->
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('userModal')">&times;</span>
+<div id="userModel" class="Model">
+    <div class="Model-content">
+        <span class="close" onclick="closeModel('userModel')">&times;</span>
         <h2>用户信息</h2>
         <!-- 用户信息显示位置 -->
-        <div id="userModalInfo">
-            <p>用户名: <span id="userModal_u_name"></span></p>
-            <p>性别: <span id="userModal_u_sex"></span></p>
-            <p>手机号: <span id="userModal_u_phone"></span></p>
-            <p>邮箱: <span id="userModal_u_email"></span></p>
-            <p>地址: <span id="userModal_u_address"></span></p>
+        <div id="userModelInfo">
+            <p>用户名: <span id="userModel_u_name"></span></p>
+            <p>性别: <span id="userModel_u_sex"></span></p>
+            <p>手机号: <span id="userModel_u_phone"></span></p>
+            <p>邮箱: <span id="userModel_u_email"></span></p>
+            <p>地址: <span id="userModel_u_address"></span></p>
         </div>
     </div>
 </div>
 
 <!-- 商品信息模态框 -->
-<div id="productModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('productModal')">&times;</span>
+<div id="productModel" class="Model">
+    <div class="Model-content">
+        <span class="close" onclick="closeModel('productModel')">&times;</span>
         <h2>商品信息</h2>
         <!-- 商品信息显示位置 -->
         <div id="productInfo">
-            <p>商品名称: <span id="productModal_p_name"></span></p>
-            <p>商品类型: <span id="productModal_p_type"></span></p>
-            <p>品牌: <span id="productModal_brand"></span></p>
-            <p>当前价格: <span id="productModal_current_price"></span></p>
-            <p>商品描述: <span id="productModal_product_desc"></span></p>
-            <p>商品状态: <span id="productModal_product_status"></span></p>
-            <p>库存数量: <span id="productModal_stock_quantity"></span></p>
-            <p>原始价格: <span id="productModal_original_price"></span></p>
-            <p>商品折扣: <span id="productModal_discount"></span></p>
+            <p>商品名称: <span id="productModel_p_name"></span></p>
+            <p>商品类型: <span id="productModel_p_type"></span></p>
+            <p>品牌: <span id="productModel_brand"></span></p>
+            <p>当前价格: <span id="productModel_current_price"></span></p>
+            <p>商品描述: <span id="productModel_product_desc"></span></p>
+            <p>商品状态: <span id="productModel_product_status"></span></p>
+            <p>库存数量: <span id="productModel_stock_quantity"></span></p>
+            <p>原始价格: <span id="productModel_original_price"></span></p>
+            <p>商品折扣: <span id="productModel_discount"></span></p>
             <p>商品图片:</p>
-            <img id="productModal_product_image" src="" alt="" width="200" height="200">
+            <img id="productModel_product_image" src="" alt="" width="200" height="200">
         </div>
     </div>
 </div>
+
 
 <script>
     function toggleOrderDetails(detailId) {
@@ -378,22 +384,22 @@
     }
 
     // 关闭模态框的函数
-    function closeModal(modalId) {
+    function closeModel(ModelId) {
         // 隐藏模态框
-        document.getElementById(modalId).style.display = 'none';
+        document.getElementById(ModelId).style.display = 'none';
     }
 
     // 点击窗口外区域关闭任何打开的模态框
     window.onclick = function (event) {
-        if (event.target.className === 'modal') {
+        if (event.target.className === 'Model') {
             event.target.style.display = 'none';
         }
     }
 
     // 在用户点击用户名时调用的函数
-    function showUserModal(userId) {
+    function showUserModel(userId) {
         // 获取用户名字的元素并添加高亮类
-        var userNameElem = document.querySelector('td[onclick="showUserModal(' + userId + ')"]');
+        var userNameElem = document.querySelector('td[onclick="showUserModel(' + userId + ')"]');
         if (userNameElem) {
             userNameElem.classList.add('highlight');
         }
@@ -407,22 +413,22 @@
             })
             .then(user => {
                 // 以下代码是将获取到的用户数据填充到模态框
-                document.getElementById('userModal_u_name').textContent = user.u_name;
-                document.getElementById('userModal_u_sex').textContent = user.u_sex;
-                document.getElementById('userModal_u_phone').textContent = user.u_phone;
-                document.getElementById('userModal_u_email').textContent = user.u_email;
-                document.getElementById('userModal_u_address').textContent = user.u_address;
+                document.getElementById('userModel_u_name').textContent = user.u_name;
+                document.getElementById('userModel_u_sex').textContent = user.u_sex;
+                document.getElementById('userModel_u_phone').textContent = user.u_phone;
+                document.getElementById('userModel_u_email').textContent = user.u_email;
+                document.getElementById('userModel_u_address').textContent = user.u_address;
                 // 显示模态框
-                document.getElementById('userModal').style.display = 'block';
+                document.getElementById('userModel').style.display = 'block';
             })
             .catch(error => {
                 console.error('Error fetching user data:', error);
             });
     }
 
-    function showProductModal(p_id) {
+    function showProductModel(p_id) {
         // 获取商品名字的元素并添加高亮类
-        var productNameElem = document.querySelector('td[onclick="showProductModal(' + p_id + ')"]');
+        var productNameElem = document.querySelector('td[onclick="showProductModel(' + p_id + ')"]');
         if (productNameElem) {
             productNameElem.classList.add('highlight');
         }
@@ -436,25 +442,25 @@
             })
             .then(product => {
                 // 以下代码是将获取到的商品数据填充到模态框
-                document.getElementById('productModal_p_name').textContent = product.p_name;
-                document.getElementById('productModal_p_type').textContent = product.p_type;
-                document.getElementById('productModal_brand').textContent = product.brand;
+                document.getElementById('productModel_p_name').textContent = product.p_name;
+                document.getElementById('productModel_p_type').textContent = product.p_type;
+                document.getElementById('productModel_brand').textContent = product.brand;
                 // 如果您想显示其他信息，那么以下是示例
                 // 确保这些元素在商品信息模态框中有对应的 span 标签
-                document.getElementById('productModal_current_price').textContent = product.current_price;
-                document.getElementById('productModal_product_desc').textContent = product.product_desc;
-                document.getElementById('productModal_product_status').textContent = product.product_status;
-                document.getElementById('productModal_stock_quantity').textContent = product.stock_quantity;
-                document.getElementById('productModal_original_price').textContent = product.original_price;
-                document.getElementById('productModal_discount').textContent = product.discount;
+                document.getElementById('productModel_current_price').textContent = product.current_price;
+                document.getElementById('productModel_product_desc').textContent = product.product_desc;
+                document.getElementById('productModel_product_status').textContent = product.product_status;
+                document.getElementById('productModel_stock_quantity').textContent = product.stock_quantity;
+                document.getElementById('productModel_original_price').textContent = product.original_price;
+                document.getElementById('productModel_discount').textContent = product.discount;
                 // 设置商品图片
-                var productImage = document.getElementById('productModal_product_image');
+                var productImage = document.getElementById('productModel_product_image');
                 var imageUrl = product.product_image_url ? '{% static "商品图片/" %}' + product.product_image_url : '{% static "商品图片/暂无图片.png" %}';
                 productImage.src = imageUrl;
                 productImage.alt = product.p_name || '商品图片'; // 使用商品名称作为图片的alt文本，如果没有名称则使用'商品图片'
 
                 // 显示模态框
-                document.getElementById('productModal').style.display = 'block';
+                document.getElementById('productModel').style.display = 'block';
             })
 
     }
