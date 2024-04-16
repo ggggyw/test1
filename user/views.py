@@ -261,22 +261,23 @@ def again_buy(request):
         data = json.loads(request.body.decode('utf-8'))
         products = data.get('products', [])
         u_id = request.session.get('u_id')
-        order = data.get('order', {})
-        # print(order)
-        new_order = Orders.objects.create(
-            status='1', paid_time=timezone.localtime(timezone.now()),
-            o_time=timezone.localtime(timezone.now()),
-            total_price=order.get('total_price', 0), user_id=u_id)
-
         for product in products:
-            OrderDetails.objects.create(quantity=product.get('quantity', 0),
-                                        current_single_price=product.get('price', 0),
-                                        order_id=new_order.o_id, product_id=product.get('product_id'), shop_id=1)
+            product_id=product.get('product_id')
+            shop_product = ShopProducts.objects.get(shop_product_id=product_id)
+            shop_id = shop_product.shop_id
+            cart, created = Carts.objects.get_or_create(
+                product_id=product_id,
+                user_id=u_id,
+                shop_id=shop_id,
+                defaults={'quantity': 0, 'join_time': timezone.now()}
+            )
+            # 更新数量
+            cart.quantity += 1
+            cart.join_time = timezone.now()
+            cart.save()
 
-        # Return success response
         return JsonResponse({'message': '再次购买成功'}, status=200)
     else:
-        # Return error response if request method is not POST
         return JsonResponse({'error': '请求方法不支持'}, status=400)
 
 @csrf_exempt
@@ -293,10 +294,10 @@ def user_orders(request):
     status = request.GET.get('status')  # 获取 URL 参数中的 status 值
     status_mapping = {
         'all': None,
-        'pending': 2,
-        'shipped': 3,
-        'review': 4,
-        'recycle': 5
+        'pending': '待付款',
+        'shipped': '待收货',
+        'review': '待评价',
+        'recycle': '回收'
     }
     # 获取映射后的状态值
     status_value = status_mapping.get(status)
