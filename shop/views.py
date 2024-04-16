@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
-from common.models import ShopProducts, ProductCategories, Products, Users
+from common.models import ShopProducts, ProductCategories, Products, Users, Shops
 import pandas as pd
 from sqlalchemy import create_engine
 from dateutil.relativedelta import relativedelta
@@ -33,6 +33,23 @@ def shoppage(request):
         'role': role
     }
     return render(request, 'shoppage.html', context)
+
+
+def shop_profile(request):
+    context = {}
+    s_id = request.session.get('s_id')
+    role = request.session.get('role')
+    if role == 'shop':
+        # 获取并处理用户信息
+        shop = get_object_or_404(Shops, s_id=s_id)
+        context = {
+            's_name': shop.s_name,
+            's_phone': shop.s_phone,
+            'email': shop.email,
+            'address': shop.address,
+            'role': role,
+        }
+    return render(request, 'shop_profile.html', context)
 
 
 def myproducts(request):
@@ -320,6 +337,7 @@ def ship_product(request, o_id):
     else:
         # 对于非POST请求，返回一个错误响应
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
