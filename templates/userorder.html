@@ -366,9 +366,8 @@ success: function(response) {
  $(document).on('click', '.caozuo button:first-child', function() {
         var orderContainer = $(this).closest('.oorder-container');
         var orderDetails = orderContainer.find('.oorder-product');
-
         var products = [];
-        var order = {};
+        {#var order = {};#}
         // 从订单详情中提取商品信息
         orderDetails.each(function() {
             var product = {};
@@ -378,10 +377,10 @@ success: function(response) {
             product.price = $(this).find('p:nth-child(3)').text().split('：')[1];
             products.push(product);
         });
-        order.user_id = orderContainer.find('.user_id p').text();
-        var totalPriceText = orderContainer.find('.total-amount p').text();
-        order.total_price = parseFloat(totalPriceText.substring(0, totalPriceText.length - 1));
-        order.status = orderContainer.find('.status p').text();
+        {#order.user_id = orderContainer.find('.user_id p').text();#}
+        {#var totalPriceText = orderContainer.find('.total-amount p').text();#}
+        {#order.total_price = parseFloat(totalPriceText.substring(0, totalPriceText.length - 1));#}
+        {#order.status = orderContainer.find('.status p').text();#}
 
         // 发送再次购买请求到后端
         $.ajax({
@@ -389,8 +388,7 @@ success: function(response) {
             type: 'POST',
             contentType: 'application/json', // Specify JSON content type
             data: JSON.stringify({
-                products: products,
-                order: order
+                products: products
             }),
             success: function(response) {
                 // Handle success response
@@ -478,24 +476,28 @@ function getOrdersByStatus(status) {
 
 
 $(document).on('click', '.caozuo button:last-child', function() {
-    var orderContainerr = $(this).closest('.oorder-container');
-    var orderId = $(orderContainerr).find('input[name="orders[]"]').val();
-    // 发送删除订单请求到后端
-    $.ajax({
-        url: '/delete_order/',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ order_id: orderId }),
-        success: function(response) {
-
-            alert('订单删除成功');
-            orderContainerr.remove();
-        },
-        error: function(xhr, status, error) {
-            console.error(error);
-            alert('订单删除失败，请重试');
-        }
-    });
+    var orderContainer = $(this).closest('.oorder-container');
+    var orderId = orderContainer.find('input[name="orders[]"]').val();
+    var status = orderContainer.find('.status').text().trim();
+    if (status === '待评价' || status === '回收') {
+        // 发送删除订单请求到后端
+        $.ajax({
+            url: '/delete_order/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ order_id: orderId }),
+            success: function(response) {
+                alert('订单删除成功');
+                orderContainer.remove();
+            },
+            error: function(xhr, status, error) {
+                console.error(error);
+                alert('订单删除失败，请重试');
+            }
+        });
+    } else {
+        alert('只有待评价或回收状态的订单可以删除');
+    }
 });
         document.addEventListener('DOMContentLoaded', function() {
     var elements = document.querySelectorAll('.oorder-container, .oorder-product, .oorder-product-details, .oorder-details, .oorder-details-block, .total-amount, .status, .user_id, .order-options,.order-details');
