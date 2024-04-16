@@ -6,8 +6,6 @@
     <title>shop_manage_products</title>
     <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
     <link rel="stylesheet" href="{% static '商家_files/shop_manage_products.css' %}">
-    <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
-    <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
 
@@ -65,11 +63,28 @@
     <!-- 在这里添加一个 '增加商品' 的按钮 -->
     <div class="add-product-button">
         <a href="{% url 'add_product' %}" class="btn btn-success">增加商品</a>
+        <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索商品</a>
+    </div>
+    <!-- 创建一个初始隐藏的搜索栏 -->
+
+    <div id="search-bar" style="display: none;">
+        <form action="{% url 'shop_search_manage_products' %}" method="get">
+            <input type="text" name="product_name" placeholder="商品名称">
+            <input type="text" name="product_type" placeholder="商品类别">
+            <input type="text" name="brand" placeholder="品牌">
+            <input type="number" name="price" placeholder="价格">
+            <input type="text" name="description" placeholder="描述">
+            <input type="text" name="status" placeholder="状态">
+            <input type="number" name="stock" placeholder="库存">
+            <input type="number" name="original_price" placeholder="原始价格">
+            <input type="text" name="discount" placeholder="折扣">
+            <input type="number" name="current_price" placeholder="现在价格">
+            <input type="submit" value="搜索">
+        </form>
     </div>
     {% if shop_products %}
         <table>
             <tr>
-                {#                <th>选择</th>#}
                 <th>商品名称</th>
                 <th>图片</th>
                 <th>类别</th>
@@ -87,11 +102,6 @@
             </tr>
             {% for shop_product in shop_products %}
                 <tr>
-                    {#                    <td>#}
-                    {#                        <input type="checkbox" id="product_selection_{{ shop_product.shop_product_id }}"#}
-                    {#                               name="product_selection">#}
-                    {#                        <label for="product_selection_{{ shop_product.shop_product_id }}"></label>#}
-                    {#                    </td>#}
                     <td>{{ shop_product.product.p_name }}</td>
                     <td><img src="{% static '商品图片/'|add:shop_product.product_image_url %}" alt="商品图片"
                              width="100px"
@@ -125,23 +135,32 @@
         </table>
         <!-- 分页 -->
         <div class="pagination">
-         <span class="step-links">
-        {% if shop_products.has_previous %}
-            <a href="?page=1&category_id={{ category_id }}">&laquo; 第一页</a>
-            <a href="?page={{ shop_products.previous_page_number }}&category_id={{ category_id }}">上一页</a>
+    <span class="step-links">
+    {% if shop_products.has_previous %}
+        <a href="?page=1&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">&laquo; 第一页</a>
+        <a href="?page={{ shop_products.previous_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">上一页</a>
+    {% endif %}
+        <span class="current">
+        第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
+    </span>
+        {% if shop_products.has_next %}
+            <a href="?page={{ shop_products.next_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">下一页</a>
+            <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">最后一页 &raquo;</a>
         {% endif %}
-             <span class="current">
-            第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
-        </span>
-             {% if shop_products.has_next %}
-                 <a href="?page={{ shop_products.next_page_number }}&category_id={{ category_id }}">下一页</a>
-                 <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}">最后一页 &raquo;</a>
-             {% endif %}
-        </span>
-            <!-- 页码跳转表单，同时也传递category_id -->
+    </span>
+
+            <!-- 页码跳转表单，同时也传递所有搜索参数 -->
             <form action="" method="get" style="display: inline-block;">
-                <!-- 如果有其他查询参数，务必在这里添加相应的input hidden字段 -->
+                <!-- 保留之前的页面和搜索参数 -->
                 <input type="hidden" name="category_id" value="{{ category_id }}">
+                <input type="hidden" name="product_name" value="{{ product_name }}">
+                <input type="hidden" name="brand" value="{{ brand }}">
+                <input type="hidden" name="description" value="{{ description }}">
+                <input type="hidden" name="status" value="{{ status }}">
+                <input type="hidden" name="stock" value="{{ stock }}">
+                <input type="hidden" name="original_price" value="{{ original_price }}">
+                <input type="hidden" name="discount" value="{{ discount }}">
+                <input type="hidden" name="current_price" value="{{ current_price }}">
                 <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
                        placeholder="页码" style="margin-left: 10px;">
                 <input type="submit" value="跳转">
@@ -293,6 +312,15 @@
         }
     }
 
+    // 切换搜索栏的可见性
+    function toggleSearchBar() {
+        var searchBar = document.getElementById('search-bar');
+        if (searchBar.style.display === "none") {
+            searchBar.style.display = "block";
+        } else {
+            searchBar.style.display = "none";
+        }
+    }
 </script>
 </body>
 </html>
