@@ -4,23 +4,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
     <title>shoppage</title>
-   <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
-   <link rel="stylesheet" href="{% static '商家_files/shoppage.css' %}">
+    <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
+    <link rel="stylesheet" href="{% static '商家_files/shoppage.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                opacity: 0;
-            }
-        }
+
     </style>
 </head>
 <body>
@@ -33,7 +23,6 @@
         </ul>
         <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
         <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
-        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
     </div>
 </div>
 <div class="search">
@@ -51,7 +40,6 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
 </div>
-
 <div class="goods-model">
     <div class="goods-content">
         {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
