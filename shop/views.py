@@ -211,6 +211,66 @@ def manage_products(request):
     return render(request, 'shop_manage_products.html', context)
 
 
+def shop_search_manage_products(request):
+    # 为所有可能的搜索字段获取值
+    s_id = request.session.get('s_id')
+    product_name = request.GET.get('product_name', '')
+    product_type = request.GET.get('product_type', '')
+    brand = request.GET.get('brand', '')
+    description = request.GET.get('description', '')
+    status = request.GET.get('status', '')
+    stock = request.GET.get('stock', '')
+    original_price = request.GET.get('original_price', '')
+    discount = request.GET.get('discount', '')
+    current_price = request.GET.get('current_price', '')
+
+    # 首先获取属于该商家的所有商品
+    if s_id is not None:
+        queryset = ShopProducts.objects.filter(shop__s_id=s_id)
+    else:
+        queryset = ShopProducts.objects.none()  # 如果没有s_id，返回空查询集
+
+    # 根据搜索字段过滤查询集，只有输入框有值时才添加到搜索条件
+    if product_name:
+        queryset = queryset.filter(product__p_name__icontains=product_name)
+    if brand:
+        queryset = queryset.filter(product__brand__icontains=brand)
+    if product_type:
+        queryset = queryset.filter(product__p_type__category_id=product_type)
+    if description:
+        queryset = queryset.filter(product_desc__icontains=description)
+    if status:
+        queryset = queryset.filter(product_status__iexact=status)
+    if stock:
+        queryset = queryset.filter(stock_quantity__exact=stock)
+    if original_price:
+        queryset = queryset.filter(original_price__exact=original_price)
+    if discount:
+        queryset = queryset.filter(discount__exact=discount)
+    if current_price:
+        queryset = queryset.filter(current_price__exact=current_price)
+
+    # 处理分页逻辑...
+    paginator = Paginator(queryset, 2)  # 假设每页显示 10 项商品
+    page = request.GET.get('page')
+    shop_products = paginator.get_page(page)
+
+    # 将搜索字段回传到模板中，以便保持搜索条件
+    context = {
+        'shop_products': shop_products,
+        'product_name': product_name,
+        'brand': brand,
+        'description': description,
+        'status': status,
+        'stock': stock,
+        'original_price': original_price,
+        'discount': discount,
+        'current_price': current_price,
+    }
+
+    return render(request, 'shop_manage_products.html', context)
+
+
 def edit_product(request, product_id):
     shop_product = get_object_or_404(ShopProducts, pk=product_id)
     product = shop_product.product
