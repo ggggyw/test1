@@ -91,3 +91,114 @@
 #pagination input[type="submit"]:hover {
     background-color: #286090;
 }
+
+/* ---------------------------------------------商品----------------------------------------------- */
+
+/*商品卡片*/
+.goods-model, .detail-body {
+    background-color: #f6f6f6;
+}
+
+.goods-model {
+    min-height: 1000px;
+}
+
+.goods-content {
+    width: 1220px;
+    height: auto;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.good {
+    position: relative;
+    float: left;
+    margin-right: 20px;
+    margin-top: 20px;
+    width: 285px;
+    height: 371px;
+    background-color: #ffffff;
+    overflow: hidden;
+    opacity: 0;
+    animation: flowIn 0.5s ease forwards;
+}
+
+@keyframes flowIn {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.good > a > p.name {
+    margin-top: 14px;
+    margin-left: 15px;
+    font-size: 20px;
+}
+
+.good .price {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    width: 110px;
+    height: 30px;
+    padding-left: 8px;
+}
+
+.good .price i, .good .price p, .good .price s {
+    display: block;
+    float: left;
+}
+
+.good .price i {
+    margin-top: 17px;
+}
+
+.good .price p {
+    font-size: 30px;
+    color: #ff464e;
+}
+
+.good .price s {
+    margin-top: 17px;
+    color: #bbc6dd;
+}
+
+.good .sale {
+    position: absolute;
+    bottom: 15px;
+    right: 11px;
+    color: #ff464e;
+}
+
+
+.page {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto;
+    background-color: #ff464e;
+    text-align: center;
+}
+/* 添加到 .good img 选择器中 */
+.good img {
+    transition: all 0.3s ease; /* 添加过渡效果 */
+}
+
+/* 添加到 .good:hover img 选择器中 */
+.good:hover img {
+    transform: scale(1.1); /* 放大图片 */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 添加阴影效果 */
+}
+.items a {
+    transition: transform 0.3s ease-in-out;
+    text-decoration: none;
+    color: #333;
+}
+.items a:hover {
+    transform: scale(1.1);
+    color: inherit;
+}
