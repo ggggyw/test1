@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    {% load static %}
+    <title>商家搜索界面</title>
+    <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
+    <link rel="stylesheet" href="{% static '商家_files/shoppage.css' %}">
+    <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
+    <script src="{% static '首页_files/carts.js.下载' %}"></script>
+
+    <style>
+
+    </style>
+</head>
+<body>
+
+<div class="head">
+    <div class="head-in">
+        <div class="register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+    </div>
+</div>
+<div class="search">
+    <form action="{% url 'shop_search_products' %}" method="get" id="search-form" class="input">
+        <input type="text" name="query" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+               style="color: {{ query|yesno:'#000,#aaa' }};"
+               onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
+               onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
+        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
+             style="cursor: pointer;">
+    </form>
+</div>
+<div class="classes">
+    <ul class="classes-items">
+
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
+    </ul>
+    <ul class="classes-items">
+
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=0&query={{ query|default:'' }}">全部商品</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=1&query={{ query|default:'' }}">个人电脑和配件</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=2&query={{ query|default:'' }}">移动设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=3&query={{ query|default:'' }}">家用电子产品</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=4&query={{ query|default:'' }}">厨房电子设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=5&query={{ query|default:'' }}">办公设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=6&query={{ query|default:'' }}">汽车电子设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=7&query={{ query|default:'' }}">网络和通信设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=8&query={{ query|default:'' }}">可穿戴设备</a>
+        </li>
+        <li class="items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=9&query={{ query|default:'' }}">智能家居设备</a>
+        </li>
+
+    </ul>
+</div>
+
+<div class="goods-model">
+    <div class="goods-content">
+        {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
+            <div class="good">
+                <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                    <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
+                    {% for product2 in products %}
+                        {% if product1.product_id == product2.p_id %}
+                            <p class="name">{{ product2.p_name }}</p>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="price">
+                        <p>￥{{ product1.current_price }}</p>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <div class="no-products-animation">
+                <p>还没有商品哦！</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div id="pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    <!-- 如果不是第一页，添加跳转到第一页的链接 -->
+    {% if shop_products.number != 1 %}
+        <a href="?query={{ query }}&category_id={{ category_id }}&page=1"
+           style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
+    {% endif %}
+
+    {% if shop_products.has_previous %}
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+    {% endif %}
+
+    <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
+
+    {% if shop_products.has_next %}
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+    {% endif %}
+
+    <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
+    {% if shop_products.number != shop_products.paginator.num_pages %}
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
+    {% endif %}
+    <!-- 添加页面跳转功能 -->
+    <form action="" method="get" style="display: inline-block;">
+        <input type="hidden" name="query" value="{{ query }}">
+        <input type="hidden" name="category_id" value="{{ category_id }}">
+        <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
+               placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
+        <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
+    </form>
+</div>
+
+
+<script>
+    // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
+    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
+    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector('.no-products-animation').style.display = 'block';
+    });
+</script>
+
+</body>
+</html>
