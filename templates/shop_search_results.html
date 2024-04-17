@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
-    <title>shop_my_products</title>
+    <title>商家搜索界面</title>
     <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
     <link rel="stylesheet" href="{% static '商家_files/shoppage.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
@@ -40,26 +40,38 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
     <ul class="classes-items">
+
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">全部商品</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=0&query={{ query|default:'' }}">全部商品</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=1">个人电脑和配件</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=1&query={{ query|default:'' }}">个人电脑和配件</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=2">移动设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=2&query={{ query|default:'' }}">移动设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=3">家用电子产品</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=3&query={{ query|default:'' }}">家用电子产品</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=4">厨房电子设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=4&query={{ query|default:'' }}">厨房电子设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=5">办公设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=5&query={{ query|default:'' }}">办公设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=6">汽车电子设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=6&query={{ query|default:'' }}">汽车电子设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=7">网络和通信设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=7&query={{ query|default:'' }}">网络和通信设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=8">可穿戴设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=8&query={{ query|default:'' }}">可穿戴设备</a>
+        </li>
         <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=9">智能家居设备</a></li>
+                href="http://127.0.0.1:8000/shop/shoppage/search/?category_id=9&query={{ query|default:'' }}">智能家居设备</a>
+        </li>
+
     </ul>
 </div>
 
@@ -90,29 +102,30 @@
 <div id="pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
     <!-- 如果不是第一页，添加跳转到第一页的链接 -->
     {% if shop_products.number != 1 %}
-        <a href="?category_id={{ category_id }}&page=1"
+        <a href="?query={{ query }}&category_id={{ category_id }}&page=1"
            style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
     {% endif %}
 
     {% if shop_products.has_previous %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
            style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
     {% endif %}
 
     <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
 
     {% if shop_products.has_next %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
            style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
     {% endif %}
 
     <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
     {% if shop_products.number != shop_products.paginator.num_pages %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
+        <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
            style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
     {% endif %}
     <!-- 添加页面跳转功能 -->
     <form action="" method="get" style="display: inline-block;">
+        <input type="hidden" name="query" value="{{ query }}">
         <input type="hidden" name="category_id" value="{{ category_id }}">
         <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
                placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">

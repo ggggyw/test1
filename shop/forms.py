@@ -37,11 +37,15 @@ class ShopProductForm(forms.ModelForm):
         choices=STATUS_CHOICES,
         label="商品状态",
     )
+    product_auditstatus = forms.CharField(
+        initial='待审核',
+        widget=forms.HiddenInput(),  # 这会渲染成一个不可见的 input 字段
+    )
     discount = forms.DecimalField(max_digits=10, decimal_places=3)  # 设置最大位数和小数位数
     class Meta:
         model = ShopProducts
         fields = [ 'product_desc', 'product_status', 'stock_quantity',
-                  'original_price', 'discount']
+                  'original_price', 'discount', 'product_auditstatus']
 
     def clean_discount(self):
         discount = self.cleaned_data.get('discount')
@@ -71,4 +75,5 @@ class ShopProductForm(forms.ModelForm):
         self.fields['stock_quantity'].label = "库存数量"
         self.fields['original_price'].label = "原始价格"
         self.fields['discount'].label = "商品折扣"
+        self.fields['product_auditstatus'].label = "审核状态"
         # 商品状态的自定义标签已在上面通过ChoiceField设置

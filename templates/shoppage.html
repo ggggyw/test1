@@ -17,19 +17,19 @@
 
 <div class="head">
     <div class="head-in">
-        <ul class="options">
-            <li class="sub"><a href="/user/userorder">我的订单</a></li>
-            <li class="sub"><a href="/user/userserve">客户服务</a></li>
-        </ul>
-        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
         <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
     </div>
 </div>
 <div class="search">
-    <div class="input">
-        <input type="" name="" value="请输入想找的宝贝">
-        <img src="{% static '首页_files/1_06.png' %}">
-    </div>
+    <form action="{% url 'shop_search_products' %}" method="get" id="search-form" class="input">
+        <input type="text" name="query" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+               style="color: {{ query|yesno:'#000,#aaa' }};"
+               onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
+               onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
+        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
+             style="cursor: pointer;">
+    </form>
 </div>
 <div class="classes">
     <ul class="classes-items">

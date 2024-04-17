@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from .forms import ShopProductForm, ProductForm
-from common.models import ShopProducts, ProductCategories, Products, Users
+from common.models import ShopProducts, ProductCategories, Products, Users, Shops
 import pandas as pd
 from sqlalchemy import create_engine
 from dateutil.relativedelta import relativedelta
@@ -33,6 +34,73 @@ def shoppage(request):
         'role': role
     }
     return render(request, 'shoppage.html', context)
+
+
+def shop_profile(request):
+    context = {}
+    s_id = request.session.get('s_id')
+    role = request.session.get('role')
+    if role == 'shop':
+        # 获取并处理用户信息
+        shop = get_object_or_404(Shops, s_id=s_id)
+        context = {
+            's_name': shop.s_name,
+            's_phone': shop.s_phone,
+            'email': shop.email,
+            'address': shop.address,
+            'role': role,
+        }
+    return render(request, 'shop_profile.html', context)
+
+
+def shop_search_products(request):
+    query = request.GET.get('query')
+    category_id = request.GET.get('category_id', 0)  # 如果没有提供category_id，使用默认值0
+    if category_id == 'None':  # 如果category_id的值是'None'，将它设置为0
+        category_id = 0
+    category_id = int(category_id)  # 确保category_id是一个整数
+    page_num = request.GET.get('page')
+    s_id = request.session.get('s_id')
+
+    if query is not None and query != '请输入想找的宝贝':
+        # 使用 p_id 进行搜索
+        if category_id == 0:  # 如果category_id为0，查询所有商品
+            ids = Products.objects.filter(
+                Q(p_name__icontains=query) |
+                Q(brand__icontains=query)
+            ).values_list('p_id', flat=True)
+        else:  # 否则，查询特定类别的商品
+            ids = Products.objects.filter(
+                (Q(p_name__icontains=query) |
+                 Q(brand__icontains=query)) &
+                Q(p_type__category_id=category_id)
+            ).values_list('p_id', flat=True)
+        shop_products = ShopProducts.objects.filter(product_id__in=ids, shop__s_id=s_id)
+
+        paginator = Paginator(shop_products, 2)  # 每页显示12个商品
+        try:
+            page_obj = paginator.page(page_num)
+        except PageNotAnInteger:
+            # 如果请求的页码不是整数，返回第一页
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # 如果请求的页码超出分页器的页数，返回最后一页
+            page_obj = paginator.page(paginator.num_pages)
+    else:
+        if category_id == 0:  # 如果category_id为0，查询所有商品
+            shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+            paginator = Paginator(shop_products, 2)
+            page = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page)
+        else:  # 否则，查询特定类别的商品
+            shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
+            paginator = Paginator(shop_products, 2)
+            page = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page)
+    products = Products.objects.all()
+
+    context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
+    return render(request, 'shop_search_results.html', context)
 
 
 def myproducts(request):
@@ -66,7 +134,8 @@ def myproducts(request):
         template_name = '首页.html'
 
     content = render_to_string(template_name,
-                               {'shop_products': shop_products, 'products': products, 'category_id': category_id})
+                               {'shop_products': shop_products, 'products': products, 'category_id': category_id,
+                                'query': None})
     return HttpResponse(content)
 
 
@@ -120,6 +189,8 @@ def manage_products(request):
                 shop_product.product_image_url = filename
             # 设置current_price字段的值
             shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
             shop_product.save()
 
             # 向用户显示成功消息并重定向到商品列表页面
@@ -137,8 +208,75 @@ def manage_products(request):
         's_id': s_id,
         'category_id': category_id,
         'product_form': product_form,
-        'shop_product_form': shop_product_form
+        'shop_product_form': shop_product_form,
+        'query': None
     }
+    return render(request, 'shop_manage_products.html', context)
+
+
+def shop_search_manage_products(request):
+    # 为所有可能的搜索字段获取值
+    s_id = request.session.get('s_id')
+    product_name = request.GET.get('product_name', '')
+    category_id = request.GET.get('category_id', '0')  # 默认为 '0'， 表示所有类别
+    brand = request.GET.get('brand', '')
+    description = request.GET.get('description', '')
+    status = request.GET.get('status', '')
+    audit_status = request.GET.get('audit_status', '')
+    stock = request.GET.get('stock', '')
+    original_price = request.GET.get('original_price', '')
+    discount = request.GET.get('discount', '')
+    current_price = request.GET.get('current_price', '')
+
+    # 首先获取属于该商家的所有商品
+    if s_id is not None:
+        queryset = ShopProducts.objects.filter(shop__s_id=s_id)
+    else:
+        queryset = ShopProducts.objects.none()  # 如果没有s_id，返回空查询集
+
+    # 根据搜索字段过滤查询集，只有输入框有值时才添加到搜索条件
+    if product_name:
+        queryset = queryset.filter(product__p_name__icontains=product_name)
+    if brand:
+        queryset = queryset.filter(product__brand__icontains=brand)
+    if category_id != '0':  # 如果category_id不是 '0'，则按类别ID过滤
+        queryset = queryset.filter(product__p_type__category_id=category_id)
+    if description:
+        queryset = queryset.filter(product_desc__icontains=description)
+    if status:
+        queryset = queryset.filter(product_status__iexact=status)
+    if audit_status:
+        queryset = queryset.filter(product_auditstatus__iexact=audit_status)
+    if stock:
+        queryset = queryset.filter(stock_quantity__exact=stock)
+    if original_price:
+        queryset = queryset.filter(original_price__exact=original_price)
+    if discount:
+        queryset = queryset.filter(discount__exact=discount)
+    if current_price:
+        queryset = queryset.filter(current_price__exact=current_price)
+
+    # 处理分页逻辑...
+    paginator = Paginator(queryset, 2)  # 假设每页显示 10 项商品
+    page = request.GET.get('page')
+    shop_products = paginator.get_page(page)
+
+    # 将搜索字段回传到模板中，以便保持搜索条件
+    context = {
+        'shop_products': shop_products,
+        'product_name': product_name,
+        'category_id': category_id,
+        'brand': brand,
+        'description': description,
+        'status': status,
+        'audit_status': audit_status,
+        'stock': stock,
+        'original_price': original_price,
+        'discount': discount,
+        'current_price': current_price,
+        'query': None
+    }
+
     return render(request, 'shop_manage_products.html', context)
 
 
@@ -165,6 +303,8 @@ def edit_product(request, product_id):
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
             shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
             shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
@@ -182,7 +322,8 @@ def edit_product(request, product_id):
     context = {
         'product_form': product_form,
         'shop_product_form': shop_product_form,
-        'shop_products': shop_product
+        'shop_products': shop_product,
+        'query': None
     }
     return render(request, 'shop_edit_product.html', context)
 
@@ -257,6 +398,7 @@ def shop_order(request):
     # 将订单传递给模板
     context = {
         'orders': orders,
+        'query': None
     }
     return render(request, 'shop_order.html', context)
 
@@ -289,6 +431,7 @@ def product_detail(request, p_id):
         'original_price': shop_product.original_price,
         'discount': shop_product.discount,
         'product_image_url': shop_product.product_image_url,
+        'query': None
     }
 
     # 返回 JSON 形式的响应
@@ -320,6 +463,7 @@ def ship_product(request, o_id):
     else:
         # 对于非POST请求，返回一个错误响应
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')

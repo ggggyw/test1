@@ -20,20 +20,19 @@
 
 <div class="head">
     <div class="head-in">
-        <ul class="options">
-            <li class="sub"><a href="/user/userorder">我的订单</a></li>
-            <li class="sub"><a href="/user/userserve">客户服务</a></li>
-        </ul>
-        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
         <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
-        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
     </div>
 </div>
 <div class="search">
-    <div class="input">
-        <input type="" name="" value="请输入想找的宝贝">
-        <img src="{% static '首页_files/1_06.png' %}">
-    </div>
+    <form action="{% url 'shop_search_products' %}" method="get" id="search-form" class="input">
+        <input type="text" name="query" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+               style="color: {{ query|yesno:'#000,#aaa' }};"
+               onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
+               onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
+        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
+             style="cursor: pointer;">
+    </form>
 </div>
 <div class="classes">
     <ul class="classes-items">
@@ -43,7 +42,7 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a id="sales-analysis-link"
-                             href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
+                             href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
     <ul class="classes-items">
         <li class="items"><a
@@ -80,6 +79,8 @@
     <p>品牌：{{ products.brand }}</p>  <!-- 添加商品品牌 -->
     <p class="price">￥{{ shop_product.original_price }}</p>
     <p>{{ shop_product.product_desc }}</p>
+    <p>商品状态：{{ shop_product.product_status }}</p>
+    <p>审核状态：{{ shop_product.product_auditstatus }}</p>
     <p>库存：{{ shop_product.stock_quantity }}</p>
     <p>原始价格：{{ shop_product.original_price }}</p>
     <p>折扣：{{ shop_product.discount }}</p>
