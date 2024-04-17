@@ -237,6 +237,28 @@ def checkout(request):#以下内容shopid没有定下来-----------两个时间�
         except Exception as e:
             return JsonResponse({'success': False, 'message': '结算失败'})
 
+def payment(request):
+    # 返回支付页面
+    return render(request, 'userpayment_page.html')
+
+@csrf_exempt
+def process_payment(request):
+    # 从请求中获取支付数据
+    data = json.loads(request.body)
+
+    # 检查数据完整性
+    required_fields = ['payment_method', 'name', 'card_number', 'total_amount']
+    if not all(field in data for field in required_fields):
+        return JsonResponse({'success': False, 'message': '缺少必要的支付信息'})
+
+    # 这里处理支付逻辑。通常，您需要调用第三方支付服务接口以完成支付过程。由于每个支付服务的接口都是不同的，本示例只使用简单的打印语句代替。
+    print('支付方式: ', data['payment_method'])
+    print('姓名: ', data['name'])
+    print('卡号/账户: ', data['card_number'])
+    print('支付金额: ', data['total_amount'])
+
+    # 假设支付成功
+    return JsonResponse({'success': True, 'message': '支付成功'})
 def update_quantity(request):
     #有bug，更改数字不可以输入enter键
     if request.method == 'POST':
