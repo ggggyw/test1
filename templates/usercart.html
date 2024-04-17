@@ -524,6 +524,12 @@ document.querySelector('.jiesuan').addEventListener('click', function() {
     var selectedItems = document.querySelectorAll('.select-item:checked');
     var selectedProductIds = [];
 
+    // 如果没有选中任何商品，给出提示并返回
+    if (selectedItems.length === 0) {
+        alert("请先选择商品再进行结算");
+        return;
+    }
+
     // 将选中的商品的 id 添加到数组中
     selectedItems.forEach(function(item) {
         selectedProductIds.push(item.closest('.cart-item').dataset.itemId);
