@@ -189,6 +189,8 @@ def manage_products(request):
                 shop_product.product_image_url = filename
             # 设置current_price字段的值
             shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
             shop_product.save()
 
             # 向用户显示成功消息并重定向到商品列表页面
@@ -206,7 +208,8 @@ def manage_products(request):
         's_id': s_id,
         'category_id': category_id,
         'product_form': product_form,
-        'shop_product_form': shop_product_form
+        'shop_product_form': shop_product_form,
+        'query': None
     }
     return render(request, 'shop_manage_products.html', context)
 
@@ -215,10 +218,11 @@ def shop_search_manage_products(request):
     # 为所有可能的搜索字段获取值
     s_id = request.session.get('s_id')
     product_name = request.GET.get('product_name', '')
-    product_type = request.GET.get('product_type', '')
+    category_id = request.GET.get('category_id', '0')  # 默认为 '0'， 表示所有类别
     brand = request.GET.get('brand', '')
     description = request.GET.get('description', '')
     status = request.GET.get('status', '')
+    audit_status = request.GET.get('audit_status', '')
     stock = request.GET.get('stock', '')
     original_price = request.GET.get('original_price', '')
     discount = request.GET.get('discount', '')
@@ -235,12 +239,14 @@ def shop_search_manage_products(request):
         queryset = queryset.filter(product__p_name__icontains=product_name)
     if brand:
         queryset = queryset.filter(product__brand__icontains=brand)
-    if product_type:
-        queryset = queryset.filter(product__p_type__category_id=product_type)
+    if category_id != '0':  # 如果category_id不是 '0'，则按类别ID过滤
+        queryset = queryset.filter(product__p_type__category_id=category_id)
     if description:
         queryset = queryset.filter(product_desc__icontains=description)
     if status:
         queryset = queryset.filter(product_status__iexact=status)
+    if audit_status:
+        queryset = queryset.filter(product_auditstatus__iexact=audit_status)
     if stock:
         queryset = queryset.filter(stock_quantity__exact=stock)
     if original_price:
@@ -259,13 +265,16 @@ def shop_search_manage_products(request):
     context = {
         'shop_products': shop_products,
         'product_name': product_name,
+        'category_id': category_id,
         'brand': brand,
         'description': description,
         'status': status,
+        'audit_status': audit_status,
         'stock': stock,
         'original_price': original_price,
         'discount': discount,
         'current_price': current_price,
+        'query': None
     }
 
     return render(request, 'shop_manage_products.html', context)
@@ -294,6 +303,8 @@ def edit_product(request, product_id):
                 filename = fs.save(myfile.name, myfile)
                 shop_product.product_image_url = filename
             shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
             shop_product.save()
             # 更新ShopProducts实例
             shop_product_form.save()
@@ -311,7 +322,8 @@ def edit_product(request, product_id):
     context = {
         'product_form': product_form,
         'shop_product_form': shop_product_form,
-        'shop_products': shop_product
+        'shop_products': shop_product,
+        'query': None
     }
     return render(request, 'shop_edit_product.html', context)
 
@@ -386,6 +398,7 @@ def shop_order(request):
     # 将订单传递给模板
     context = {
         'orders': orders,
+        'query': None
     }
     return render(request, 'shop_order.html', context)
 
@@ -418,6 +431,7 @@ def product_detail(request, p_id):
         'original_price': shop_product.original_price,
         'discount': shop_product.discount,
         'product_image_url': shop_product.product_image_url,
+        'query': None
     }
 
     # 返回 JSON 形式的响应
