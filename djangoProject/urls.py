@@ -36,6 +36,7 @@ urlpatterns = [
     path('user/userpage/productdetails/<int:p_id>/', user_views.product_details, name='product_details'),
     path('', views.home, name='home'),
     path('user/userorder',user_views.userorder, name='userorder'),
+    path('user/userorderpage',user_views.order_page, name='order_page'),
     path('user/userserve',user_views.userserve, name='userserve'),
     path('delete_item/',user_views.delete_item, name='delete_item'),
     path('checkout/',user_views.checkout, name='delete_item'),

@@ -154,6 +154,8 @@ def userorder(request):
         'order_ids':order_ids
     }
     return render(request,'userorder.html',context)
+def order_page(request):
+    return render(request, 'userorderpage.html')
 def userserve(request):
     return render(request,'userserve.html')
 
