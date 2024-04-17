@@ -40,6 +40,7 @@ class ShopProducts(models.Model):
     product = models.ForeignKey(Products, on_delete=models.CASCADE)
     product_desc = models.TextField()
     product_status = models.CharField(max_length=2)
+    product_auditstatus = models.CharField(max_length=5)
     product_image_url = models.CharField(max_length=255, blank=True, null=True)
     stock_quantity = models.IntegerField()
     original_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -84,6 +85,7 @@ class Orders(models.Model):
     paid_time = models.DateTimeField(blank=True, null=True)
     o_time = models.DateTimeField()
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    order_address = models.CharField(max_length=255)  # 新增的字段
 
     class Meta:
         db_table = 'orders'
