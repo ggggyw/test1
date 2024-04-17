@@ -82,7 +82,7 @@ document.getElementById('confirm-btn').addEventListener('click', function(e) {
         // 根据服务器返回的结果显示相应的消息
         if (data.success) {
             alert("支付成功！")
-            window.location.href = 'userprofile';
+            window.location.href = 'userorder';
         } else {
             alert(data.message)
         }
