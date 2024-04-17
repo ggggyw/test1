@@ -270,6 +270,7 @@
         <th>支付时间</th>
         <th>订单时间</th>
         <th>总价</th>
+        <th>收货地址</th>
         <th>操作</th> <!-- 添加一个标题用于展示操作按钮 -->
     </tr>
     </thead>
@@ -286,6 +287,7 @@
             <td>{{ order.paid_time }}</td>
             <td>{{ order.o_time }}</td>
             <td>{{ order.total_price }}</td>
+            <td>{{ order.order_address }}</td>
             <td>
                 <button class="order-detail-toggle"
                         onclick="toggleOrderDetails('details-{{ order.o_id }}'); event.stopPropagation();">
@@ -344,7 +346,6 @@
             <p>性别: <span id="userModel_u_sex"></span></p>
             <p>手机号: <span id="userModel_u_phone"></span></p>
             <p>邮箱: <span id="userModel_u_email"></span></p>
-            <p>地址: <span id="userModel_u_address"></span></p>
         </div>
     </div>
 </div>
@@ -416,7 +417,6 @@
                 document.getElementById('userModel_u_sex').textContent = user.u_sex;
                 document.getElementById('userModel_u_phone').textContent = user.u_phone;
                 document.getElementById('userModel_u_email').textContent = user.u_email;
-                document.getElementById('userModel_u_address').textContent = user.u_address;
                 // 显示模态框
                 document.getElementById('userModel').style.display = 'block';
             })
