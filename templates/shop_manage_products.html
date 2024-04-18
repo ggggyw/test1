@@ -11,30 +11,75 @@
     <style>
         /* 设置搜索框区域的样式 */
         #search-bar {
-            background-color: #f8f9fa; /* 设置搜索栏的背景颜色 */
+            background-color: #d8e8f8; /* 设置搜索栏的背景颜色 */
             padding: 20px; /* 设置内边距使内容不紧贴边框 */
             border-radius: 8px; /* 设置边框为圆角 */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加层次感的阴影效果 */
             margin-bottom: 20px; /* 与页面其他部分保持距离 */
         }
 
-        /* 格式化搜索行 */
         .search-row {
-            justify-content: center; /* 居中对齐 */
-            display: flex; /* 使用Flexbox布局 */
-            gap: 10px; /* 设置字段之间的间隔距离 */
-            margin-bottom: 20px; /* 行与行之间的间隔 */
+            display: flex; /* 继续使用Flexbox布局 */
+            justify-content: space-between; /* 使内容均匀分布在行中 */
+            flex-wrap: wrap; /* 如果有必要，允许内容换行 */
+            gap: 10px; /* 维持字段之间的间隔为10px */
+            margin-bottom: 18px; /* 行与行之间保留20px的距离 */
         }
 
         /* 设置搜索字段的边框和背景 */
         .search-field {
             display: flex; /* 使用Flexbox布局 */
             flex-direction: row; /* 子元素方向排列 */
-            border: 1px solid #ced4da; /* 设置边框颜色和宽度 */
-            background-color: #fff; /* 设置背景颜色 */
+            border: 1px solid #000000; /* 设置边框颜色和宽度 */
+            background-color: #9ad0ff; /* 设置背景颜色 */
             border-radius: 4px; /* 字段的边框圆角 */
             padding-left: 10px; /* 字段内部左边距 */
             margin-right: 8px; /* 字段间的距离 */
+            flex: 1; /* 每个字段都可以根据内容自动伸缩 */
+            max-width: calc(33.333333333% - 1px); /* 最大宽度为行宽的三分之一减去定义的间隔（这里考虑了每行最多3个搜索字段） */
+            box-sizing: border-box; /* 包括padding和border在内部的总宽度计算 */
+        }
+
+        .range-input {
+            flex: 1; /* 允许输入框填满父容器分配的空间 */
+            max-width: calc(30% - 10px); /* 调整计算公式以避免换行，需要根据实际情况留出一定空间给分隔符 */
+            background-color: #ffffff; /* 浅蓝色背景，你可以根据需要进行更改 */
+            border: 1px solid #b6d4fd; /* 浅蓝色边框 */
+            border-radius: 4px; /* 圆角边框 */
+            padding: 5px; /* 内填充 */
+            margin: 0 5px; /* 与分隔符或其他输入框的外边距留白 */
+            text-align: start; /* 文本居中 */
+        }
+
+        .range-separator {
+            display: inline-block;
+            line-height: 30px; /* 将分隔符垂直对齐 */
+        }
+
+        /* 通过这个类为范围输入字段定制更多样式 */
+        .range-field {
+            display: flex;
+            align-items: center; /* 垂直居中对齐 */
+            flex-wrap: nowrap; /* 阻止内部元素换行 */
+            justify-content: flex-start; /* 根据需要调整，这里是从行首开始排列 */
+            width: 20%; /* 确保占满父容器宽度 */
+        }
+
+        /* 设置搜索输入字段和选择菜单的字体大小 */
+        .search-field input,
+        .search-field select,
+        .search-field label {
+            font-size: 18px; /* 或你希望的任何大小 */
+
+        }
+
+        /* 目标只有在 .search-buttons 下的 .search-field 的元素 */
+        .search-buttons .search-field-buttons {
+            background-color: #d8e8f8; /* 这里的背景色是灰色, 你可以根据需要更改 */
+            padding: 10px; /* 添加一些填充, 使背景更显著 */
+            border-radius: 5px; /* 如果需要，给背景添加圆角 */
+            display: flex; /* 使用Flexbox布局 */
+            justify-content: center; /* 将按钮放置在中心 */
         }
 
         /* 美化按钮的样式 */
@@ -43,7 +88,7 @@
             font-weight: bold; /* 字体加粗 */
             background-color: #007bff; /* 背景颜色 */
             border: none; /* 无边框 */
-            border-radius: 4px; /* 圆角边框 */
+            border-radius: 10px; /* 圆角边框 */
             color: white; /* 文字颜色 */
             padding: 10px 20px; /* 内边距 */
             margin: 0 5px; /* 外边距进行留白 */
@@ -63,6 +108,7 @@
         input[type="reset"]:hover {
             background-color: #5a6268; /* 按钮被悬停时的背景颜色 */
         }
+
     </style>
 </head>
 <body>
@@ -120,7 +166,6 @@
         <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索商品</a>
     </div>
     <!-- 创建一个初始隐藏的搜索栏 -->
-    <!-- 创建一个初始隐藏的搜索栏 -->
     <div id="search-bar" style="display: none;">
         <form action="{% url 'shop_search_manage_products' %}" method="get">
             <!-- 第一行 -->
@@ -128,21 +173,25 @@
                 <div class="search-field">
                     <label for="product_name">商品名称:</label>
                     <input type="text" id="product_name" name="product_name" placeholder="商品名称"
-                           value="{{ product_name }}">
+                           value="{{ product_name }}" maxlength="50">
                 </div>
                 <div class="search-field">
-                    <label for="brand">品牌:</label>
-                    <input type="text" id="brand" name="brand" placeholder="品牌" value="{{ brand }}">
+                    <label for="brand">商品品牌:</label>
+                    <input type="text" id="brand" name="brand" placeholder="品牌" value="{{ brand }}" maxlength="50">
                 </div>
-                <div class="search-field">
-                    <label for="stock">库存:</label>
-                    <input type="number" id="stock" name="stock" placeholder="库存" value="{{ stock }}">
+                <div class="search-field range-field">
+                    <label for="stock_range">库存范围:</label>
+                    <input type="number" class="range-input" id="min_stock" name="min_stock"
+                           placeholder="最低库存" value="{{ min_stock }}" min="0" max="99999">
+                    <span class="range-separator">~</span>
+                    <input type="number" class="range-input" id="max_stock" name="max_stock"
+                           placeholder="最高库存" value="{{ max_stock }}" min="0" max="99999">
                 </div>
             </div>
             <!-- 第二行 -->
             <div class="search-row">
                 <div class="search-field">
-                    <label for="category_id">类别:</label>
+                    <label for="category_id">商品类别:</label>
                     <select id="category_id" name="category_id">
                         <option value="0" {% if category_id == "0" %}selected{% endif %}>全部商品</option>
                         <option value="1" {% if category_id == "1" %}selected{% endif %}>个人电脑和配件</option>
@@ -157,7 +206,7 @@
                     </select>
                 </div>
                 <div class="search-field">
-                    <label for="status">状态:</label>
+                    <label for="status">商品状态:</label>
                     <select id="status" name="status">
                         <option value="">所有状态</option>
                         <option value="上架" {% if status == "上架" %}selected{% endif %}>上架</option>
@@ -178,33 +227,45 @@
             </div>
             <!-- 第三行 -->
             <div class="search-row">
-                <div class="search-field">
+                <div class="search-field range-field">
                     <label for="original_price">原始价格:</label>
-                    <input type="number" id="original_price" name="original_price" placeholder="原始价格"
-                           value="{{ original_price }}">
+                    <input type="number" class="range-input" id="min_original_price" name="min_original_price"
+                           placeholder="最低价" value="{{ min_original_price }}" min="0" max="99999">
+                    <span class="range-separator">~</span>
+                    <input type="number" class="range-input" id="max_original_price" name="max_original_price"
+                           placeholder="最高价" value="{{ max_original_price }}" min="0" max="99999">
                 </div>
-                <div class="search-field">
-                    <label for="discount">折扣:</label>
-                    <input type="text" id="discount" name="discount" placeholder="折扣" value="{{ discount }}">
-                </div>
-                <div class="search-field">
+                <div class="search-field range-field">
                     <label for="current_price">现在价格:</label>
-                    <input type="number" id="current_price" name="current_price" placeholder="现在价格"
-                           value="{{ current_price }}">
+                    <input type="number" class="range-input" id="min_current_price" name="min_current_price"
+                           placeholder="最低价" value="{{ min_current_price }}" min="0" max="99999">
+                    <span class="range-separator">~</span>
+                    <input type="number" class="range-input" id="max_current_price" name="max_current_price"
+                           placeholder="最高价" value="{{ max_current_price }}" min="0" max="99999">
+                </div>
+                <div class="search-field range-field">
+                    <label for="discount">商品折扣:</label>
+                    <input type="number" class="range-input" id="min_discount" name="min_discount"
+                           placeholder="最小折扣" value="{{ min_discount }}" step="0.01" min="0" max="1">
+                    <span class="range-separator">~</span>
+                    <input type="number" class="range-input" id="max_discount" name="max_discount"
+                           placeholder="最大折扣" value="{{ max_discount }}" step="0.01" min="0" max="1">
                 </div>
             </div>
             <!-- 第四行 -->
             <div class="search-row">
                 <div class="search-field">
-                    <label for="description">描述:</label>
-                    <input type="text" id="description" name="description" placeholder="描述" value="{{ description }}">
+                    <label for="description">商品描述:</label>
+                    <input type="text" id="description" name="description" placeholder="描述" value="{{ description }}"
+                           maxlength="50">
                 </div>
             </div>
             <!-- 第五行 -->
-            <div class="search-row">
-                <div class="search-field">
-                    <input type="submit" value="搜索">
-                    <input type="reset" value="清除搜索" onclick="clearSearch()">
+            <div class="search-buttons"> <!-- 添加 search-buttons 类 -->
+                <div class="search-field-buttons">
+                    <input type="submit" value="搜索" class="search-button"> <!-- 添加 search-button 类 -->
+                    <input type="reset" value="清除搜索" class="search-button clear-search-button"
+                           onclick="clearSearch()"> <!-- 添加 clear-search-button 类 -->
                 </div>
             </div>
         </form>
@@ -263,16 +324,16 @@
         <!-- 分页 -->
         <div class="pagination">
     <span class="step-links">
-    {% if shop_products.has_previous %}
-        <a href="?page=1&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">&laquo; 第一页</a>
-        <a href="?page={{ shop_products.previous_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">上一页</a>
-    {% endif %}
+        {% if shop_products.has_previous %}
+            <a href="?page=1&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&min_stock={{ min_stock }}&max_stock={{ max_stock }}&min_original_price={{ min_original_price }}&max_original_price={{ max_original_price }}&min_discount={{ min_discount }}&max_discount={{ max_discount }}&min_current_price={{ min_current_price }}&max_current_price={{ max_current_price }}">&laquo; 第一页</a>
+            <a href="?page={{ shop_products.previous_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&min_stock={{ min_stock }}&max_stock={{ max_stock }}&min_original_price={{ min_original_price }}&max_original_price={{ max_original_price }}&min_discount={{ min_discount }}&max_discount={{ max_discount }}&min_current_price={{ min_current_price }}&max_current_price={{ max_current_price }}">上一页</a>
+        {% endif %}
         <span class="current">
-        第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
-    </span>
+            第 {{ shop_products.number }} / {{ shop_products.paginator.num_pages }} 页
+        </span>
         {% if shop_products.has_next %}
-            <a href="?page={{ shop_products.next_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">下一页</a>
-            <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&stock={{ stock }}&original_price={{ original_price }}&discount={{ discount }}&current_price={{ current_price }}">最后一页 &raquo;</a>
+            <a href="?page={{ shop_products.next_page_number }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&min_stock={{ min_stock }}&max_stock={{ max_stock }}&min_original_price={{ min_original_price }}&max_original_price={{ max_original_price }}&min_discount={{ min_discount }}&max_discount={{ max_discount }}&min_current_price={{ min_current_price }}&max_current_price={{ max_current_price }}">下一页</a>
+            <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&min_stock={{ min_stock }}&max_stock={{ max_stock }}&min_original_price={{ min_original_price }}&max_original_price={{ max_original_price }}&min_discount={{ min_discount }}&max_discount={{ max_discount }}&min_current_price={{ min_current_price }}&max_current_price={{ max_current_price }}">最后一页 &raquo;</a>
         {% endif %}
     </span>
 
@@ -285,10 +346,14 @@
                 <input type="hidden" name="description" value="{{ description }}">
                 <input type="hidden" name="status" value="{{ status }}">
                 <input type="hidden" name="audit_status" value="{{ audit_status }}">
-                <input type="hidden" name="stock" value="{{ stock }}">
-                <input type="hidden" name="original_price" value="{{ original_price }}">
-                <input type="hidden" name="discount" value="{{ discount }}">
-                <input type="hidden" name="current_price" value="{{ current_price }}">
+                <input type="hidden" name="min_stock" value="{{ min_stock }}">
+                <input type="hidden" name="max_stock" value="{{ max_stock }}">
+                <input type="hidden" name="min_original_price" value="{{ min_original_price }}">
+                <input type="hidden" name="max_original_price" value="{{ max_original_price }}">
+                <input type="hidden" name="min_discount" value="{{ min_discount }}">
+                <input type="hidden" name="max_discount" value="{{ max_discount }}">
+                <input type="hidden" name="min_current_price" value="{{ min_current_price }}">
+                <input type="hidden" name="max_current_price" value="{{ max_current_price }}">
                 <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
                        placeholder="页码" style="margin-left: 10px;">
                 <input type="submit" value="跳转">
@@ -469,6 +534,48 @@
             searchBar.style.display = "none";
         }
     }
+
+    //判断输入框
+    function validateRangeFields() {
+        var minPrice = document.getElementById('min_original_price').value;
+        var maxPrice = document.getElementById('max_original_price').value;
+        var minDiscount = document.getElementById('min_discount').value;
+        var maxDiscount = document.getElementById('max_discount').value;
+        var minCurrentPrice = document.getElementById('min_current_price').value;
+        var maxCurrentPrice = document.getElementById('max_current_price').value;
+        var minStock = document.getElementById('min_stock');
+        var maxStock = document.getElementById('max_stock');
+        if (minStock && maxStock && Number(minStock.value) > Number(maxStock.value)) {
+            alert('最小库存不能大于最大库存');
+            return false;
+        }
+        // 检查价格范围
+        if (minPrice !== '' && maxPrice !== '' && parseFloat(minPrice) > parseFloat(maxPrice)) {
+            alert('最低价格不能大于最高价格');
+            return false;
+        }
+        // 检查折扣范围
+        if (minDiscount !== '' && maxDiscount !== '' && parseFloat(minDiscount) > parseFloat(maxDiscount)) {
+            alert('最小折扣不能大于最大折扣');
+            return false;
+        }
+        // 检查现价范围
+        if (minCurrentPrice !== '' && maxCurrentPrice !== '' && parseFloat(minCurrentPrice) > parseFloat(maxCurrentPrice)) {
+            alert('最低现价不能大于最高现价');
+            return false;
+        }
+
+        // 一切正常，允许表单提交
+        return true;
+    }
+
+    // 在原有的事件处理程序中添加对新函数的调用
+    document.getElementById('search-form').onsubmit = function (event) {
+        if (!validateRangeInputs()) {
+            event.preventDefault(); // 阻止表单提交
+        }
+    };
+
 
     function clearSearch() {
         // 获取表单内的所有输入元素
