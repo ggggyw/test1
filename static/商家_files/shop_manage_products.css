@@ -200,39 +200,7 @@
 }
 
 /*---------------------------------------表格-------------------------------------------*/
-table {
-    margin: 20px auto;
-    width: 100%; /* 或者根据页面布局调整宽度 */
-    border-collapse: collapse; /* 移除单元格之间的间隔 */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 给表格增加阴影效果 */
-}
 
-/* 调整表头的样式 */
-th {
-    background-color: #4CAF50; /* 示例背景颜色，可根据喜好修改 */
-    color: white;
-    font-size: 16px;
-    text-align: left;
-    padding: 10px 15px;
-}
-
-/* 调整单元格的样式 */
-td {
-    padding: 10px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd; /* 在单元格下方添加一条边框线 */
-}
-
-/* 鼠标悬浮在单元格上时改变背景色，增强交互体验 */
-tr:hover {
-    background-color: #f5f5f5;
-}
-
-/* 调整表格中详情、修改和删除按钮所在列的宽度 */
-th:nth-last-child(-n+3),
-td:nth-last-child(-n+3) {
-    width: 7%; /* 调整为所需的宽度 */
-}
 
 /*---------------------------------------分页控件-------------------------------------------*/
 .pagination {
@@ -311,22 +279,6 @@ table .btn-danger {
 }
 
 /* ---------------------------------------------没有商品的提示----------------------------------------------- */
-
-.no-products-animation {
-    display: none;
-    animation: fadeInOut 3s ease infinite;
-    position: fixed; /* 使用 fixed 定位 */
-    top: 50%; /* 从顶部开始的位置 */
-    left: 50%; /* 从左边开始的位置 */
-    transform: translate(-50%, -50%); /* 使用 transform 居中 */
-}
-
-.no-products-animation p {
-    text-align: center;
-    font-size: 5em; /* 调整为您需要的大小 */
-    color: red;
-}
-
 
 .messages {
     position: fixed; /* 固定定位 */
