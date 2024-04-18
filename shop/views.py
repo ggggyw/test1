@@ -267,11 +267,52 @@ def shop_search_manage_products(request):
         queryset = queryset.filter(current_price__lte=max_current_price)
 
     queryset = queryset.filter(query_conditions)
+    # 如果查询集为空，添加一条没有找到商品的消息
+    if not queryset.exists():
+        messages.info(request, '此搜索条件下没有找到商品！')
 
     paginator = Paginator(queryset, 2)  # 调整页数到10，或其他适合你应用的数字
     page = request.GET.get('page')
     shop_products = paginator.get_page(page)
 
+    # 初始化表单实例
+    product_form = ProductForm(request.POST or None, request.FILES or None)
+    shop_product_form = ShopProductForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST":
+        # 获取当前登录的商家ID
+        shop_id = request.session.get('s_id')
+
+        # 验证两个表单是否都有效
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 保存Products模型实例
+            product = product_form.save()
+
+            # 我们需要为ShopProducts设置外键关系
+            # 假设ProductForm的save方法返回新创建的Product实例
+            shop_product = shop_product_form.save(commit=False)
+            shop_product.product = product
+            shop_product.shop_id = shop_id
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
+            shop_product.save()
+
+            # 向用户显示成功消息并重定向到商品列表页面
+            messages.success(request, '商品已成功添加！')
+            return redirect('manage_products')  # 这里假设你有一个商品列表的页面
+        else:
+            messages.error(request, '添加商品时出现错误。')
+    else:
+        # GET 请求，创建表单并填充当前模型实例数据
+        product_form = ProductForm()
+        shop_product_form = ShopProductForm()
     # 将搜索字段回传到模板中，以便保持搜索条件
     context = {
         'shop_products': shop_products,
@@ -289,6 +330,9 @@ def shop_search_manage_products(request):
         'max_discount': max_discount,
         'min_current_price': min_current_price,
         'max_current_price': max_current_price,
+        'product_form': product_form,
+        'shop_product_form': shop_product_form,
+        'message': '此搜索条件下没有找到商品！' if not shop_products else '',
         'query': None
     }
 
