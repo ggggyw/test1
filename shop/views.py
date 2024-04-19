@@ -216,51 +216,103 @@ def manage_products(request):
 
 def shop_search_manage_products(request):
     # 为所有可能的搜索字段获取值
-    s_id = request.session.get('s_id')
+    s_id = request.session.get('s_id', None)
     product_name = request.GET.get('product_name', '')
-    category_id = request.GET.get('category_id', '0')  # 默认为 '0'， 表示所有类别
+    category_id = request.GET.get('category_id', '0')
     brand = request.GET.get('brand', '')
     description = request.GET.get('description', '')
     status = request.GET.get('status', '')
     audit_status = request.GET.get('audit_status', '')
-    stock = request.GET.get('stock', '')
-    original_price = request.GET.get('original_price', '')
-    discount = request.GET.get('discount', '')
-    current_price = request.GET.get('current_price', '')
+    max_stock = request.GET.get('max_stock', None)
+    min_stock = request.GET.get('min_stock', None)
+    min_original_price = request.GET.get('min_original_price', None)
+    max_original_price = request.GET.get('max_original_price', None)
+    min_discount = request.GET.get('min_discount', None)
+    max_discount = request.GET.get('max_discount', None)
+    min_current_price = request.GET.get('min_current_price', None)
+    max_current_price = request.GET.get('max_current_price', None)
 
-    # 首先获取属于该商家的所有商品
-    if s_id is not None:
-        queryset = ShopProducts.objects.filter(shop__s_id=s_id)
-    else:
-        queryset = ShopProducts.objects.none()  # 如果没有s_id，返回空查询集
+    queryset = ShopProducts.objects.filter(shop__s_id=s_id) if s_id else ShopProducts.objects.none()
 
-    # 根据搜索字段过滤查询集，只有输入框有值时才添加到搜索条件
+    # 构建查询过滤条件
+    query_conditions = Q()
     if product_name:
-        queryset = queryset.filter(product__p_name__icontains=product_name)
+        query_conditions &= Q(product__p_name__icontains=product_name)
+    if category_id != '0':
+        query_conditions &= Q(product__p_type__category_id=category_id)
     if brand:
-        queryset = queryset.filter(product__brand__icontains=brand)
-    if category_id != '0':  # 如果category_id不是 '0'，则按类别ID过滤
-        queryset = queryset.filter(product__p_type__category_id=category_id)
+        query_conditions &= Q(product__brand__icontains=brand)
     if description:
-        queryset = queryset.filter(product_desc__icontains=description)
+        query_conditions &= Q(product_desc__icontains=description)
     if status:
-        queryset = queryset.filter(product_status__iexact=status)
+        query_conditions &= Q(product_status__iexact=status)
     if audit_status:
-        queryset = queryset.filter(product_auditstatus__iexact=audit_status)
-    if stock:
-        queryset = queryset.filter(stock_quantity__exact=stock)
-    if original_price:
-        queryset = queryset.filter(original_price__exact=original_price)
-    if discount:
-        queryset = queryset.filter(discount__exact=discount)
-    if current_price:
-        queryset = queryset.filter(current_price__exact=current_price)
+        query_conditions &= Q(product_auditstatus__iexact=audit_status)
+    if min_stock:
+        query_conditions &= Q(stock_quantity__gte=min_stock)
+    if max_stock:
+        query_conditions &= Q(stock_quantity__lte=max_stock)
+    # 调整为处理价格和折扣的范围搜索
+    if min_original_price:
+        queryset = queryset.filter(original_price__gte=min_original_price)
+    if max_original_price:
+        queryset = queryset.filter(original_price__lte=max_original_price)
+    if min_discount:
+        queryset = queryset.filter(discount__gte=min_discount)
+    if max_discount:
+        queryset = queryset.filter(discount__lte=max_discount)
+    if min_current_price:
+        queryset = queryset.filter(current_price__gte=min_current_price)
+    if max_current_price:
+        queryset = queryset.filter(current_price__lte=max_current_price)
 
-    # 处理分页逻辑...
-    paginator = Paginator(queryset, 2)  # 假设每页显示 10 项商品
+    queryset = queryset.filter(query_conditions)
+    # 如果查询集为空，添加一条没有找到商品的消息
+    if not queryset.exists():
+        messages.info(request, '此搜索条件下没有找到商品！')
+
+    paginator = Paginator(queryset, 2)  # 调整页数到10，或其他适合你应用的数字
     page = request.GET.get('page')
     shop_products = paginator.get_page(page)
 
+    # 初始化表单实例
+    product_form = ProductForm(request.POST or None, request.FILES or None)
+    shop_product_form = ShopProductForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST":
+        # 获取当前登录的商家ID
+        shop_id = request.session.get('s_id')
+
+        # 验证两个表单是否都有效
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 保存Products模型实例
+            product = product_form.save()
+
+            # 我们需要为ShopProducts设置外键关系
+            # 假设ProductForm的save方法返回新创建的Product实例
+            shop_product = shop_product_form.save(commit=False)
+            shop_product.product = product
+            shop_product.shop_id = shop_id
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
+            shop_product.save()
+
+            # 向用户显示成功消息并重定向到商品列表页面
+            messages.success(request, '商品已成功添加！')
+            return redirect('manage_products')  # 这里假设你有一个商品列表的页面
+        else:
+            messages.error(request, '添加商品时出现错误。')
+    else:
+        # GET 请求，创建表单并填充当前模型实例数据
+        product_form = ProductForm()
+        shop_product_form = ShopProductForm()
     # 将搜索字段回传到模板中，以便保持搜索条件
     context = {
         'shop_products': shop_products,
@@ -270,10 +322,17 @@ def shop_search_manage_products(request):
         'description': description,
         'status': status,
         'audit_status': audit_status,
-        'stock': stock,
-        'original_price': original_price,
-        'discount': discount,
-        'current_price': current_price,
+        'max_stock': max_stock,
+        'min_stock': min_stock,
+        'min_original_price': min_original_price,
+        'max_original_price': max_original_price,
+        'min_discount': min_discount,
+        'max_discount': max_discount,
+        'min_current_price': min_current_price,
+        'max_current_price': max_current_price,
+        'product_form': product_form,
+        'shop_product_form': shop_product_form,
+        'message': '此搜索条件下没有找到商品！' if not shop_products else '',
         'query': None
     }
 
