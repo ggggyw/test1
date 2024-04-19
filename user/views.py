@@ -218,6 +218,7 @@ def checkout(request):#以下内容shopid没有定下来-----------两个时间�
         itemPrices=request_data.get('itemPrices')
         totalPrice=request_data.get('totalPrice')
         itemQuantities=request_data.get('itemQuantities')
+        address=request_data.get('address')
         u_id = request.session.get('u_id')
         selected_product_ids = request_data.get('selectedProductIds')
         try:
@@ -227,18 +228,17 @@ def checkout(request):#以下内容shopid没有定下来-----------两个时间�
             new_order=Orders.objects.create(
                 status='1', paid_time=timezone.localtime(timezone.now())
                 ,o_time=timezone.localtime(timezone.now())
-                , total_price=totalPrice, user_id=u_id)
+                , total_price=totalPrice, user_id=u_id,order_address=address)
             # 在订单表中添加选中的商品
             for product_id in selected_product_ids:
                 #shopid未定,orderid未定
                 OrderDetails.objects.create(quantity=itemQuantities[i],current_single_price=itemPrices[i],order_id=new_order.o_id,product_id=product_id,shop_id=1)
                 i=i+1
-            return JsonResponse({'success': True, 'message': '结算成功'})
+            return JsonResponse({'success': True, 'message': '结算成功', 'order_id': new_order.o_id})
         except Exception as e:
             return JsonResponse({'success': False, 'message': '结算失败'})
 
 def payment(request):
-    # 返回支付页面
     return render(request, 'userpayment_page.html')
 
 @csrf_exempt
@@ -246,18 +246,9 @@ def process_payment(request):
     # 从请求中获取支付数据
     data = json.loads(request.body)
 
-    # 检查数据完整性
-    required_fields = ['payment_method', 'name', 'card_number', 'total_amount']
-    if not all(field in data for field in required_fields):
-        return JsonResponse({'success': False, 'message': '缺少必要的支付信息'})
+    order_id = data['order_id']  # 获取请求中的订单 ID
+    Orders.objects.filter(o_id=order_id).update(status="待发货")  # 更新订单状态
 
-    # 这里处理支付逻辑。通常，您需要调用第三方支付服务接口以完成支付过程。由于每个支付服务的接口都是不同的，本示例只使用简单的打印语句代替。
-    print('支付方式: ', data['payment_method'])
-    print('姓名: ', data['name'])
-    print('卡号/账户: ', data['card_number'])
-    print('支付金额: ', data['total_amount'])
-
-    # 假设支付成功
     return JsonResponse({'success': True, 'message': '支付成功'})
 def update_quantity(request):
     #有bug，更改数字不可以输入enter键
