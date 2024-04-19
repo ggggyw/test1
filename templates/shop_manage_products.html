@@ -9,6 +9,60 @@
 
 
     <style>
+
+        .product-actions a {
+            margin-right: 5px; /* 在按钮之间添加一些间隔 */
+            text-decoration: none; /* 移除链接下划线 */
+        }
+
+        .product-actions a:last-child {
+            margin-right: 0; /* 最后一个按钮不需要间隔 */
+        }
+
+        table {
+            margin: 20px auto;
+            width: 100%; /* 宽度已经是100%，这会使表格根据其父容器的宽度进行伸展 */
+            border-collapse: collapse; /* 移除单元格之间的间隔 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 给表格增加一些阴影效果 */
+        }
+
+        /* 调整表头的样式 */
+        th {
+            background-color: #4CAF50; /* 示例背景颜色，可根据喜好修改 */
+            border: 1px solid #ddd; /* 定义边框颜色、风格和宽度 */
+            color: white;
+            font-size: 15px; /* 增大字体尺寸 */
+            text-align: center;
+            padding: 10px 5px; /* 增加垂直和水平内边距 */
+        }
+
+        /* 调整单元格的样式 */
+        td {
+            border: 1px solid #ddd; /* 定义边框颜色、风格和宽度 */
+            padding: 10px 5px; /* 增加垂直和水平内边距 */
+            text-align: left;
+        }
+
+        /* 针对特定的列设置固定像素宽度 */
+        th:nth-child(5),
+        td:nth-child(5) { /* 将n替换成特定列的序号 */
+            width: 150px; /* 假设您想将某一列的宽度设定为150像素，可以根据实际需要调整 */
+        }
+
+        /* 鼠标悬浮在单元格上时改变背景色，增强交互体验 */
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 调整表格中"操作"列的样式 */
+        th:nth-last-child(-n+1),
+        td:nth-last-child(-n+1) {
+            width: 15%; /* 给"操作"列更宽的空间，这里假设最后三列为"操作"相关 */
+            padding-left: 5px; /* 减少左侧内边距 */
+            padding-right: 5px; /* 减少右侧内边距 */
+            text-align: center; /* 文本居中对齐 */
+        }
+
         /* 设置搜索框区域的样式 */
         #search-bar {
             background-color: #d8e8f8; /* 设置搜索栏的背景颜色 */
@@ -109,6 +163,37 @@
             background-color: #5a6268; /* 按钮被悬停时的背景颜色 */
         }
 
+
+        /* 没有商品时显示的动画效果 */
+        .no-products-animation2 {
+            display: none; /* 默认不显示，通过JavaScript控制显示 */
+            animation: fadeInToRed 2s ease infinite; /* 添加淡入淡出的无限循环动画，每次动画持续3秒 */
+            position: fixed; /* 使用固定定位，确保元素即使在页面滚动时也保持在预定位置 */
+            bottom: 25%; /* 相对于视口底部的位置，调整这个值可以控制元素距离底部的高度 */
+            left: 50%; /* 相对于视口左侧的位置，保证元素水平居中 */
+            transform: translateX(-50%); /* 水平居中元素；由于是相对于左侧50%定位，需要左移元素宽度的50%来实现居中 */
+            width: 100%; /* 元素宽度设置为100%，这样文本居中可以相对于整个视口宽度居中 */
+        }
+
+        /* 没有商品时显示的文本样式 */
+        .no-products-animation2 p {
+            text-align: center; /* 文本居中对齐 */
+            font-size: 5em; /* 字体大小为2em，根据需要调整 */
+            color: #f82800; /* 字体颜色为淡红色，看起来更柔和 */
+            margin: 0; /* 移除默认的边距，确保元素位置准确 */
+        }
+
+        /* 键帧动画 */
+        @keyframes fadeInToRed {
+            from {
+                opacity: 0; /* 开始时完全透明 */
+                background-color: transparent; /* 背景色为透明 */
+            }
+            to {
+                opacity: 1; /* 结束时完全不透明 */
+                background-color: #ffffff; /* 背景色变为红色 */
+            }
+        }
     </style>
 </head>
 <body>
@@ -137,29 +222,6 @@
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
-    <ul class="classes-items">
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">全部商品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=1">个人电脑和配件</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=2">移动设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=3">家用电子产品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=4">厨房电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=5">办公设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=6">汽车电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=7">网络和通信设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=8">可穿戴设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=9">智能家居设备</a></li>
-    </ul>
-
     <!-- 在这里添加一个 '增加商品' 的按钮 -->
     <div class="add-product-button">
         <a href="{% url 'add_product' %}" class="btn btn-success">增加商品</a>
@@ -284,9 +346,7 @@
                 <th>原始价格</th>
                 <th>折扣</th>
                 <th>现在价格</th>
-                <th>详情</th>
-                <th>修改</th>
-                <th>删除</th>
+                <th>操作</th>
             </tr>
             {% for shop_product in shop_products %}
                 <tr>
@@ -304,19 +364,15 @@
                     <td>{{ shop_product.discount }}</td>
                     <td>{{ shop_product.current_price }}</td>
                     <td>
-                        <!-- 新增的详情按钮 -->
-                        <a href="{% url 'shop_productdetails' shop_product.shop_product_id %}"
-                           class="btn btn-info">详情</a>
-                    </td>
-                    <td>
-                        <!-- 修改按钮 -->
-                        <a href="{% url 'edit_product' shop_product.shop_product_id %}"
-                           class="btn btn-primary">修改</a>
-                    </td>
-                    <td>
-                        <!-- 删除按钮 -->
-                        <a href="javascript:void(0);" onclick="confirmDelete({{ shop_product.shop_product_id }});"
-                           class="btn btn-danger">删除</a>
+                        <!-- 操作按钮 -->
+                        <div class="product-actions">
+                            <a href="{% url 'shop_productdetails' shop_product.shop_product_id %}"
+                               class="btn btn-info" title="详情">详情</a>
+                            <a href="{% url 'edit_product' shop_product.shop_product_id %}"
+                               class="btn btn-primary" title="修改">修改</a>
+                            <a href="javascript:void(0);" onclick="confirmDelete({{ shop_product.shop_product_id }});"
+                               class="btn btn-danger" title="删除">删除</a>
+                        </div>
                     </td>
                 </tr>
             {% endfor %}
@@ -336,7 +392,6 @@
             <a href="?page={{ shop_products.paginator.num_pages }}&category_id={{ category_id }}&product_name={{ product_name }}&brand={{ brand }}&description={{ description }}&status={{ status }}&audit_status={{ audit_status }}&min_stock={{ min_stock }}&max_stock={{ max_stock }}&min_original_price={{ min_original_price }}&max_original_price={{ max_original_price }}&min_discount={{ min_discount }}&max_discount={{ max_discount }}&min_current_price={{ min_current_price }}&max_current_price={{ max_current_price }}">最后一页 &raquo;</a>
         {% endif %}
     </span>
-
             <!-- 页码跳转表单，同时也传递所有搜索参数 -->
             <form action="" method="get" style="display: inline-block;">
                 <!-- 保留之前的页面和搜索参数 -->
@@ -360,8 +415,8 @@
             </form>
         </div>
     {% else %}
-        <div class="no-products-animation">
-            <p>还没有商品哦！</p>
+        <div class="no-products-animation2">
+            <p>没有找到任何商品</p>
         </div>
     {% endif %}
 </div>
@@ -412,12 +467,13 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        document.querySelector('.no-products-animation').style.display = 'block';
+        document.querySelector('.no-products-animation2').style.display = 'block';
     });
 
     // 获取添加商品模态框元素
     var addProductModal = document.getElementById('addProductModal');
     var closeButtonAddProduct = addProductModal.getElementsByClassName("close")[0];
+    var no_products_animation = document.querySelector('.no-products-animation2');
 
     // 获取删除商品模态框元素
     var deleteConfirmModal = document.getElementById('deleteConfirmModal');
@@ -489,28 +545,36 @@
             }
         }
 
-        // 初始根据URL参数判断是否应该显示搜索栏
-        var searchParams = new URLSearchParams(window.location.search);
-        if (searchParams.has('product_name') ||
-            searchParams.has('brand') ||
-            searchParams.has('description') ||
-            searchParams.has('status') ||
-            searchParams.has('stock') ||
-            searchParams.has('original_price') ||
-            searchParams.has('discount') ||
-            searchParams.has('current_price')) {
-            // 如果有任何搜索参数存在，则显示搜索栏
-            document.getElementById('search-bar').style.display = "block";
-        } else {
-            // 如果没有搜索参数，则隐藏搜索栏
-            document.getElementById('search-bar').style.display = "none";
-        }
-
         // 现在手动计算并更新当前价格
         updateCurrentPrice();
 
         originalPriceInput.addEventListener('input', updateCurrentPrice);
         discountInput.addEventListener('input', updateCurrentPrice);
+
+        // 初始根据URL参数判断是否应该显示搜索栏
+        var searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get('category_id') !== "0" || // 商品类别不是 "全部商品"
+            searchParams.get('status') !== "" || // 商品状态不是 "所有状态"
+            searchParams.get('audit_status') !== "" || // 审核状态不是 "所有状态"
+            searchParams.get('product_name') || // 商品名称有值
+            searchParams.get('brand') || // 品牌有值
+            searchParams.get('description') || // 产品描述有值
+            searchParams.get('min_stock') || // 最小库存有值
+            searchParams.get('max_stock') || // 最大库存有值
+            searchParams.get('min_original_price') || // 最低原始价格有值
+            searchParams.get('max_original_price') || // 最高原始价格有值
+            searchParams.get('min_current_price') || // 最低现价有值
+            searchParams.get('max_current_price') || // 最高现价有值
+            searchParams.get('min_discount') || // 最小折扣有值
+            searchParams.get('max_discount')) // 最大折扣有值
+        {
+            // 如果任一条件满足，则显示搜索栏
+            document.getElementById('search-bar').style.display = "block";
+        } else {
+            // 如果没有任何搜索参数，则隐藏搜索栏
+            document.getElementById('search-bar').style.display = "none";
+        }
+
     };
 
     function previewImage(input) {
@@ -545,7 +609,8 @@
         var maxCurrentPrice = document.getElementById('max_current_price').value;
         var minStock = document.getElementById('min_stock');
         var maxStock = document.getElementById('max_stock');
-        if (minStock && maxStock && Number(minStock.value) > Number(maxStock.value)) {
+        // 确保只在二者都不为空时比较库存范围
+        if (minStock && maxStock && Number(minStock) > Number(maxStock)) {
             alert('最小库存不能大于最大库存');
             return false;
         }
@@ -569,9 +634,8 @@
         return true;
     }
 
-    // 在原有的事件处理程序中添加对新函数的调用
-    document.getElementById('search-form').onsubmit = function (event) {
-        if (!validateRangeInputs()) {
+    document.getElementById('search-bar').onsubmit = function (event) {
+        if (!validateRangeFields()) { // 确保这里调用的是 validateRangeFields
             event.preventDefault(); // 阻止表单提交
         }
     };

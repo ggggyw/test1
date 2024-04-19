@@ -350,6 +350,7 @@ success: function(response) {
             '</div>' +
             '<div class="caozuo">' +
                 '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
+              (order.status === '待付款' ? '<button onclick="processPayment(' + order.order_id + ')"><span class="box">付款</span></button>' : '') +
                  '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
             '</div>' +
             '</div>';
@@ -458,6 +459,7 @@ function getOrdersByStatus(status) {
                     '</div>' +
                     '<div class="caozuo">' +
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
+                    (order.status === '待付款' ? '<button onclick="location.href=\'/payment?order_id=' + order.order_id + '\'">付款</button>' : '') +
                      '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
                     '</div>' +
                     '</div>';
@@ -508,7 +510,27 @@ $(document).on('click', '.caozuo button:last-child', function() {
         delay += 0.1;
     });
 });
-
+function processPayment(orderId) {
+    $.ajax({
+        url: '/process_payment/',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ order_id: orderId }),
+        success: function(response) {
+            if(response.success) {
+                alert('付款成功！');
+                // 这里可以加入付款成功后需要执行的其他操作，例如重载页面
+                location.reload();
+            } else {
+                alert('付款失败，请重试！');
+            }
+        },
+        error: function(error) {
+            console.error(error);
+            alert('请求失败，请检查网络连接或稍后重试');
+        }
+    });
+}
 </script>
 
 </body>

@@ -267,11 +267,52 @@ def shop_search_manage_products(request):
         queryset = queryset.filter(current_price__lte=max_current_price)
 
     queryset = queryset.filter(query_conditions)
+    # 如果查询集为空，添加一条没有找到商品的消息
+    if not queryset.exists():
+        messages.info(request, '此搜索条件下没有找到商品！')
 
     paginator = Paginator(queryset, 2)  # 调整页数到10，或其他适合你应用的数字
     page = request.GET.get('page')
     shop_products = paginator.get_page(page)
 
+    # 初始化表单实例
+    product_form = ProductForm(request.POST or None, request.FILES or None)
+    shop_product_form = ShopProductForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST":
+        # 获取当前登录的商家ID
+        shop_id = request.session.get('s_id')
+
+        # 验证两个表单是否都有效
+        if product_form.is_valid() and shop_product_form.is_valid():
+            # 保存Products模型实例
+            product = product_form.save()
+
+            # 我们需要为ShopProducts设置外键关系
+            # 假设ProductForm的save方法返回新创建的Product实例
+            shop_product = shop_product_form.save(commit=False)
+            shop_product.product = product
+            shop_product.shop_id = shop_id
+            if 'product_image' in request.FILES:
+                myfile = request.FILES['product_image']
+                fs = FileSystemStorage(location='static/商品图片')
+                filename = fs.save(myfile.name, myfile)
+                shop_product.product_image_url = filename
+            # 设置current_price字段的值
+            shop_product.current_price = shop_product_form.cleaned_data['current_price']
+            # 设置product_auditstatus的值为"待审核"
+            shop_product.product_auditstatus = '待审核'
+            shop_product.save()
+
+            # 向用户显示成功消息并重定向到商品列表页面
+            messages.success(request, '商品已成功添加！')
+            return redirect('manage_products')  # 这里假设你有一个商品列表的页面
+        else:
+            messages.error(request, '添加商品时出现错误。')
+    else:
+        # GET 请求，创建表单并填充当前模型实例数据
+        product_form = ProductForm()
+        shop_product_form = ShopProductForm()
     # 将搜索字段回传到模板中，以便保持搜索条件
     context = {
         'shop_products': shop_products,
@@ -289,6 +330,9 @@ def shop_search_manage_products(request):
         'max_discount': max_discount,
         'min_current_price': min_current_price,
         'max_current_price': max_current_price,
+        'product_form': product_form,
+        'shop_product_form': shop_product_form,
+        'message': '此搜索条件下没有找到商品！' if not shop_products else '',
         'query': None
     }
 
@@ -409,12 +453,148 @@ def shop_order(request):
     # 查询这个商家的所有订单
     order_ids = OrderDetails.objects.filter(shop__s_id=shop_id).values_list('order__o_id', flat=True)
     orders = Orders.objects.filter(o_id__in=order_ids)
-
+    # 分页
+    paginator = Paginator(orders, 10)  # 例如每页显示10条记录
+    page = request.GET.get('page')
+    paged_orders = paginator.get_page(page)
     # 将订单传递给模板
     context = {
-        'orders': orders,
+        'orders': paged_orders,
+        'category_id': '0',  # 用于保持搜索条件
         'query': None
     }
+    return render(request, 'shop_order.html', context)
+
+
+def shop_search_orders(request):
+    # 为所有可能的搜索字段获取值
+    s_id = request.session.get('s_id', None)
+    product_name = request.GET.get('product_name', '')
+    category_id = request.GET.get('category_id', '0')
+    brand = request.GET.get('brand', '')
+    description = request.GET.get('description', '')
+    status = request.GET.get('status', '')
+    audit_status = request.GET.get('audit_status', '')
+    max_stock = request.GET.get('max_stock', None)
+    min_stock = request.GET.get('min_stock', None)
+    min_original_price = request.GET.get('min_original_price', None)
+    max_original_price = request.GET.get('max_original_price', None)
+    min_discount = request.GET.get('min_discount', None)
+    max_discount = request.GET.get('max_discount', None)
+    min_current_price = request.GET.get('min_current_price', None)
+    max_current_price = request.GET.get('max_current_price', None)
+
+    order_status = request.GET.get('order_status', '')
+    min_order_total_price = request.GET.get('min_order_total_price', None)
+    max_order_total_price = request.GET.get('max_order_total_price', None)
+    min_paid_time = request.GET.get('min_paid_time', None)
+    max_paid_time = request.GET.get('max_paid_time', None)
+    order_address = request.GET.get('order_address', '')
+    min_created_time = request.GET.get('min_created_time', None)
+    max_created_time = request.GET.get('max_created_time', None)
+
+    user_name = request.GET.get('user_name', '')
+    user_phone = request.GET.get('user_phone', '')
+    user_sex = request.GET.get('user_sex', '')
+    user_email = request.GET.get('user_email', '')
+    # 构建查询条件
+    query_conditions = Q()
+    # 只展示当前商家(s_id)的订单
+    if s_id:
+        query_conditions &= Q(orderdetails__shop__s_id=s_id)
+    if product_name:
+        query_conditions &= Q(orderdetails__product__product__p_name__icontains=product_name)
+    if category_id != '0':
+        query_conditions &= Q(orderdetails__product__product__p_type_id=category_id)
+    if brand:
+        query_conditions &= Q(orderdetails__product__product__brand__icontains=brand)
+    # 注意这里如果其他商家的product名称和商家的product描述相同，这一filter也能提取出其他商家的商品
+    if description:
+        query_conditions &= Q(orderdetails__product__product_desc__icontains=description)
+    if status:  # 注意，这里的字段可能指的是ShopProducts的上架状态
+        query_conditions &= Q(orderdetails__product__product_status=status)
+    if audit_status:  # 注意，这里可能指的是ShopProducts的审核状态
+        query_conditions &= Q(orderdetails__product__product_auditstatus=audit_status)
+    if min_stock:
+        query_conditions &= Q(orderdetails__product__stock_quantity__gte=min_stock)
+    if max_stock:
+        query_conditions &= Q(orderdetails__product__stock_quantity__lte=max_stock)
+    if min_original_price:
+        query_conditions &= Q(orderdetails__product__original_price__gte=min_original_price)
+    if max_original_price:
+        query_conditions &= Q(orderdetails__product__original_price__lte=max_original_price)
+    if min_discount:
+        query_conditions &= Q(orderdetails__product__discount__gte=min_discount)
+    if max_discount:
+        query_conditions &= Q(orderdetails__product__discount__lte=max_discount)
+    if min_current_price:
+        query_conditions &= Q(orderdetails__product__current_price__gte=min_current_price)
+    if max_current_price:
+        query_conditions &= Q(orderdetails__product__current_price__lte=max_current_price)
+    if order_status:
+        query_conditions &= Q(status=order_status)
+    if min_order_total_price:
+        query_conditions &= Q(total_price__gte=min_order_total_price)
+    if max_order_total_price:
+        query_conditions &= Q(total_price__lte=max_order_total_price)
+    if order_address:
+        query_conditions &= Q(order_address__icontains=order_address)
+    if min_paid_time:
+        query_conditions &= Q(paid_time__gte=min_paid_time)
+    if max_paid_time:
+        query_conditions &= Q(paid_time__lte=max_paid_time)
+    if min_created_time:
+        query_conditions &= Q(o_time__gte=min_created_time)
+    if max_created_time:
+        query_conditions &= Q(o_time__lte=max_created_time)
+    if user_name:
+        query_conditions &= Q(user__u_name__icontains=user_name)
+    if user_phone:
+        query_conditions &= Q(user__u_phone__icontains=user_phone)
+    if user_sex:
+        query_conditions &= Q(user__u_sex=user_sex)
+    if user_email:
+        query_conditions &= Q(user__email__icontains=user_email)
+    # 应用查询条件
+    orders = Orders.objects.filter(query_conditions).distinct() if query_conditions else Orders.objects.none()
+
+    # 分页
+    paginator = Paginator(orders, 10)  # 例如每页显示10条记录
+    page = request.GET.get('page')
+    paged_orders = paginator.get_page(page)
+
+    # 将搜索字段回传到模板中，以便保持搜索条件
+    context = {
+        'orders': paged_orders,
+        'product_name': product_name,
+        'category_id': category_id,
+        'brand': brand,
+        'description': description,
+        'status': status,
+        'audit_status': audit_status,
+        'max_stock': max_stock,
+        'min_stock': min_stock,
+        'min_original_price': min_original_price,
+        'max_original_price': max_original_price,
+        'min_discount': min_discount,
+        'max_discount': max_discount,
+        'min_current_price': min_current_price,
+        'max_current_price': max_current_price,
+        'order_status': order_status,
+        'min_order_total_price': min_order_total_price,
+        'max_order_total_price': max_order_total_price,
+        'order_address': order_address,
+        'min_paid_time': min_paid_time,
+        'max_paid_time': max_paid_time,
+        'min_created_time': min_created_time,
+        'max_created_time': max_created_time,
+        'user_name': user_name,
+        'user_phone': user_phone,
+        'user_email': user_email,
+        'user_sex': user_sex,
+        'query': None
+    }
+
     return render(request, 'shop_order.html', context)
 
 
@@ -452,6 +632,31 @@ def product_detail(request, p_id):
     # 返回 JSON 形式的响应
     return JsonResponse(data)
 
+def return_product(request, o_id):
+    if request.method == 'POST':
+        try:
+            # 在数据库中查找订单实例
+            order = Orders.objects.get(o_id=o_id)
+            # 检查订单状态是否为"待发货"
+            if order.status == '待退货':
+                # 修改订单状态为"待收货"
+                order.status = '已退货'
+                # 保存更改
+                order.save()
+                # 返回一个成功的响应
+                return JsonResponse({'success': True, 'new_status': '待收货'})
+            else:
+                # 如果订单状态不允许发货，则返回一个错误响应
+                return JsonResponse({'success': False, 'error': 'Invalid order status for shipment'})
+        except Orders.DoesNotExist:
+            # 订单不存在时的错误响应
+            return JsonResponse({'success': False, 'error': 'Order does not exist'})
+        except Exception as e:
+            # 捕获其它异常，返回一个错误信息
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        # 对于非POST请求，返回一个错误响应
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def ship_product(request, o_id):
     if request.method == 'POST':

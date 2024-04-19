@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>支付页面</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/payment.css' %}">
+{#    <link rel="stylesheet" href="{% static 'css/payment.css' %}">#}
 </head>
 <body>
 {% csrf_token %}
@@ -38,6 +38,7 @@
         </div>
         <div class='payment-confirmation'>
             <input type='submit' id='confirm-btn' value='确认支付'>
+            <button id='cancel-btn'>放弃支付</button>
         </div>
     </form>
 </div>
@@ -63,7 +64,8 @@ document.getElementById('confirm-btn').addEventListener('click', function(e) {
         card_number: cardNumber,
         exp_date: expDate,
         cvc: cvc,
-        total_amount: totalAmount
+        total_amount: totalAmount,
+        order_id:localStorage.getItem('order_id')
     };
 
     var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
@@ -92,6 +94,13 @@ document.getElementById('confirm-btn').addEventListener('click', function(e) {
         alert("请求失败，请检查网络连接或稍后重试");
     });
 });
+
+// 当点击 ‘放弃支付’ 按钮时，重定向回订单页面
+document.getElementById('cancel-btn').addEventListener('click', function(e) {
+    e.preventDefault();  // 防止默认的表单提交
+    window.location.href = 'userorder';
+});
+
 </script>
 </body>
 </html>
