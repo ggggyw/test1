@@ -352,16 +352,21 @@ def user_orders(request):
         orders_data = [{
             'order_id': order.o_id,
             'order_details': [{
-                'product_name': Products.objects.get(p_id=detail.product.shop_product_id).p_name,
+                'product_name': Products.objects.get(p_id=detail.product.product_id).p_name,
                 'product_image_url': detail.product.product_image_url,
                 'quantity': detail.quantity,
                 'price': detail.current_single_price,
-                'product_id':detail.product_id
+                'product_id': detail.product_id
             } for detail in order.orderdetails_set.all()],
             'total_amount': order.total_price,
             'status': order.status,
             'user_id': order.user_id,
         } for order in orders]
+
+        # # 添加下面这段代码来查看每一个 order 的 first detail 的 product 对象
+        # first_order = orders[0]
+        # first_detail = first_order.orderdetails_set.all()[0]
+        # print(dir(first_detail.product))
 
         return JsonResponse({'orders': orders_data})
     except Exception as e:
