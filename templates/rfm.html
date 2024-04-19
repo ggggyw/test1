@@ -260,23 +260,15 @@
 </div>
 
 </head>
+
+
 <body>
 <h1 align="center">RFM 消费者类型分析</h1>
-<p></p>>
-<select id="filterSelect" style="margin-left: 1100px; display: block;" onchange="filterTableBySelect()">
-    <option value="all">所有类型</option>
-    <option value="111重要价值客户">111重要价值客户</option>
-    <option value="110潜力客户">110潜力客户</option>
-    <option value="101重要深耕客户">101重要深耕客户</option>
-    <option value="100新客户">100新客户</option>
-    <option value="011重要唤回客户">011重要唤回客户</option>
-    <option value="010一般维持用户">010一般维持用户</option>
-    <option value="001重要挽留客户">001重要挽留客户</option>
-    <option value="000流失用户">000流失用户</option>
-</select>
+<p></p>
+
 
 <div>
-    <table align="center" id="dataTable">
+    <table align="center" id="dataTable" style="display: ">
         <thead>
         <tr>
             <th>用户 ID</th>
@@ -284,21 +276,31 @@
             <th>最近购买频率</th>
             <th>最近购买金额</th>
             <th>RFM 类别</th>
-            <th>消费者类型</th>
+            <th><label for="filterSelect"></label><select id="filterSelect" onchange="filterTableBySelect()">
+    <option value="all">所有类型</option>
+    <option value="重要价值客户">111重要价值客户</option>
+    <option value="潜力客户">110潜力客户</option>
+    <option value="重要深耕客户">101重要深耕客户</option>
+    <option value="新客户">100新客户</option>
+    <option value="重要唤回客户">011重要唤回客户</option>
+    <option value="一般维持用户">010一般维持用户</option>
+    <option value="重要挽留客户">001重要挽留客户</option>
+    <option value="流失用户">000流失用户</option>
+</select></th>
         </tr>
         </thead>
         <tbody>
-        {% for item in RFM_data %}
+        {% for consumer in RFM_data %}
             <tr>
-                <td> <div class="dialogue-link" onclick="showUserModel({{ item.u_id }})">
-                             {{ item.u_id }}
+                <td> <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
+                             {{ consumer.u_id }}
                              </div>
                 </td>
-                <td>{{ item.Recency }}</td>
-                <td>{{ item.Frequency }}</td>
-                <td>{{ item.Monetary }}</td>
-                <td>{{ item.RFM_Class }}</td>
-                <td>{{ item.RFM_Label }}</td>
+                <td>{{ consumer.Recency }}</td>
+                <td>{{ consumer.Frequency }}</td>
+                <td>{{ consumer.Monetary }}</td>
+                <td>{{ consumer.RFM_Class }}</td>
+                <td>{{ consumer.RFM_Label }}</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -319,7 +321,18 @@
         </div>
     </div>
 </div>
+
+<h1 align="center" id="prompt" style="display: none">数据太少，不适合进行分析</h1>
 <script>
+    //接受消费者数量的数据
+    var consumer = {{ RFM_data|length }}
+    if(consumer<=5){
+        document.getElementById("dataTable").style.display="none"
+        document.getElementById("prompt").style.display=""
+    }
+
+
+
 
     function filterTableBySelect() {
         var select, filter, table, tr, td, i, txtValue;

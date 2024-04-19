@@ -360,9 +360,10 @@ def rfm_analysis(request):
     filtered_data = merged_data[(merged_data['paid_time'] >= two_years_ago) &
                                 (merged_data['paid_time'] <= current_time)]
 
+    # 根据当下的商铺号来筛选订单
     shop_id = request.session.get('s_id')
     filtered_data = filtered_data.query(f'shop_id == {shop_id}')
-    filtered_data.head(1)
+
 
     # 创建一个空的DataFrame来存储RFM值
     RFM = pd.DataFrame()
@@ -379,17 +380,15 @@ def rfm_analysis(request):
     M = filtered_data.groupby('user_id')['total_price'].sum().reset_index()
     RFM['Monetary'] = M['total_price']
 
+    # 平均值作为阈值
     R_threshold = RFM['Recency'].mean()
     F_threshold = RFM['Frequency'].mean()
     M_threshold = RFM['Monetary'].mean()
-    print(R_threshold)
-    print(F_threshold)
-    print(M_threshold)
 
     # 标识高于(1)或低于(0)平均值
-    RFM['R'] = (RFM['Recency'] < R_threshold).astype(int)
-    RFM['F'] = (RFM['Frequency'] > F_threshold).astype(int)
-    RFM['M'] = (RFM['Monetary'] > M_threshold).astype(int)
+    RFM['R'] = (RFM['Recency'] <= R_threshold).astype(int)
+    RFM['F'] = (RFM['Frequency'] >= F_threshold).astype(int)
+    RFM['M'] = (RFM['Monetary'] >= M_threshold).astype(int)
 
     RFM['RFM_Class'] = RFM['R'].astype(str) + RFM['F'].astype(str) + RFM['M'].astype(str)
 
@@ -415,5 +414,5 @@ def rfm_analysis(request):
         # 如果您还有其他数据需要传递，可以在这里添加
     }
 
-    # 渲染模板，并将上下文传递给模板
+ # 渲染模板，并将上下文传递给模板
     return render(request, 'rfm.html', context)
