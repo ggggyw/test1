@@ -343,6 +343,7 @@ def user_orders(request):
         orders_data = [{
             'order_id': order.o_id,
             'order_details': [{
+
                 'product_name': Products.objects.get(p_id=detail.product.product_id).p_name,
                 'product_image_url': detail.product.product_image_url,
                 'quantity': detail.quantity,
