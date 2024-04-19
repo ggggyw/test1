@@ -699,13 +699,15 @@
                         </button>
                         <!-- 根据订单状态显示发货按钮 -->
                         {% if order.status == '待发货' %}
-                            <button class="order-ship-toggle" onclick="showShipModal({{ order.o_id }})">
+                            <button class="order-ship-toggle"
+                                    onclick="showShipModal({{ order.o_id }}); event.stopPropagation();">
                                 发货
                             </button>
                         {% endif %}
                         <!-- 根据订单状态显示退货按钮 -->
                         {% if order.status == '待退货' %}
-                            <button class="order-return-toggle" onclick="showReturnModal({{ order.o_id }})">
+                            <button class="order-return-toggle"
+                                    onclick="showReturnModal({{ order.o_id }});event.stopPropagation();">
                                 已退货
                             </button>
                         {% endif %}
@@ -717,6 +719,7 @@
                             <thead>
                             <tr>
                                 <th>订单详情ID</th>
+                                <th>商品图片</th>
                                 <th>商品</th>
                                 <th>商店</th>
                                 <th>数量</th>
@@ -727,6 +730,10 @@
                             {% for detail in order.orderdetails_set.all %}
                                 <tr class="order-detail-row" data-order-id="{{ order.o_id }}">
                                     <td>{{ detail.order_detail_id }}</td>
+                                    <td>
+                                        <img src="{% static '商品图片/'|add:detail.product.product_image_url %}"
+                                             alt="{{ detail.product.product.p_name }}" width="80px" height="80px">
+                                    </td> <!-- 新增的列，显示商品图片 -->
                                     <td>
                                 <span class="dialogue-link"
                                       onclick="showProductModel({{ detail.product.product.p_id }})">
@@ -840,6 +847,7 @@
 <div id="returnConfirmModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close-return-modal">&times;</span>
+        <h2>退货确认</h2>
         <p>你确定已经收到退货了吗？</p>
         <div class="modal-actions">
             <button id="confirm_return">确定</button>
@@ -1030,7 +1038,7 @@
                     // 定义一个定时器，3秒后刷新页面
                     setTimeout(function () {
                         location.reload(); // 刷新页面
-                    }, 1500);
+                    }, 1000);
                 } else {
                     // 处理服务器返回的错误，比如弹出提醒
                     alert(data.error);
@@ -1064,11 +1072,10 @@
                 // 这里可以根据返回的数据进行操作，比如更新页面上的订单状态
                 if (data.success) {
                     document.getElementById('status-' + orderId).textContent = '已退货';
-                    // 隐藏发货按钮，因为已经发货
                     // 定义一个定时器，3秒后刷新页面
                     setTimeout(function () {
                         location.reload(); // 刷新页面
-                    }, 1500);
+                    }, 1000);
                 } else {
                     // 处理服务器返回的错误，比如弹出提醒
                     alert(data.error);
