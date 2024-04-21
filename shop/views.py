@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -41,16 +41,56 @@ def shop_profile(request):
     s_id = request.session.get('s_id')
     role = request.session.get('role')
     if role == 'shop':
-        # 获取并处理用户信息
         shop = get_object_or_404(Shops, s_id=s_id)
-        context = {
-            's_name': shop.s_name,
-            's_phone': shop.s_phone,
-            'email': shop.email,
-            'address': shop.address,
-            'role': role,
-        }
+        if s_id:
+            # 获取该商家所有的唯一订单ID
+            unique_order_ids = OrderDetails.objects.filter(shop__s_id=s_id).values_list('order', flat=True).distinct()
+
+            # 根据这些唯一的订单ID统计每个状态的订单数量
+            order_status_counts = Orders.objects.filter(o_id__in=unique_order_ids).values('status').annotate(
+                count=Count('status'))
+
+            # 统计该商家所有商品的审核状态数量
+            product_audit_status_counts = ShopProducts.objects.filter(shop__s_id=s_id).values(
+                'product_auditstatus').annotate(count=Count('product_auditstatus'))
+            # 转换查询结果为字典
+            status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
+            audit_status_counts = {status_count['product_auditstatus']: status_count['count'] for status_count in
+                                   product_audit_status_counts}
+            context = {
+                's_name': shop.s_name,
+                's_phone': shop.s_phone,
+                'email': shop.email,
+                'address': shop.address,
+                'order_status_counts': status_counts,
+                'product_audit_status_counts': audit_status_counts,
+                'role': role,
+            }
     return render(request, 'shop_profile.html', context)
+
+
+def edit_shop_profile(request):
+    context = {}
+    s_id = request.session.get('s_id')
+    role = request.session.get('role')
+    if role == 'shop':
+        shop = get_object_or_404(Shops, s_id=s_id)
+        if request.method == 'POST':
+            # 处理表单提交
+            shop.s_name = request.POST.get('s_name')
+            shop.s_psw = request.POST.get('s_psw')
+            shop.s_phone = request.POST.get('s_phone')
+            shop.email = request.POST.get('email')
+            shop.address = request.POST.get('address')
+            shop.save()
+            return redirect('edit_shop_profile')
+        else:
+            # 显示表单
+            context = {
+                'shop': shop,
+                'role': role,
+            }
+    return render(request, 'edit_shop_profile.html', context)
 
 
 def shop_search_products(request):
@@ -502,6 +542,11 @@ def shop_search_orders(request):
     # 只展示当前商家(s_id)的订单
     if s_id:
         query_conditions &= Q(orderdetails__shop__s_id=s_id)
+        # 假设 'status' 是定义在 Orders 模型中的状态字段
+        order_status_counts = Orders.objects.filter(orderdetails__shop__s_id=s_id).values('status').annotate(
+            count=Count('status'))
+    else:
+        order_status_counts = Orders.objects.none()
     if product_name:
         query_conditions &= Q(orderdetails__product__product__p_name__icontains=product_name)
     if category_id != '0':
@@ -562,6 +607,8 @@ def shop_search_orders(request):
     paginator = Paginator(orders, 10)  # 例如每页显示10条记录
     page = request.GET.get('page')
     paged_orders = paginator.get_page(page)
+    # 创建一个字典来存储每种状态的订单数量
+    status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
 
     # 将搜索字段回传到模板中，以便保持搜索条件
     context = {
@@ -592,6 +639,7 @@ def shop_search_orders(request):
         'user_phone': user_phone,
         'user_email': user_email,
         'user_sex': user_sex,
+        'order_status_counts': status_counts,
         'query': None
     }
 
@@ -632,6 +680,7 @@ def product_detail(request, p_id):
     # 返回 JSON 形式的响应
     return JsonResponse(data)
 
+
 def return_product(request, o_id):
     if request.method == 'POST':
         try:
@@ -657,6 +706,7 @@ def return_product(request, o_id):
     else:
         # 对于非POST请求，返回一个错误响应
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 def ship_product(request, o_id):
     if request.method == 'POST':
