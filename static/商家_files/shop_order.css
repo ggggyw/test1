@@ -1,0 +1,185 @@
+/*---------------------------------------分页控件-------------------------------------------*/
+.pagination {
+    text-align: center; /* 居中分页控件 */
+    margin-top: 20px; /* 顶部距离，可根据需要调整 */
+    margin-bottom: 20px; /* 底部距离，可根据需要调整 */
+}
+
+.pagination .step-links span.current {
+    font-weight: bold; /* 当前页加粗显示 */
+}
+
+/* 页码相关样式 */
+.pagination .step-links a,
+.pagination .step-links span {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ddd;
+    color: #337ab7;
+    text-decoration: none;
+}
+
+.pagination .step-links span.current {
+    font-weight: bold;
+    background-color: #337ab7;
+    color: white;
+    border-color: #337ab7;
+}
+
+/* -------------------------------------退货确认模态框样式 --------------------------*/
+/* 模态框的最外层容器 */
+#returnConfirmModal {
+    display: none; /* 默认不显示 */
+    position: fixed; /* 固定定位，相对于视口定位 */
+    z-index: 1050; /* 确保覆盖大多数其他内容 */
+    left: 0;
+    top: 0;
+    width: 100%; /* 覆盖整个视口宽度 */
+    height: 100%; /* 覆盖整个视口高度 */
+    overflow: auto; /* 如果内容过多，允许滚动 */
+    background-color: rgba(0, 0, 0, 0.4); /* 半透明黑色背景 */
+}
+
+#returnConfirmModal .modal-content {
+    background-color: #fff; /* 设置白色背景 */
+    border-radius: 15px; /* 边框圆角 */
+    padding: 25px; /* 内边距 */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* 盒子阴影 */
+    width: auto; /* 宽度自动根据内容调整 */
+    max-width: 500px; /* 最大宽度限制，防止在大屏幕上过宽 */
+    text-align: center; /* 文字居中对齐 */
+    margin: 10% auto; /* 上下外边距，并在页面中水平居中 */
+}
+
+#returnConfirmModal .modal-actions {
+    margin-top: 20px; /* 按钮与文字内容之间的间隔 */
+}
+
+#returnConfirmModal button {
+    padding: 10px 25px; /* 按钮内填充，增加按钮大小 */
+    font-size: 16px; /* 字体大小 */
+    border: none; /* 去除边框 */
+    border-radius: 5px; /* 边框圆角 */
+    margin: 0 10px; /* 按钮之间的间隔 */
+    cursor: pointer; /* 当鼠标滑过按钮时，显示手形光标 */
+    transition: background-color 0.3s ease; /* 平滑过渡背景色的变化 */
+}
+
+#returnConfirmModal #confirm_return {
+    background-color: #ffc107; /* 确认退货按钮背景色 */
+    color: white; /* 确认退货按钮文字颜色 */
+}
+
+#returnConfirmModal #confirm_return:hover {
+    background-color: #e0a800; /* 鼠标滑过时的背景色 */
+}
+
+#returnConfirmModal .cancel-return-modal {
+    background-color: #6c757d; /* 取消按钮背景色 */
+    color: white; /* 取消按钮文字颜色 */
+}
+
+#returnConfirmModal .cancel-return-modal:hover {
+    background-color: #5a6268; /* 鼠标滑过时的背景色 */
+}
+
+#returnConfirmModal .close-return-modal {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 25px; /* 关闭字体的大小 */
+    color: #000; /* 关闭字体的颜色 */
+    opacity: 0.3; /* 关闭按钮的透明度 */
+}
+
+#returnConfirmModal .close-return-modal:hover {
+    color: #ffc107; /* 鼠标滑过时的颜色 */
+    opacity: 1; /* 鼠标滑过时的透明度 */
+    cursor: pointer; /* 当鼠标滑过按钮时，显示手形光标 */
+    text-decoration: none; /* 鼠标滑过时无下划线 */
+}
+
+/*------------------- 发货确认模态框样式 -------------------*/
+/* 模态框的最外层容器 */
+#shipConfirmModal {
+    /* 基本样式保持与退货确认模态框相似 */
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+#shipConfirmModal .modal-content {
+    /* 基本样式保持与退货确认模态框相似 */
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    width: auto;
+    max-width: 500px;
+    text-align: center;
+    margin: 10% auto;
+}
+
+#shipConfirmModal .modal-actions {
+    margin-top: 20px;
+}
+
+#shipConfirmModal button {
+    /* 与退货确认模态框的按钮保持相同样式 */
+    padding: 10px 25px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    margin: 0 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#shipConfirmModal #confirm_ship {
+    /* 确认发货按钮背景色改为适合发货的颜色 */
+    background-color: #28a745;
+    color: white;
+}
+
+#shipConfirmModal #confirm_ship:hover {
+    /* 鼠标滑过发货按钮时的背景色 */
+    background-color: #218838;
+}
+
+#shipConfirmModal .cancel-ship-modal {
+    /* 取消按钮的样式 */
+    background-color: #6c757d;
+    color: white;
+}
+
+#shipConfirmModal .cancel-ship-modal:hover {
+    /* 鼠标滑过取消按钮时的背景色 */
+    background-color: #5a6268;
+}
+
+#shipConfirmModal .close-ship-modal {
+    /* 关闭按钮的样式 */
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 25px;
+    color: #000;
+    opacity: 0.3;
+}
+
+#shipConfirmModal .close-ship-modal:hover {
+    /* 鼠标滑过时的颜色 */
+    color: #28a745;
+    /* 鼠标滑过时的透明度 */
+    opacity: 1;
+    /* 当鼠标滑过按钮时，显示手形光标 */
+    cursor: pointer;
+    /* 鼠标滑过时无下划线 */
+    text-decoration: none;
+}
