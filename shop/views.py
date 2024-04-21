@@ -144,39 +144,55 @@ def shop_search_products(request):
 
 
 def myproducts(request):
-    # 从会话中获取用户的ID
+    query = request.GET.get('query', None)
+    category_id = request.GET.get('category_id', 0)  # 如果没有提供category_id，使用默认值0
+    if category_id == 'None':  # 如果category_id的值是'None'，将它设置为0
+        category_id = 0
+    category_id = int(category_id)  # 确保category_id是一个整数
+    page_num = request.GET.get('page')
     s_id = request.session.get('s_id')
-    # 从GET请求中获取类别ID
-    category_id = request.GET.get('category_id')
-    if category_id is not None and category_id != '0':
-        types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
-        ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
-    else:
-        # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
 
+    if query is not None and query != '请输入想找的宝贝':
+        # 使用 p_id 进行搜索
+        if category_id == 0:  # 如果category_id为0，查询所有商品
+            ids = Products.objects.filter(
+                Q(p_name__icontains=query) |
+                Q(brand__icontains=query)
+            ).values_list('p_id', flat=True)
+        else:  # 否则，查询特定类别的商品
+            ids = Products.objects.filter(
+                (Q(p_name__icontains=query) |
+                 Q(brand__icontains=query)) &
+                Q(p_type__category_id=category_id)
+            ).values_list('p_id', flat=True)
+        shop_products = ShopProducts.objects.filter(product_id__in=ids, shop__s_id=s_id)
+
+        paginator = Paginator(shop_products, 8)  # 每页显示12个商品
+        try:
+            page_obj = paginator.page(page_num)
+        except PageNotAnInteger:
+            # 如果请求的页码不是整数，返回第一页
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            # 如果请求的页码超出分页器的页数，返回最后一页
+            page_obj = paginator.page(paginator.num_pages)
+    else:
+        if category_id == 0:  # 如果category_id为0，查询所有商品
+            shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+            paginator = Paginator(shop_products, 8)
+            page = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page)
+            query = None
+        else:  # 否则，查询特定类别的商品
+            shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
+            paginator = Paginator(shop_products, 8)
+            page = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page)
+            query = None
     products = Products.objects.all()
 
-    # 创建一个 Paginator 对象，每页显示 24 个商品
-    paginator = Paginator(shop_products, 3)
-    # 从 GET 请求的查询参数中获取页码
-    page = request.GET.get('page')
-    # 使用 Paginator 对象的 get_page 方法来获取当前页的商品
-    shop_products = paginator.get_page(page)
-
-    # 检查用户是否已经登录
-    if 's_id' in request.session:
-        # 如果用户已经登录
-        template_name = 'shop_my_products.html'
-    else:
-        # 如果用户没有登录，就渲染 首页.html 模板
-        template_name = '首页.html'
-
-    content = render_to_string(template_name,
-                               {'shop_products': shop_products, 'products': products, 'category_id': category_id,
-                                'query': None})
-    return HttpResponse(content)
+    context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
+    return render(request, 'shop_my_products.html', context)
 
 
 def shop_productdetails(request, p_id):
