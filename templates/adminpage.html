@@ -201,6 +201,7 @@
       align-self: flex-end;
     }
   </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
   <div class="sidebar">
@@ -208,8 +209,8 @@
     <a href="#" onclick="switchTable('userTable')">用户管理</a>
     <a href="#" onclick="switchTable('shopTable')">商家管理</a>
     <a href="#" onclick="switchTable('productTable')">商品管理</a>
-    <a href="#">订单管理</a>
-    <a href="#">个人设置</a>
+    <a href="#" onclick="switchTable('orderTable')">订单管理</a>
+    <a href="#" onclick="openAdminEditModal()">个人设置</a>
     <!-- 添加退出登录按钮 -->
     <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
   </div>
@@ -322,6 +323,81 @@
     {% endfor %}
   </tbody>
 </table>
+
+<table  id="orderTable" style="display: none;">
+  <thead>
+    <tr>
+      <th>订单ID</th>
+      <th>用户ID</th>
+      <th>订单状态</th>
+      <th>下单时间</th>
+      <th>付款时间</th>
+      <th>总价</th>
+      <th>收货地址</th>
+      <th>订单详情</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for order in orders %}
+    <tr>
+      <td>{{ order.o_id }}</td>
+      <td>{{ order.user_id }}</td>
+      <td>{{ order.get_status_display }}</td>
+      <td>{{ order.o_time }}</td>
+      <td>{{ order.paid_time }}</td>
+      <td>{{ order.total_price }}</td>
+      <td>{{ order.order_address }}</td>
+      <td>
+        <button type="button" onclick="toggleOrderDetails({{ order.o_id }})">展开/收起</button>
+        <div id="OrderDetail{{ order.o_id }}" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>订单详情ID</th>
+                <th>商品ID</th>
+                <th>商家ID</th>
+                <th>数量</th>
+                <th>购买时单价</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for detail in order.order_details %}
+              <tr>
+                <td>{{ detail.order_detail_id }}</td>
+                <td>{{ detail.product_id }}</td>
+                <td>{{ detail.shop_id }}</td>
+                <td>{{ detail.quantity }}</td>
+                <td>{{ detail.current_single_price }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+  <!-- 编辑管理员信息的模态框 -->
+<div id="adminEditModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>编辑管理员信息</h2>
+    <form id="admin-edit-form">
+      <label for="ad_id">管理员 ID:</label>
+      <input type="text" id="ad_id" name="ad_id">
+      <label for="ad_acc">用户名:</label>
+      <input type="text" id="ad_acc" name="ad_acc">
+      <label for="ad_psw">密码:</label>
+      <input type="password" id="ad_psw" name="ad_psw">
+      <label for="is_super">是否为超级管理员:</label>
+      <input type="checkbox" id="is_super" name="is_super">
+      <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
+
     <!-- 用户分页器 -->
     {% if users.paginator.num_pages > 1 %}
     <div class="pagination" id="userPagination">
@@ -431,6 +507,21 @@
       {% endif %}
     </div>
     {% endif %}
+
+    <!-- 订单分页器 -->
+{% if orders.paginator.num_pages > 1 %}
+<div class="pagination" id="orderPagination">
+  {% if orders.has_previous %}
+    <a href="?page=1">第一页</a>
+    <a href="?page={{ orders.previous_page_number }}">上一页</a>
+  {% endif %}
+  <span class="current">第 {{ orders.number }} 页，共 {{ orders.paginator.num_pages }} 页</span>
+  {% if orders.has_next %}
+    <a href="?page={{ orders.next_page_number }}">下一页</a>
+    <a href="?page={{ orders.paginator.num_pages }}">最后一页</a>
+  {% endif %}
+</div>
+{% endif %}
 
   </div>
 
@@ -604,6 +695,67 @@ function switchTable(tableId) {
     // 添加更多的 case 以处理其他的表格
   }
 }
+
+function toggleOrderDetails(orderId) {
+    var x = document.getElementById("OrderDetail" + orderId);
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+  // 打开编辑管理员信息的模态框
+function openAdminEditModal() {
+  // 获取 admin 用户的 ID
+  var adminId = 1; // 这里应该根据实际情况填写
+
+  // 发送 AJAX 请求，获取 admin 用户的信息
+  $.ajax({
+    url: '/get_admin_info/',   // 你的获取管理员信息的 API 接口
+    type: 'POST',
+    data: {ad_id: adminId},
+    success: function(response) {
+        if(response.success) {
+            // 渲染数据到模态框的输入框
+            $('input[name="ad_id"]').val(response.data.ad_id);
+            $('input[name="ad_acc"]').val(response.data.ad_acc);
+            $('input[name="ad_psw"]').val(response.data.ad_psw);
+            $('input[name="is_super"]').prop('checked', response.data.is_super);
+
+            // 显示模态框
+            $('#adminEditModal').css('display', 'block');
+        } else {
+            // 处理错误
+            alert('获取数据失败！');
+        }
+    },
+    error: function(error) {
+        // 处理错误
+        console.error(error);
+        alert('请求失败，请检查网络连接或稍后重试');
+    }
+  });
+}
+
+$(document).ready(function(){
+    // 获取模态框和关闭按钮的元素
+    var modal = $('#adminEditModal');
+    var span = $('.close');
+
+    // 当用户点击关闭按钮时，隐藏模态框
+    span.click(function() {
+        modal.css('display', 'none');
+    });
+
+    // 当用户点击模态框之外的区域时，也隐藏模态框
+    $(window).click(function(event) {
+        if (event.target == modal[0]) {
+            modal.css('display', 'none');
+        }
+    });
+});
+
   </script>
 </body>
 </html>
