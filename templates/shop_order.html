@@ -683,7 +683,7 @@
                 <tr class="order-row" data-order-id="{{ order.o_id }}">
                     <td>{{ order.o_id }}</td>
                     <td>
-            <span class="dialogue-link" onclick="showUserModel({{ order.user.u_id }})">
+            <span class="dialogue-link" onclick="showUserModel({{ order.user.u_id }}); event.stopPropagation();">
                 {{ order.user.u_name }}
             </span>
                     </td>
