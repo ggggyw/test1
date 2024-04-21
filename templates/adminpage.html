@@ -207,7 +207,7 @@
     <h2>管理员界面</h2>
     <a href="#" onclick="switchTable('userTable')">用户管理</a>
     <a href="#" onclick="switchTable('shopTable')">商家管理</a>
-    <a href="#">商品管理</a>
+    <a href="#" onclick="switchTable('productTable')">商品管理</a>
     <a href="#">订单管理</a>
     <a href="#">个人设置</a>
     <!-- 添加退出登录按钮 -->
@@ -282,6 +282,46 @@
         </tbody>
       </table>
     </div>
+        {#商品  #}
+    <!-- 商品信息表格 -->
+<table id="productTable" style="display: none;">
+  <thead>
+    <tr>
+      <th>商品ID</th>
+      <th>商家ID</th>
+      <th>描述</th>
+      <th>商品状态</th>
+      <th>审核状态</th>
+      <th>图片链接</th>
+      <th>库存数量</th>
+      <th>原价</th>
+      <th>折扣</th>
+      <th>现价</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- 用 Django 渲染商品信息数据 -->
+    {% for shop_product in shop_products %}
+    <tr>
+      <td>{{ shop_product.shop_product_id }}</td>
+      <td>{{ shop_product.shop_id }}</td>
+      <td>{{ shop_product.product_desc }}</td>
+      <td>{{ shop_product.product_status }}</td>
+      <td>{{ shop_product.product_auditstatus }}</td>
+      <td>{{ shop_product.product_image_url }}</td>
+      <td>{{ shop_product.stock_quantity }}</td>
+      <td>{{ shop_product.original_price }}</td>
+      <td>{{ shop_product.discount }}</td>
+      <td>{{ shop_product.current_price }}</td>
+      <td>
+        <button onclick="openEditModal('{{ product.shop_product_id }}')">编辑</button>
+        <button>删除</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
     <!-- 用户分页器 -->
     {% if users.paginator.num_pages > 1 %}
     <div class="pagination" id="userPagination">
@@ -354,16 +394,67 @@
         {% endif %}
     </div>
     {% endif %}
+
+    <!-- 商品分页器 -->
+    {% if shop_products.paginator.num_pages > 1 %}
+    <div class="pagination" id="productPagination" style="display: none;">
+      {% if shop_products.has_previous %}
+        <a href="?table=product&product_page=1" onclick="moveTables(1, {{ shop_products.number }},'productTable')">第一页</a>
+        <a href="?table=product&product_page={{ shop_products.previous_page_number }}" onclick="moveTables({{ shop_products.previous_page_number }}, {{ shop_products.number }},'productTable')">上一页</a>
+      {% endif %}
+
+      {% with shop_products.number|add:"-2" as prev_range %}
+        {% with shop_products.number|add:"2" as next_range %}
+          {% if prev_range > 2 %}
+            <span>...</span>
+          {% endif %}
+
+          {% for page_num in shop_products.paginator.page_range %}
+            {% if page_num >= prev_range and page_num <= next_range %}
+              {% if page_num == shop_products.number %}
+                <span class="current-page">{{ page_num }}</span>
+              {% else %}
+                <a href="?table=product&product_page={{ page_num }}" onclick="moveTables({{ page_num }}, {{ shop_products.number }},'productTable')">{{ page_num }}</a>
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          {% if next_range < shop_products.paginator.num_pages|add:"-1" %}
+            <span>...</span>
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+
+      {% if shop_products.has_next %}
+        <a href="?table=product&product_page={{ shop_products.next_page_number }}" onclick="moveTables({{ shop_products.next_page_number }}, {{ shop_products.number }},'productTable')">下一页</a>
+        <a href="?table=product&product_page={{ shop_products.paginator.num_pages }}" onclick="moveTables({{ shop_products.paginator.num_pages }}, {{ shop_products.number }},'productTable')">最后一页</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
   </div>
 
-  <!-- 编辑用户信息的模态框 -->
+  </div>
+
+<!-- 编辑用户信息的模态框 -->
   <div id="editModal" class="modal">
     <div class="modal-content">
       <span class="close">&times;</span>
       <h2>编辑用户信息</h2>
-      <form>
-        <!-- 渲染用户信息表单字段 -->
-        <!-- 不显示密码和地址字段 -->
+      <form id="edit-form">
+        <label for="u_id">用户 ID:</label>
+        <input type="text" id="u_id" name="u_id">
+        <label for="u_acc">用户名:</label>
+        <input type="text" id="u_acc" name="u_acc">
+        <label for="u_name">姓名:</label>
+        <input type="text" id="u_name" name="u_name">
+        <label for="u_sex">性别:</label>
+        <input type="text" id="u_sex" name="u_sex">
+        <label for="u_phone">手机号:</label>
+        <input type="text" id="u_phone" name="u_phone">
+        <label for="email">邮箱:</label>
+        <input type="text" id="email" name="email">
+        <button type="submit">提交</button>
       </form>
     </div>
   </div>
@@ -392,6 +483,33 @@
     function openEditModal(userId) {
       modal.style.display = "block";
       // 在此处填写获取用户信息并渲染到表单的代码
+      $.ajax({
+        url: '/get_user_info/',   // 你的获取用户信息的 API 接口
+        type: 'POST',
+        data: {u_id: userId},
+        success: function(response) {
+            if(response.success) {
+                // 渲染数据到模态框的输入框
+                $('input[name="u_id"]').val(response.data.u_id);
+                $('input[name="u_acc"]').val(response.data.u_acc);
+                $('input[name="u_name"]').val(response.data.u_name);
+                $('input[name="u_sex"]').val(response.data.u_sex);
+                $('input[name="u_phone"]').val(response.data.u_phone);
+                $('input[name="email"]').val(response.data.email);
+
+                // 显示模态框
+                modal.style.display = "block";
+            } else {
+                // 处理错误
+                alert('获取数据失败！');
+            }
+        },
+        error: function(error) {
+            // 处理错误
+            console.error(error);
+            alert('请求失败，请检查网络连接或稍后重试');
+        }
+    });
     }
 
     // 关闭模态框
