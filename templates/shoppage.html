@@ -3,107 +3,542 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
-    <title>shoppage</title>
-    <link rel="stylesheet" href="{% static '商家_files/head.css' %}">
-    <link rel="stylesheet" href="{% static '商家_files/shoppage.css' %}">
+    <title>商家首页</title>
+
+    <link rel="stylesheet" href="{% static '商家_files/shop_my_products.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
 
     <style>
+        /* --------------------------------------页面整体字体和背景 ------------------------------*/
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f8f8f8; /* 设置一个轻柔的背景颜色 */
+        }
 
+        /* ------------------------------------------头部样式--------------------------------- */
+        .shop_head {
+            background-color: #8accf8; /* 深色背景 */
+            color: #fff;
+            padding: 10px 0;
+        }
+
+        .shop_head-in {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop_register a {
+            color: #fff;
+            margin-right: 20px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .shop_register a:hover {
+            color: #030303;
+            font-size: 15px;
+        }
+
+        /* --------------------------------------------搜索框样式----------------------------------- */
+        .shop_search {
+            padding: 15px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .shop_search .input {
+            display: flex; /* 使用flex布局 */
+            align-items: center; /* 垂直居中对齐 */
+            justify-content: start; /* 从左边开始排列 */
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .shop_search input[type="text"] {
+            flex-grow: 1; /* 让输入框填满剩余空间 */
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            margin-left: 10px; /* 在图标和输入框之间添加间距 */
+            color: #000; /* 默认颜色，可根据实际需要调整 */
+        }
+
+        /* 可以考虑给搜索图标添加一些样式，例如大小、边距等 */
+        .shop_search img {
+            width: 50px; /* 或根据图片实际大小调整 */
+            height: auto;
+            /* 按需添加其他样式 */
+        }
+
+        /* -------------------------------------------------------------类别导航样式--------------------------------------------- */
+        .shop_classes {
+            padding: 15px 0;
+            border-radius: 8px; /* 添加圆角 */
+            margin: 20px auto; /* 增加外部间距 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 1300px; /* 设置一个最大宽度 */
+            display: flex; /* 使用flex布局 */
+            justify-content: center; /* 水平居中 */
+            flex-wrap: wrap; /* 允许子元素换行 */
+
+        }
+
+        /* 将每个类别列表设置为块级元素，这样它们将各占一行 */
+        .shop_classes-items {
+            display: flex; /* 设为弹性布局 */
+            justify-content: center;
+            flex-flow: row wrap; /* 允许内容换行，并且是横向排布 */
+            padding: 0;
+            margin: 0 1px; /* 添加左右间距用于分隔两个列表 */
+            text-align: center; /* 文字居中 */
+            list-style: none; /* 去除列表默认样式 */
+            position: relative;
+        }
+
+
+        .shop_classes-items a {
+            font-size: 14px;
+            text-align: center;
+            display: block;
+            white-space: nowrap;
+            clear: both;
+            padding: 0 1px;
+            margin: 0 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .shop_classes-items a:hover {
+            background-color: #524747;
+            color: #ee4848;
+        }
+
+        /* 选中的类别样式 */
+        .shop_classes-items a.selected {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        .shop_classes-items a.selected1 {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            transition: all 0.8s ease;
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        /* 底部滑块的样式 */
+        .shop_classes-slider {
+            height: 6px;
+            width: 2px;
+            background-color: #89cdda; /* 滑块颜色 */
+            position: absolute;
+            bottom: 0;
+            transition: all 0.8s ease; /* 平滑的过渡效果 */
+        }
+
+        /* 类别项样式 */
+        .shop_items {
+            margin: 5px; /* 给每个项目添加外边距增加间隔感 */
+        }
+
+        .shop_items a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-right: 1px solid #e5e5e5; /* 在列表项之间添加边框 */
+            transition: background-color 0.3s;
+        }
+
+        .shop_items a:hover {
+            background-color: #c2c2c2; /* 将背景设置为深灰色 */
+            color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
+        }
+
+        /* ------------------------------------------- 商品模型样式-------------------------------------------- */
+        .shop_goods-model {
+            padding: 10px 0;
+            background-color: #fff;
+            max-width: 1300px; /* 设置一个最大宽度 */
+            margin: 20px auto; /* 上下保持20px间距，左右自动，以达到居中效果 */
+        }
+
+        .shop_good-item {
+            display: none; /* 初始状态隐藏，以便fadeIn效果 */
+        }
+
+        .shop_goods-content {
+            width: 1300px;
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: 10px;
+            justify-content: flex-start; /* 改为从左侧开始排列，而不是居中 */
+        }
+
+        .shop_good {
+            width: 300px;
+            height: 435px;
+            margin-left: 15px;
+            margin-top: 20px;
+            min-height: 400px; /* 为商品卡片设置一个最小高度，允许内容增长时可以伸展 */
+            background-color: #ffffff; /* 为商品卡片添加背景颜色 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            border-radius: 10px; /* 边框圆角 */
+            overflow: hidden; /* 防止子元素的内容溢出边框圆角 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
+        }
+
+        .shop_good:hover {
+            transform: translateY(-5px) scale(1.05); /* 悬停时上移效果 */
+            z-index: 10; /* 确保放大的商品浮在其他商品上方 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 2.0); /* 悬停时阴影加深 */
+        }
+
+        .shop_good a {
+            display: block; /* 确保链接是块级元素，可以容纳其他块级子元素 */
+            text-decoration: none; /* 移除链接的下划线 */
+            color: inherit; /* 继承文字颜色 */
+        }
+
+        .shop_good img {
+            width: 100%; /* 图片宽度适应容器 */
+            display: block; /* 使图片也是块级元素，防止下面的元素上升 */
+            /* 下面的属性在之前的CSS已经设置 */
+            height: auto;
+            border-bottom: 5px solid #f0f0f0; /* 图片下方的分隔线 */
+            transition: all 0.3s ease; /* 添加过渡效果 */
+        }
+
+        .shop_good > a > .shop_product_name, .shop_good .shop_product_price {
+            /* 下面的属性在之前的CSS已经设置 */
+            padding: 1px 1px;
+            display: block; /* 默认就是块级元素，这里可以不用写 */
+        }
+
+        .shop_good .shop_product_name {
+            margin-top: 5px; /* 距离图片底部的间距 */
+            font-size: 20px;
+            color: #333;
+            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+            text-align: center; /* 中心对齐文本 */
+        }
+
+        .shop_good .shop_product_name:hover {
+            text-decoration: underline; /* 鼠标悬停时显示下划线 */
+            color: #e51818; /* 这里设置悬停颜色为红色，可根据需要调整 */
+            font-size: 23px;
+            transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
+        }
+
+        .shop_good .shop_product_price {
+            margin-top: 5px; /* 距离名称的间距 */
+            font-size: 30px;
+            bottom: 15px;
+            color: #E57373; /* 价格的颜色 */
+            font-weight: bold; /* 字体加粗 */
+            margin-bottom: 10px; /* 距离链接底部的间距 */
+            text-align: right; /* 价格在右边 */
+            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+        }
+
+
+        @media (max-width: 767px) {
+            .shop_goods-content {
+                justify-content: center; /* 移动端设备上商品居中显示 */
+            }
+
+            .shop_good {
+                width: calc(50% - 20px); /* 移动端设备上两列布局 */
+            }
+        }
+
+        /* 添加媒体查询，用于处理屏幕尺寸变化的情况 */
+        @media (max-width: 767px) {
+            .shop_items {
+                display: block; /* 在小屏幕上，每个项改为块级元素，各占一行 */
+                border-right: none; /* 移除边框，因为现在每项各占一行 */
+            }
+        }
+
+
+        #shop_pagination {
+            text-align: center; /* 居中显示 */
+            margin: 20px 0; /* 顶部和底部间距 */
+            font-size: 16px; /* 文字大小 */
+        }
+
+        /* 页码按钮样式 */
+        #shop_pagination a,
+        #shop_pagination span {
+            display: inline-block; /* 使元素水平排列 */
+            margin: 0 10px; /* 页码之间的间距 */
+            padding: 8px 16px; /* 内填充，根据需要调整大小 */
+            background-color: #d6e3ee; /* 背景色 */
+            border: 1px solid #ddd; /* 边框 */
+            border-radius: 20px; /* 圆角边框 */
+            text-align: center;
+            min-width: 40px;
+            color: #337ab7;
+            text-decoration: none;
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        /* 激活页码的样式 */
+        #shop_pagination .current {
+            background-color: #337ab7; /* 激活页码的背景色 */
+            color: white; /* 激活页码的字体色 */
+            border-color: #337ab7; /* 激活页码的边框色 */
+        }
+
+        /* 鼠标悬浮页码按钮的样式 */
+        #shop_pagination a:hover {
+            background-color: #e9e9e9; /* 鼠标悬浮的背景色 */
+            color: #23527c; /* 鼠标悬浮的字体色 */
+            text-decoration: none;
+        }
+
+        /* 输入框和跳转按钮样式 */
+        #shop_pagination form {
+            display: inline-block;
+        }
+
+        #shop_pagination input[type="number"] {
+            padding: 8px;
+            border: 1px solid #ddd;
+            width: 80px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        #shop_pagination input[type="submit"] {
+            padding: 8px 16px;
+            margin-left: 5px;
+            background-color: #337ab7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer; /* 鼠标悬浮时，指针变为手势 */
+        }
+
+        #shop_pagination input[type="submit"]:hover {
+            background-color: #286090;
+        }
     </style>
 </head>
 <body>
 
-<div class="head">
-    <div class="head-in">
-        <div class="register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
-        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+<div class="shop_head">
+    <div class="shop_head-in">
+        <div class="shop_register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="shop_register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
     </div>
 </div>
-<div class="search">
-    <form action="{% url 'shop_search_products' %}" method="get" id="search-form" class="input">
-        <input type="text" name="query" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+<div class="shop_search">
+    <form action="{% url 'myproducts' %}" method="get" id="search-form" class="input">
+        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
+             style="cursor: pointer;" alt="Search">
+        <input type="text" name="query" id="search-box" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
                style="color: {{ query|yesno:'#000,#aaa' }};"
                onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
                onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
-        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
-             style="cursor: pointer;">
     </form>
 </div>
-<div class="classes">
-    <ul class="classes-items">
-
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
+<div class="shop_classes">
+    <ul class="shop_classes-items">
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="selected1">我的商品</a>
+        </li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
+        </li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
     </ul>
+    <ul class="shop_classes-items">
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 0 %}selected{% endif %}">全部商品</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=1&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 1 %}selected{% endif %}">个人电脑和配件</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=2&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 2 %}selected{% endif %}">移动设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=3&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 3 %}selected{% endif %}">家用电子产品</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=4&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 4 %}selected{% endif %}">厨房电子设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=5&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 5 %}selected{% endif %}">办公设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=6&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 6 %}selected{% endif %}">汽车电子设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=7&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 7 %}selected{% endif %}">网络和通信设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=8&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 8 %}selected{% endif %}">可穿戴设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=9&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 9 %}selected{% endif %}">智能家居设备</a></li>
+        <!-- 在类别列表的末尾添加一个新的div作为滑块 -->
+        <div class="shop_classes-slider"></div>
+    </ul>
+
 </div>
-<div class="goods-model">
-    <div class="goods-content">
-        {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
-            <div class="good">
-                <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+
+{% if shop_products %}
+    <div class="shop_goods-model">
+    <div class="shop_goods-content">
+    {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
+        <div class="shop_good shop_good-item">
+            <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
+                {% if product1.product_image_url %} <!-- 如果图片URL存在 -->
                     <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
-                    {% for product2 in products %}
-                        {% if product1.product_id == product2.p_id %}
-                            <p class="name">{{ product2.p_name }}</p>
-                        {% endif %}
-                    {% endfor %}
-                    <div class="price">
-                        <p>￥{{ product1.current_price }}</p>
-                    </div>
-                </a>
-            </div>
-        {% empty %}
-            <div class="no-products-animation">
-                <p>还没有商品哦！</p>
-            </div>
-        {% endfor %}
+                {% else %} <!-- 如果图片URL不存在或为空，显示默认图片 -->
+                    <img src="{% static '商家_files/noimage.png' %}" width="285px" height="285px">
+                {% endif %}
+                {% for product2 in products %}
+                    {% if product1.product_id == product2.p_id %}
+                        <p class="shop_product_name">{{ product2.p_name }}</p>
+                    {% endif %}
+                {% endfor %}
+                <div class="shop_product_price">
+                    <p>￥{{ product1.current_price }}</p>
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+
+{% else %}
+    <div class="no-products-animation">
+        <p>还没有商品哦！</p>
     </div>
+{% endif %}
 </div>
-
-<div id="pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-    <!-- 如果不是第一页，添加跳转到第一页的链接 -->
-    {% if shop_products.number != 1 %}
-        <a href="?category_id={{ category_id }}&page=1"
-           style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
-    {% endif %}
-
-    {% if shop_products.has_previous %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
-    {% endif %}
-
-    <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
-
-    {% if shop_products.has_next %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-    {% endif %}
-
-    <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
-    {% if shop_products.number != shop_products.paginator.num_pages %}
-        <a href="?category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
-           style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
-    {% endif %}
-    <!-- 添加页面跳转功能 -->
-    <form action="" method="get" style="display: inline-block;">
-        <input type="hidden" name="category_id" value="{{ category_id }}">
-        <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
-               placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
-        <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
-    </form>
 </div>
+{% if shop_products %}
+    <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+        <!-- 如果不是第一页，添加跳转到第一页的链接 -->
+        {% if shop_products.number != 1 %}
+            <a href="?query={{ query }}&category_id={{ category_id }}&page=1"
+               style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
+        {% endif %}
 
+        {% if shop_products.has_previous %}
+            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
+               style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+        {% endif %}
+
+        <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
+
+        {% if shop_products.has_next %}
+            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
+               style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+        {% endif %}
+
+        <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
+        {% if shop_products.number != shop_products.paginator.num_pages %}
+            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
+               style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
+        {% endif %}
+        <!-- 添加页面跳转功能 -->
+        <form action="" method="get" style="display: inline-block;">
+            <input type="hidden" name="query" value="{{ query }}">
+            <input type="hidden" name="category_id" value="{{ category_id }}">
+            <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
+                   placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
+            <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
+        </form>
+        <!-- 在这里显示商品的总数 -->
+        <span style="margin-top: 10px;">商品总数: {{ shop_products.paginator.count }}</span>
+    </div>
+
+{% else %}
+    <div class="no-products-animation">
+
+    </div>
+{% endif %}
 <script>
-    // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
-    $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
-    $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+    $(document).ready(function () {
+        // 当一个分类项被点击时
+        $('.shop_classes-items a').click(function () {
+            var $this = $(this); // 获取当前点击的元素
+            var width = $this.width(); // 获取元素宽度
+            var offset = $this.position(); // 获取元素的位置
+
+            // 设置滑块的宽度和位置
+            $('.shop_classes-slider').css({
+                width: width,
+                left: offset.left
+            });
+        });
+
+        // 初始滑块位置设置
+        var $activeItem = $('.shop_classes-items a.selected'); // 获取当前选中的项
+        if ($activeItem.length) {
+            var activeWidth = $activeItem.width(); // 获取选中项的宽度
+            var activeOffset = $activeItem.position(); // 获取选中项的位置
+            // 设置滑块的初始宽度和位置
+            $('.shop_classes-slider').css({
+                width: activeWidth,
+                left: activeOffset.left + 20
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        // 假设你的商品有一个共同的class名为good-item
+        var items = $(".shop_good-item").toArray();
+        var delay = 120; // 延迟时间，单位毫秒
+
+        // 使用一个即时执行的函数来创建一个闭包，保存每个商品的对应延迟。
+        items.forEach(function (item, index) {
+            (function (item, delayMultiplier) {
+                setTimeout(function () {
+                    // 你可以自定义每个商品出现的动画效果
+                    $(item).fadeIn(); // jQuery fadeIn效果，也可使用其他效果如slideDown等
+                }, delayMultiplier * delay);
+            })(item, index);
+        });
+    });
     document.addEventListener("DOMContentLoaded", function () {
         document.querySelector('.no-products-animation').style.display = 'block';
     });
+
+    // 清除搜索框内容的函数
+    function clearSearch() {
+        var searchBox = document.getElementById('search-box');
+        searchBox.value = '';  // 清空搜索框
+        searchBox.style.color = '#000';  // 将文字颜色恢复为默认黑色
+        // 触发表单提交
+        document.getElementById('search-form').submit();
+    }
 </script>
 
 </body>
