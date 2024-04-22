@@ -5,7 +5,6 @@ urlpatterns = [
     path('shoppage/', views.shoppage, name='shoppage'),
     path('shoppage/shop_profile', views.shop_profile, name='shop_profile'),
     path('shoppage/edit_shop_profile', views.edit_shop_profile, name='edit_shop_profile'),
-    path('shoppage/search/', views.shop_search_products, name='shop_search_products'),
     path('shoppage/myproducts/', views.myproducts, name='myproducts'),
     path('shoppage/rfm/', views.rfm_analysis, name='rfm_analysis'),
 
