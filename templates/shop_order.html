@@ -586,20 +586,20 @@
     </div>
 </div>
 <div class="shop_search">
-    <form action="{% url 'shop_search_products' %}" method="get" id="search-form" class="input">
+    <form action="{% url 'myproducts' %}" method="get" id="search-form" class="input">
         <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
-             style="cursor: pointer;">
-        <input type="text" name="query" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+             style="cursor: pointer;" alt="Search">
+        <input type="text" name="query" id="search-box" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
                style="color: {{ query|yesno:'#000,#aaa' }};"
                onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
                onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
-
+        <input type="button" value="清除" id="clear-search" style="cursor: pointer;" onclick="clearSearch()">
     </form>
 </div>
 <div class="shop_classes">
     <ul class="shop_classes-items">
 
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query=">我的商品</a></li>
         <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
         </li>
         <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/" class="selected1">我的订单</a>
