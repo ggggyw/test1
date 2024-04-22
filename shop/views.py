@@ -19,19 +19,21 @@ def shoppage(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
     shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-    paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
+    paginator = Paginator(shop_products, 8)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
     s_id = request.session.get('u_id')
     role = request.session.get('role')
+    category_id = request.GET.get('category_id', 0)
 
     context = {
         'shop_products': paged_products,
         'products': products,
         's_id': s_id,
-        'role': role
+        'role': role,
+        'category_id': category_id,
     }
     return render(request, 'shoppage.html', context)
 
@@ -351,6 +353,7 @@ def shop_search_manage_products(request):
 def edit_product(request, product_id):
     shop_product = get_object_or_404(ShopProducts, pk=product_id)
     product = shop_product.product
+    category_id = product.p_type.category_id
 
     if request.method == "POST":
         product_form = ProductForm(request.POST, request.FILES, instance=product)
@@ -391,6 +394,8 @@ def edit_product(request, product_id):
         'product_form': product_form,
         'shop_product_form': shop_product_form,
         'shop_products': shop_product,
+        'products': product,
+        'category_id': category_id,
         'query': None
     }
     return render(request, 'shop_edit_product.html', context)
