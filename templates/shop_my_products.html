@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
-    <title>shop_my_products</title>
+    <title>我的商品</title>
 
     <link rel="stylesheet" href="{% static '商家_files/shop_my_products.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
@@ -132,7 +132,7 @@
             color: #fff; /* 被选中项的文本色 */
             border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
-            transition:all 0.8s ease;
+            transition: all 0.8s ease;
             /* 可加入其他样式，如边框、阴影等 */
         }
 
@@ -418,7 +418,7 @@
     <div class="shop_goods-content">
     {% for product1 in shop_products %} <!-- 遍历所有商品对象 -->
         <div class="shop_good shop_good-item">
-            <a href="{% url 'shop_productdetails' product1.shop_product_id  %}"> <!-- 生成商品详情页面的链接 -->
+            <a href="{% url 'shop_productdetails' product1.shop_product_id %}"> <!-- 生成商品详情页面的链接 -->
                 {% if product1.product_image_url %} <!-- 如果图片URL存在 -->
                     <img src="{% static '商品图片/'|add:product1.product_image_url %}" width="285px" height="285px">
                 {% else %} <!-- 如果图片URL不存在或为空，显示默认图片 -->
@@ -476,6 +476,8 @@
                    placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
             <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
         </form>
+        <!-- 在这里显示商品的总数 -->
+        <span style="margin-top: 10px;">商品总数: {{ shop_products.paginator.count }}</span>
     </div>
 
 {% else %}
@@ -494,7 +496,7 @@
             // 设置滑块的宽度和位置
             $('.shop_classes-slider').css({
                 width: width,
-                left: offset.left
+                left: offset.left + 20
             });
         });
 
@@ -530,7 +532,7 @@
         document.querySelector('.no-products-animation').style.display = 'block';
     });
 
-     // 清除搜索框内容的函数
+    // 清除搜索框内容的函数
     function clearSearch() {
         var searchBox = document.getElementById('search-box');
         searchBox.value = '';  // 清空搜索框
