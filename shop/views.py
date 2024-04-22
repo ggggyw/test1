@@ -93,106 +93,58 @@ def edit_shop_profile(request):
     return render(request, 'edit_shop_profile.html', context)
 
 
-def shop_search_products(request):
-    query = request.GET.get('query')
-    category_id = request.GET.get('category_id', 0)  # 如果没有提供category_id，使用默认值0
-    if category_id == 'None':  # 如果category_id的值是'None'，将它设置为0
-        category_id = 0
-    category_id = int(category_id)  # 确保category_id是一个整数
-    page_num = request.GET.get('page')
-    s_id = request.session.get('s_id')
-
-    if query is not None and query != '请输入想找的宝贝':
-        # 使用 p_id 进行搜索
-        if category_id == 0:  # 如果category_id为0，查询所有商品
-            ids = Products.objects.filter(
-                Q(p_name__icontains=query) |
-                Q(brand__icontains=query)
-            ).values_list('p_id', flat=True)
-        else:  # 否则，查询特定类别的商品
-            ids = Products.objects.filter(
-                (Q(p_name__icontains=query) |
-                 Q(brand__icontains=query)) &
-                Q(p_type__category_id=category_id)
-            ).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(product_id__in=ids, shop__s_id=s_id)
-
-        paginator = Paginator(shop_products, 2)  # 每页显示12个商品
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            # 如果请求的页码不是整数，返回第一页
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # 如果请求的页码超出分页器的页数，返回最后一页
-            page_obj = paginator.page(paginator.num_pages)
-    else:
-        if category_id == 0:  # 如果category_id为0，查询所有商品
-            shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-            paginator = Paginator(shop_products, 2)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
-        else:  # 否则，查询特定类别的商品
-            shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
-            paginator = Paginator(shop_products, 2)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
-    products = Products.objects.all()
-
-    context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
-    return render(request, 'shop_search_results.html', context)
-
-
 def myproducts(request):
-    query = request.GET.get('query', None)
-    category_id = request.GET.get('category_id', 0)  # 如果没有提供category_id，使用默认值0
-    if category_id == 'None':  # 如果category_id的值是'None'，将它设置为0
-        category_id = 0
-    category_id = int(category_id)  # 确保category_id是一个整数
-    page_num = request.GET.get('page')
+    # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
-
-    if query is not None and query != '请输入想找的宝贝':
-        # 使用 p_id 进行搜索
-        if category_id == 0:  # 如果category_id为0，查询所有商品
+    # 从GET请求中获取查询和类别ID
+    query = request.GET.get('query', '').strip()
+    category_id = request.GET.get('category_id', 0)
+    if category_id == 'None':
+        category_id = 0
+    category_id = int(category_id)
+    if query.lower() == 'none' or query == '请输入想找的宝贝':
+        query = ''
+    # 处理基于查询的商品搜索
+    if query is not None and query != '请输入想找的宝贝' and query != '':
+        if category_id == 0:
             ids = Products.objects.filter(
                 Q(p_name__icontains=query) |
                 Q(brand__icontains=query)
             ).values_list('p_id', flat=True)
-        else:  # 否则，查询特定类别的商品
+        else:
             ids = Products.objects.filter(
                 (Q(p_name__icontains=query) |
                  Q(brand__icontains=query)) &
                 Q(p_type__category_id=category_id)
             ).values_list('p_id', flat=True)
         shop_products = ShopProducts.objects.filter(product_id__in=ids, shop__s_id=s_id)
-
-        paginator = Paginator(shop_products, 8)  # 每页显示12个商品
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            # 如果请求的页码不是整数，返回第一页
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # 如果请求的页码超出分页器的页数，返回最后一页
-            page_obj = paginator.page(paginator.num_pages)
     else:
-        if category_id == 0:  # 如果category_id为0，查询所有商品
+        if category_id == 0:
             shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-            paginator = Paginator(shop_products, 8)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
             query = None
-        else:  # 否则，查询特定类别的商品
+        else:
             shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
-            paginator = Paginator(shop_products, 8)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
             query = None
+
     products = Products.objects.all()
 
+    paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
+    page = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    # 检查用户是否已经登录
+    if 's_id' in request.session:
+        template_name = 'shop_my_products.html'
+    else:
+        template_name = '首页.html'
+
     context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
-    return render(request, 'shop_my_products.html', context)
+    return render(request, template_name, context)
 
 
 def shop_productdetails(request, p_id):
@@ -200,8 +152,9 @@ def shop_productdetails(request, p_id):
     role = request.session.get('role')
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
     products = Products.objects.get(p_id=shop_product.product_id)
+    category_id = products.p_type.category_id
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role , 'category_id': category_id})
 
 
 def manage_products(request):
