@@ -77,7 +77,6 @@ class Users(models.Model):
     u_sex = models.CharField(max_length=6)
     u_phone = models.CharField(max_length=20)
     email = models.CharField(unique=True, max_length=50, blank=True, null=True)
-    address = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField()
 
     class Meta:
