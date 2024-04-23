@@ -779,8 +779,15 @@ def rfm_analysis(request):
     RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
 
     # 创建一个字典，其中包含您想要在模板中使用的数据
+    # 分页
+    paginator = Paginator(RFM_data, 10)  # 例如每页显示10条记录
+    page = request.GET.get('page')
+    paged_data = paginator.get_page(page)
+
     context = {
-        'RFM_data': RFM_data,
+        'RFM_data': paged_data,
+        'category_id': '0',  # 用于保持搜索条件
+        'query': None
         # 如果您还有其他数据需要传递，可以在这里添加
     }
 
