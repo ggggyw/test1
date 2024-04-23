@@ -13,64 +13,309 @@
     color: red;
 }
 
-.classes-items {
-    text-align: center;
+/* --------------------------------------页面整体字体和背景 ------------------------------*/
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #f8f8f8; /* 设置一个轻柔的背景颜色 */
 }
 
-.items {
-    text-align: center;
-}
-
-.classes {
-    background: #f4f4f4;
+/* ------------------------------------------头部样式--------------------------------- */
+.shop_head {
+    background-color: #8accf8; /* 深色背景 */
+    color: #fff;
     padding: 10px 0;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #ccc;
 }
 
-/* ---------------------------------------------分页----------------------------------------------- */
-/* 分页控件基本样式 */
-#pagination {
+.shop_head-in {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.shop_register a {
+    color: #fff;
+    margin-right: 20px;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.shop_register a:hover {
+    color: #030303;
+    font-size: 15px;
+}
+
+/* --------------------------------------------搜索框样式----------------------------------- */
+.shop_search {
+    padding: 15px 0;
+    background-color: #fff;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.shop_search .input {
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: start; /* 从左边开始排列 */
+    max-width: 1300px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.shop_search input[type="text"] {
+    flex-grow: 1; /* 让输入框填满剩余空间 */
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    margin-left: 10px; /* 在图标和输入框之间添加间距 */
+    color: #000; /* 默认颜色，可根据实际需要调整 */
+}
+
+/* 可以考虑给搜索图标添加一些样式，例如大小、边距等 */
+.shop_search img {
+    width: 50px; /* 或根据图片实际大小调整 */
+    height: auto;
+    /* 按需添加其他样式 */
+}
+
+/* -------------------------------------------------------------类别导航样式--------------------------------------------- */
+.shop_classes {
+    padding: 15px 0;
+    border-radius: 8px; /* 添加圆角 */
+    margin: 20px auto; /* 增加外部间距 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 1300px; /* 设置一个最大宽度 */
+    display: flex; /* 使用flex布局 */
+    justify-content: center; /* 水平居中 */
+    flex-wrap: wrap; /* 允许子元素换行 */
+
+}
+
+/* 将每个类别列表设置为块级元素，这样它们将各占一行 */
+.shop_classes-items {
+    display: flex; /* 设为弹性布局 */
+    justify-content: center;
+    flex-flow: row wrap; /* 允许内容换行，并且是横向排布 */
+    padding: 0;
+    margin: 0 1px; /* 添加左右间距用于分隔两个列表 */
+    text-align: center; /* 文字居中 */
+    list-style: none; /* 去除列表默认样式 */
+    position: relative;
+}
+
+
+.shop_classes-items a {
+    font-size: 14px;
+    text-align: center;
+    display: block;
+    white-space: nowrap;
+    clear: both;
+    padding: 0 1px;
+    margin: 0 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.shop_classes-items a:hover {
+    background-color: #524747;
+    color: #ee4848;
+}
+
+/* 选中的类别样式 */
+.shop_classes-items a.selected {
+    background-color: #89cdda; /* 被选中项的背景色 */
+    color: #fff; /* 被选中项的文本色 */
+    border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+    /* 可加入其他样式，如边框、阴影等 */
+}
+
+.shop_classes-items a.selected1 {
+    background-color: #89cdda; /* 被选中项的背景色 */
+    color: #fff; /* 被选中项的文本色 */
+    border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+    /* 可加入其他样式，如边框、阴影等 */
+}
+
+/* 底部滑块的样式 */
+.shop_classes-slider {
+    height: 6px;
+    width: 2px;
+    background-color: #89cdda; /* 滑块颜色 */
+    position: absolute;
+    bottom: 0;
+    transition: all 0.8s ease; /* 平滑的过渡效果 */
+}
+
+/* 类别项样式 */
+.shop_items {
+    margin: 5px; /* 给每个项目添加外边距增加间隔感 */
+}
+
+.shop_items a {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    border-right: 1px solid #e5e5e5; /* 在列表项之间添加边框 */
+    transition: background-color 0.3s;
+}
+
+.shop_items a:hover {
+    background-color: #fd5454; /* 将背景设置为深灰色 */
+    color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
+}
+
+/* ------------------------------------------- 商品模型样式-------------------------------------------- */
+.shop_goods-model {
+    padding: 10px 0;
+    background-color: #fff;
+    max-width: 1300px; /* 设置一个最大宽度 */
+    margin: 20px auto; /* 上下保持20px间距，左右自动，以达到居中效果 */
+}
+
+.shop_good-item {
+    display: none; /* 初始状态隐藏，以便fadeIn效果 */
+}
+
+.shop_goods-content {
+    width: 1300px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 10px;
+    justify-content: flex-start; /* 改为从左侧开始排列，而不是居中 */
+}
+
+.shop_good {
+    width: 300px;
+    height: 435px;
+    margin-left: 15px;
+    margin-top: 20px;
+    min-height: 400px; /* 为商品卡片设置一个最小高度，允许内容增长时可以伸展 */
+    background-color: #ffffff; /* 为商品卡片添加背景颜色 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+    border-radius: 10px; /* 边框圆角 */
+    overflow: hidden; /* 防止子元素的内容溢出边框圆角 */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
+}
+
+.shop_good:hover {
+    transform: translateY(-5px) scale(1.05); /* 悬停时上移效果 */
+    z-index: 10; /* 确保放大的商品浮在其他商品上方 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 2.0); /* 悬停时阴影加深 */
+}
+
+.shop_good a {
+    display: block; /* 确保链接是块级元素，可以容纳其他块级子元素 */
+    text-decoration: none; /* 移除链接的下划线 */
+    color: inherit; /* 继承文字颜色 */
+}
+
+.shop_good img {
+    width: 100%; /* 图片宽度适应容器 */
+    display: block; /* 使图片也是块级元素，防止下面的元素上升 */
+    /* 下面的属性在之前的CSS已经设置 */
+    height: auto;
+    border-bottom: 5px solid #f0f0f0; /* 图片下方的分隔线 */
+    transition: all 0.3s ease; /* 添加过渡效果 */
+}
+
+.shop_good > a > .shop_product_name, .shop_good .shop_product_price {
+    /* 下面的属性在之前的CSS已经设置 */
+    padding: 1px 1px;
+    display: block; /* 默认就是块级元素，这里可以不用写 */
+}
+
+.shop_good .shop_product_name {
+    margin-top: 5px; /* 距离图片底部的间距 */
+    font-size: 20px;
+    color: #333;
+    transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+    text-align: center; /* 中心对齐文本 */
+}
+
+.shop_good .shop_product_name:hover {
+    text-decoration: underline; /* 鼠标悬停时显示下划线 */
+    color: #e51818; /* 这里设置悬停颜色为红色，可根据需要调整 */
+    font-size: 23px;
+    transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
+}
+
+.shop_good .shop_product_price {
+    margin-top: 5px; /* 距离名称的间距 */
+    font-size: 30px;
+    bottom: 15px;
+    color: #E57373; /* 价格的颜色 */
+    font-weight: bold; /* 字体加粗 */
+    margin-bottom: 10px; /* 距离链接底部的间距 */
+    text-align: right; /* 价格在右边 */
+    transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+}
+
+
+@media (max-width: 767px) {
+    .shop_goods-content {
+        justify-content: center; /* 移动端设备上商品居中显示 */
+    }
+
+    .shop_good {
+        width: calc(50% - 20px); /* 移动端设备上两列布局 */
+    }
+}
+
+/* 添加媒体查询，用于处理屏幕尺寸变化的情况 */
+@media (max-width: 767px) {
+    .shop_items {
+        display: block; /* 在小屏幕上，每个项改为块级元素，各占一行 */
+        border-right: none; /* 移除边框，因为现在每项各占一行 */
+    }
+}
+
+
+#shop_pagination {
     text-align: center; /* 居中显示 */
     margin: 20px 0; /* 顶部和底部间距 */
     font-size: 16px; /* 文字大小 */
 }
 
 /* 页码按钮样式 */
-#pagination a,
-#pagination span {
+#shop_pagination a,
+#shop_pagination span {
     display: inline-block; /* 使元素水平排列 */
     margin: 0 10px; /* 页码之间的间距 */
     padding: 8px 16px; /* 内填充，根据需要调整大小 */
-    background-color: #f9f9f9; /* 背景色 */
+    background-color: #d6e3ee; /* 背景色 */
     border: 1px solid #ddd; /* 边框 */
-    border-radius: 4px; /* 圆角边框 */
+    border-radius: 20px; /* 圆角边框 */
     text-align: center;
     min-width: 40px;
     color: #337ab7;
     text-decoration: none;
+    box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 /* 激活页码的样式 */
-#pagination .current {
+#shop_pagination .current {
     background-color: #337ab7; /* 激活页码的背景色 */
     color: white; /* 激活页码的字体色 */
     border-color: #337ab7; /* 激活页码的边框色 */
 }
 
 /* 鼠标悬浮页码按钮的样式 */
-#pagination a:hover {
+#shop_pagination a:hover {
     background-color: #e9e9e9; /* 鼠标悬浮的背景色 */
     color: #23527c; /* 鼠标悬浮的字体色 */
     text-decoration: none;
 }
 
 /* 输入框和跳转按钮样式 */
-#pagination form {
+#shop_pagination form {
     display: inline-block;
 }
 
-#pagination input[type="number"] {
+#shop_pagination input[type="number"] {
     padding: 8px;
     border: 1px solid #ddd;
     width: 80px;
@@ -78,7 +323,7 @@
     text-align: center;
 }
 
-#pagination input[type="submit"] {
+#shop_pagination input[type="submit"] {
     padding: 8px 16px;
     margin-left: 5px;
     background-color: #337ab7;
@@ -88,117 +333,6 @@
     cursor: pointer; /* 鼠标悬浮时，指针变为手势 */
 }
 
-#pagination input[type="submit"]:hover {
+#shop_pagination input[type="submit"]:hover {
     background-color: #286090;
-}
-
-/* ---------------------------------------------商品----------------------------------------------- */
-
-/*商品卡片*/
-.goods-model, .detail-body {
-    background-color: #f6f6f6;
-}
-
-.goods-model {
-    min-height: 1000px;
-}
-
-.goods-content {
-    width: 1220px;
-    height: auto;
-    margin: 0 auto;
-    overflow: hidden;
-}
-
-.good {
-    position: relative;
-    float: left;
-    margin-right: 20px;
-    margin-top: 20px;
-    width: 285px;
-    height: 371px;
-    background-color: #ffffff;
-    overflow: hidden;
-    opacity: 0;
-    animation: flowIn 0.5s ease forwards;
-}
-
-@keyframes flowIn {
-    0% {
-        opacity: 0;
-        transform: translateY(50px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.good > a > p.name {
-    margin-top: 14px;
-    margin-left: 15px;
-    font-size: 20px;
-}
-
-.good .price {
-    position: absolute;
-    bottom: 15px;
-    left: 0;
-    width: 110px;
-    height: 30px;
-    padding-left: 8px;
-}
-
-.good .price i, .good .price p, .good .price s {
-    display: block;
-    float: left;
-}
-
-.good .price i {
-    margin-top: 17px;
-}
-
-.good .price p {
-    font-size: 30px;
-    color: #ff464e;
-}
-
-.good .price s {
-    margin-top: 17px;
-    color: #bbc6dd;
-}
-
-.good .sale {
-    position: absolute;
-    bottom: 15px;
-    right: 11px;
-    color: #ff464e;
-}
-
-
-.page {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto;
-    background-color: #ff464e;
-    text-align: center;
-}
-/* 添加到 .good img 选择器中 */
-.good img {
-    transition: all 0.3s ease; /* 添加过渡效果 */
-}
-
-/* 添加到 .good:hover img 选择器中 */
-.good:hover img {
-    transform: scale(1.1); /* 放大图片 */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 添加阴影效果 */
-}
-.items a {
-    transition: transform 0.3s ease-in-out;
-    text-decoration: none;
-    color: #333;
-}
-.items a:hover {
-    transform: scale(1.1);
-    color: inherit;
 }

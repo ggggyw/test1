@@ -9,55 +9,237 @@
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
     <style>
+        /* --------------------------------------页面整体字体和背景 ------------------------------*/
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f8f8f8; /* 设置一个轻柔的背景颜色 */
+        }
+
+        /* ------------------------------------------头部样式--------------------------------- */
+        .shop_head {
+            background-color: #8accf8; /* 深色背景 */
+            color: #fff;
+            padding: 10px 0;
+        }
+
+        .shop_head-in {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop_register a {
+            color: #fff;
+            margin-right: 20px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .shop_register a:hover {
+            color: #030303;
+            font-size: 15px;
+        }
+
+        /* --------------------------------------------搜索框样式----------------------------------- */
+        .shop_search {
+            padding: 15px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .shop_search .input {
+            display: flex; /* 使用flex布局 */
+            align-items: center; /* 垂直居中对齐 */
+            justify-content: start; /* 从左边开始排列 */
+            max-width: 1300px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .shop_search input[type="text"] {
+            flex-grow: 1; /* 让输入框填满剩余空间 */
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            margin-left: 10px; /* 在图标和输入框之间添加间距 */
+            color: #000; /* 默认颜色，可根据实际需要调整 */
+        }
+
+        /* 可以考虑给搜索图标添加一些样式，例如大小、边距等 */
+        .shop_search img {
+            width: 50px; /* 或根据图片实际大小调整 */
+            height: auto;
+            /* 按需添加其他样式 */
+        }
+
+        /* -------------------------------------------------------------类别导航样式--------------------------------------------- */
+        .shop_classes {
+            padding: 15px 0;
+            border-radius: 8px; /* 添加圆角 */
+            margin: 20px auto; /* 增加外部间距 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 1300px; /* 设置一个最大宽度 */
+            display: flex; /* 使用flex布局 */
+            justify-content: center; /* 水平居中 */
+            flex-wrap: wrap; /* 允许子元素换行 */
+
+        }
+
+        /* 将每个类别列表设置为块级元素，这样它们将各占一行 */
+        .shop_classes-items {
+            display: flex; /* 设为弹性布局 */
+            justify-content: center;
+            flex-flow: row wrap; /* 允许内容换行，并且是横向排布 */
+            padding: 0;
+            margin: 0 1px; /* 添加左右间距用于分隔两个列表 */
+            text-align: center; /* 文字居中 */
+            list-style: none; /* 去除列表默认样式 */
+            position: relative;
+        }
+
+
+        .shop_classes-items a {
+            font-size: 14px;
+            text-align: center;
+            display: block;
+            white-space: nowrap;
+            clear: both;
+            padding: 0 1px;
+            margin: 0 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .shop_classes-items a:hover {
+            background-color: #524747;
+            color: #ee4848;
+        }
+
+        /* 选中的类别样式 */
+        .shop_classes-items a.selected {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        .shop_classes-items a.selected1 {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            transition: all 0.8s ease;
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        /* 底部滑块的样式 */
+        .shop_classes-slider {
+            height: 6px;
+            width: 2px;
+            background-color: #89cdda; /* 滑块颜色 */
+            position: absolute;
+            bottom: 0;
+            transition: all 0.8s ease; /* 平滑的过渡效果 */
+        }
+
+        /* 类别项样式 */
+        .shop_items {
+            margin: 5px; /* 给每个项目添加外边距增加间隔感 */
+        }
+
+        .shop_items a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-right: 1px solid #e5e5e5; /* 在列表项之间添加边框 */
+            transition: background-color 0.3s;
+        }
+
+        .shop_items a:hover {
+            background-color: #c2c2c2; /* 将背景设置为深灰色 */
+            color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
+        }
 
     </style>
 </head>
 <body>
 
-<div class="head">
-    <div class="head-in">
-
-        <div class="register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
-        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
-
+<div class="shop_head">
+    <div class="shop_head-in">
+        <div class="shop_register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="shop_register"><a href="http://127.0.0.1:8000/shop/shoppage/shop_profile">查看个人信息</a></div>
     </div>
 </div>
-<div class="search">
-    <div class="input">
-        <input type="" name="" value="请输入想找的宝贝">
-        <img src="{% static '首页_files/1_06.png' %}">
-    </div>
+<div class="shop_search">
+    <form action="{% url 'myproducts' %}" method="get" id="search-form" class="input">
+        <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();"
+             style="cursor: pointer;" alt="Search">
+        <input type="text" name="query" id="search-box" value="{{ query|default_if_none:'请输入想找的宝贝' }}"
+               style="color: {{ query|yesno:'#000,#aaa' }};"
+               onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}"
+               onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
+    </form>
 </div>
-<div class="classes">
-    <ul class="classes-items">
+<div class="shop_classes">
+    <ul class="shop_classes-items">
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="selected1">我的商品</a>
+        </li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
+        </li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
+    </ul>
+    <ul class="shop_classes-items">
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 0 %}selected{% endif %}">全部商品</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=1&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 1 %}selected{% endif %}">个人电脑和配件</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=2&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 2 %}selected{% endif %}">移动设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=3&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 3 %}selected{% endif %}">家用电子产品</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=4&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 4 %}selected{% endif %}">厨房电子设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=5&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 5 %}selected{% endif %}">办公设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=6&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 6 %}selected{% endif %}">汽车电子设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=7&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 7 %}selected{% endif %}">网络和通信设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=8&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 8 %}selected{% endif %}">可穿戴设备</a></li>
+        <li class="shop_items"><a
+                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=9&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                class="
+                {% if category_id == 9 %}selected{% endif %}">智能家居设备</a></li>
+        <!-- 在类别列表的末尾添加一个新的div作为滑块 -->
+        <div class="shop_classes-slider"></div>
+    </ul>
 
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0">我的商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
-        <li class="items"><a href="http://127.0.0.1:8000/shop/shoppage/sales_analysis/">销售分析</a></li>
-    </ul>
-    <ul class="classes-items">
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">全部商品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=1">个人电脑和配件</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=2">移动设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=3">家用电子产品</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=4">厨房电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=5">办公设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=6">汽车电子设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=7">网络和通信设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=8">可穿戴设备</a></li>
-        <li class="items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=9">智能家居设备</a></li>
-    </ul>
 </div>
 <div class="content">
     <!-- 显示旧的商品信息 -->
