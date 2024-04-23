@@ -423,6 +423,10 @@
     <p>已完成订单数: {{ order_status_counts.已完成|default:"0" }}</p>
     <p>待审核商品数: {{ product_audit_status_counts.待审核|default:"0" }}</p>
     <p>审核不通过商品数: {{ product_audit_status_counts.审核不通过|default:"0" }}</p>
+    <p>已上架商品数: {{ product_status_counts.上架|default:"0" }}</p>
+    <p>已下架商品数: {{ product_status_counts.下架|default:"0" }}</p>
+    <p>已售商品数: {{ sold_products_count|default:"0" }}</p>
+    <p>总销售额: {{ total_revenue|default:"0" }}</p>
 
     <div class="shop_goods-model">
         <div class="shop_goods-content">
