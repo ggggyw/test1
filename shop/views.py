@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.utils import timezone
+
 from .forms import ShopProductForm, ProductForm
 from common.models import ShopProducts, ProductCategories, Products, Users, Shops
 import pandas as pd
@@ -18,22 +20,67 @@ from common.models import ShopProducts, ProductCategories, Products, Orders, Ord
 def shoppage(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
-    shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-    paginator = Paginator(shop_products, 8)  # 假设每页显示多少个商品
-    products = Products.objects.all()
-    page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
-    paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
-
-    s_id = request.session.get('u_id')
-    role = request.session.get('role')
+    # 从GET请求中获取查询和类别ID
+    query = request.GET.get('query', '').strip()
     category_id = request.GET.get('category_id', 0)
+    if category_id == 'None':
+        category_id = 0
+    category_id = int(category_id)
+    if query.lower() == 'none' or query == '请输入想找的宝贝':
+        query = ''
+    if category_id == 0:
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+        query = None
+    else:
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
+        query = None
+    products = Products.objects.all()
+    paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
+    page = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    # 获取该商家所有的唯一订单ID
+    unique_order_ids = OrderDetails.objects.filter(shop__s_id=s_id).values_list('order', flat=True).distinct()
+
+    # 根据这些唯一的订单ID统计每个状态的订单数量
+    order_status_counts = Orders.objects.filter(o_id__in=unique_order_ids).values('status').annotate(
+        count=Count('status'))
+
+    # 统计该商家所有商品的审核状态数量
+    product_audit_status_counts = ShopProducts.objects.filter(shop__s_id=s_id).values(
+        'product_auditstatus').annotate(count=Count('product_auditstatus'))
+    # 转换查询结果为字典
+    status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
+    audit_status_counts = {status_count['product_auditstatus']: status_count['count'] for status_count in
+                           product_audit_status_counts}
+
+    # 销量最高的商品信息
+    top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
+        '-quantity_sold').first()
+
+    # 当天销量最高的商品信息
+    today = timezone.now().date()
+    today_top_selling_product_info = ShopProducts.objects.filter(
+        orderdetails__order__o_time__date=today
+    ).annotate(
+        quantity_sold=Sum('orderdetails__quantity')
+    ).order_by('-quantity_sold').first()
 
     context = {
-        'shop_products': paged_products,
+        'shop_products': page_obj,
         'products': products,
-        's_id': s_id,
-        'role': role,
+        'query': query,
         'category_id': category_id,
+        'order_status_counts': status_counts,
+        'product_audit_status_counts': audit_status_counts,
+        'top_selling_product_info': top_selling_product_info if top_selling_product_info else None,
+        'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
+
     }
     return render(request, 'shoppage.html', context)
 
