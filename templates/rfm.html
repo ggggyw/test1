@@ -390,6 +390,7 @@
 
 
 <body>
+
 <h1 align="center">RFM 消费者类型分析</h1>
 <p></p>
 
@@ -404,32 +405,46 @@
             <th>最近购买金额</th>
             <th>RFM 类别</th>
             <th><label for="filterSelect"></label><select id="filterSelect" onchange="filterTableBySelect()">
-                <option value="all">所有类型</option>
-                <option value="重要价值客户">111重要价值客户</option>
-                <option value="潜力客户">110潜力客户</option>
-                <option value="重要深耕客户">101重要深耕客户</option>
-                <option value="新客户">100新客户</option>
-                <option value="重要唤回客户">011重要唤回客户</option>
-                <option value="一般维持用户">010一般维持用户</option>
-                <option value="重要挽留客户">001重要挽留客户</option>
-                <option value="流失用户">000流失用户</option>
+                <option value="all" {% if selected_rfm_label == 'all' %}selected{% endif %}>所有类型</option>
+                <option value="重要价值客户" {% if selected_rfm_label == '重要价值客户' %}selected{% endif %}>
+                    111重要价值客户
+                </option>
+                <option value="潜力客户" {% if selected_rfm_label == '潜力客户' %}selected{% endif %}>110潜力客户
+                </option>
+                <option value="重要深耕客户" {% if selected_rfm_label == '重要深耕客户' %}selected{% endif %}>
+                    101重要深耕客户
+                </option>
+                <option value="新客户" {% if selected_rfm_label == '新客户' %}selected{% endif %}>100新客户</option>
+                <option value="重要唤回客户" {% if selected_rfm_label == '重要唤回客户' %}selected{% endif %}>
+                    011重要唤回客户
+                </option>
+                <option value="一般维持用户" {% if selected_rfm_label == '一般维持用户' %}selected{% endif %}>
+                    010一般维持用户
+                </option>
+                <option value="重要挽留客户" {% if selected_rfm_label == '重要挽留客户' %}selected{% endif %}>
+                    001重要挽留客户
+                </option>
+                <option value="流失用户" {% if selected_rfm_label == '流失用户' %}selected{% endif %}>000流失用户
+                </option>
             </select></th>
         </tr>
         </thead>
         <tbody>
         {% for consumer in RFM_data %}
-            <tr>
-                <td>
-                    <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
-                        {{ consumer.u_id }}
-                    </div>
-                </td>
-                <td>{{ consumer.Recency }}</td>
-                <td>{{ consumer.Frequency }}</td>
-                <td>{{ consumer.Monetary }}</td>
-                <td>{{ consumer.RFM_Class }}</td>
-                <td>{{ consumer.RFM_Label }}</td>
-            </tr>
+            <div id="prompt" style="display: none;">
+                <tr>
+                    <td>
+                        <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
+                            {{ consumer.u_id }}
+                        </div>
+                    </td>
+                    <td>{{ consumer.Recency }}</td>
+                    <td>{{ consumer.Frequency }}</td>
+                    <td>{{ consumer.Monetary }}</td>
+                    <td>{{ consumer.RFM_Class }}</td>
+                    <td>{{ consumer.RFM_Label }}</td>
+                </tr>
+            </div>
         {% endfor %}
         </tbody>
     </table>
@@ -450,75 +465,65 @@
     </div>
 </div>
 
-{% if RFM_data %}
-    <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-        <!-- 如果不是第一页，添加跳转到第一页的链接 -->
-        {% if RFM_data.number != 1 %}
-            <a href="?page=1"
-               style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
-        {% endif %}
-
-        {% if RFM_data.has_previous %}
-            <a href="&page={{ RFM_data.previous_page_number }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
-        {% endif %}
-
-        <span>第 {{ RFM_data.number }} 页, 共 {{ RFM_data.paginator.num_pages }} 页</span>
-
-        {% if RFM_data.has_next %}
-            <a href="&page={{ RFM_data.next_page_number }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-        {% endif %}
-
-        <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
-        {% if RFM_data.number != RFM_data.paginator.num_pages %}
-            <a href="&page={{ RFM_data.paginator.num_pages }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
-        {% endif %}
-        <!-- 添加页面跳转功能 -->
-        <form action="" method="get" style="display: inline-block;">
-            <input type="number" name="page" min="1" max="{{ RFM_data.paginator.num_pages }}" required
-                   placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
-            <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
-        </form>
-        <!-- 在这里显示商品的总数 -->
-        <span style="margin-top: 10px;">商品总数: {{ RFM_data.paginator.count }}</span>
-    </div>
-
+{% if RFM_data.paginator.count > 10 %}
+    <script>
+        document.getElementById("prompt").style.display = "none";
+    </script>
 {% else %}
     <div class="no-products-animation">
-
+        <h1 align="center">数据太少，不适合进行分析</h1>
     </div>
 {% endif %}
+<div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    <!-- 如果不是第一页，添加跳转到第一页的链接 -->
+    {% if RFM_data.number != 1 %}
+        <a href="?page=1&category_id={{ selected_rfm_label }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
+    {% endif %}
+
+    {% if RFM_data.has_previous %}
+        <a href="?page={{ RFM_data.previous_page_number }}&category_id={{ selected_rfm_label }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
+    {% endif %}
+
+    <span>第 {{ RFM_data.number }} 页, 共 {{ RFM_data.paginator.num_pages }} 页</span>
+
+    {% if RFM_data.has_next %}
+        <a href="?page={{ RFM_data.next_page_number }}&category_id={{ selected_rfm_label }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
+    {% endif %}
+
+    <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
+    {% if RFM_data.number != RFM_data.paginator.num_pages %}
+        <a href="?page={{ RFM_data.paginator.num_pages }}&category_id={{ selected_rfm_label }}"
+           style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
+    {% endif %}
+    <!-- 添加页面跳转功能 -->
+    <form action="" method="get" style="display: inline-block;">
+        <input type="number" name="page" min="1" max="{{ RFM_data.paginator.num_pages }}" required
+               placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
+        <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
+    </form>
+    <!-- 在这里显示商品的总数 -->
+    <span style="margin-top: 10px;">商品总数: {{ RFM_data.paginator.count }}</span>
+</div>
+
 <script>
     //接受消费者数量的数据
     var consumer =
     {{ RFM_data|length }}
     if (consumer <= 5) {
-        document.getElementById("dataTable").style.display = "none"
-        document.getElementById("prompt").style.display = ""
+        document.getElementById("prompt").style.display = "none"
     }
 
 
-
     function filterTableBySelect() {
-        var select, filter, table, tr, td, i, txtValue;
-        select = document.getElementById("filterSelect");
-        filter = select.value.toUpperCase();
-        table = document.getElementById("dataTable");
-        tr = table.getElementsByTagName("tr");
+        var select, category_id;
+        select = document.getElementById('filterSelect');
+        category_id = select.value;
+        var queryString = '?category_id=' + category_id;
+        window.location.search = queryString;
 
-        for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[5]; // 假设消费者类型在第六列
-            if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (filter === "ALL" || txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
-            }
-        }
     }
 
     // 默认情况下，模态框应该被隐藏
