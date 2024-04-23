@@ -119,10 +119,6 @@
                     <label for="email" class="form-label"><i class="fas fa-envelope"></i> 邮箱</label>
                     <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
                 </div>
-                <div class="mb-3">
-                    <label for="address" class="form-label"><i class="fas fa-map-marker-alt"></i> 默认地址</label>
-                    <input type="text" class="form-control" id="address" name="address" value="{{ user.address }}">
-                </div>
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> 保存</button>
                     <a href="{% url 'userprofile' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> 返回</a>
