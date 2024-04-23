@@ -2,11 +2,25 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>支付页面</title>
+    <title>支付</title>
     {% load static %}
-{#    <link rel="stylesheet" href="{% static 'css/payment.css' %}">#}
+    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
 </head>
 <body>
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+            <li class="sub"><a href="/user/usercart">我的购物车</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+</div>
 {% csrf_token %}
 
 <div class="payment-container">
@@ -36,6 +50,8 @@
             <h3>支付金额：</h3>
             <span id='total-price'>¥0.00</span>
         </div>
+        <!-- 二维码容器 -->
+        <div id="qrcode"></div>
         <div class='payment-confirmation'>
             <input type='submit' id='confirm-btn' value='确认支付'>
             <button id='cancel-btn'>放弃支付</button>
@@ -43,6 +59,7 @@
     </form>
 </div>
 
+<script src="{% static 'qrcodejs-master/qrcode.js' %}"></script>
 <script>
 // 填充支付金额
 document.getElementById('total-price').textContent = '¥' + localStorage.getItem('totalPrice');
@@ -99,6 +116,37 @@ document.getElementById('confirm-btn').addEventListener('click', function(e) {
 document.getElementById('cancel-btn').addEventListener('click', function(e) {
     e.preventDefault();  // 防止默认的表单提交
     window.location.href = 'userorder';
+});
+
+function generateQRCode(paymentInfo) {
+    // 首先清除之前可能存在的二维码
+    var qrcodeContainer = document.getElementById('qrcode');
+    qrcodeContainer.innerHTML = "";
+
+    // 使用 qrcode.js 创建二维码
+    var qrCode = new QRCode(qrcodeContainer, {
+        text: paymentInfo,
+        width: 128,
+        height: 128,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+    });
+}
+
+// 当改变支付方式时，生成相应的二维码
+document.getElementById('payment-method').addEventListener('change', function(e) {
+    var selectedMethod = e.target.value;
+    if (selectedMethod === "") {
+        document.getElementById('qrcode').innerHTML = "";
+        return;
+    }
+
+    // 假设生成二维码的数据基于选择的支付方式
+    var paymentDataForQR = "https://example.com/pay?method=" + selectedMethod;
+
+    // 调用 generateQRCode 函数生成二维码
+    generateQRCode(paymentDataForQR);
 });
 
 </script>

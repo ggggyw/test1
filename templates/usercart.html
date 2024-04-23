@@ -340,9 +340,12 @@ button:hover::before {
             总价: <span class="total-price">¥0.00</span>
         </div>
         <button class="jiesuan"> <span>结算</span></button>
+        <div id="uid" style="display:none;">{{ uid }}</div>
     </div>
 
     <script>
+
+
 // 全选功能
 document.querySelectorAll('#select-all, #select-all-footer').forEach(function(selectAllCheckbox) {
     selectAllCheckbox.addEventListener('change', function() {
@@ -477,53 +480,12 @@ function updateTotal() {
     document.querySelector('.total-price').textContent = '¥' + totalPrice.toFixed(2);
 }
 
-// 结算按钮的事件监听器
-{#document.querySelector('.jiesuan').addEventListener('click', function() {#}
-{#    // 获取所有被选中的商品项#}
-{#    var selectedItems = document.querySelectorAll('.select-item:checked');#}
-{#    var selectedProductIds = [];#}
-{##}
-{#    // 将选中的商品的 id 添加到数组中#}
-{#    selectedItems.forEach(function(item) {#}
-{#        selectedProductIds.push(item.closest('.cart-item').dataset.itemId);#}
-{#    });#}
-{#    // 发送选中的商品的 id、单价数组和数量数组给后端#}
-{#    fetch('/checkout/', {#}
-{#        method: 'POST',#}
-{#        headers: {#}
-{#            'Content-Type': 'application/json',#}
-{#            'X-CSRFToken': csrfToken // 假设您已经在页面中获取了 CSRF 令牌#}
-{#        },#}
-{#        body: JSON.stringify({#}
-{#            selectedProductIds: selectedProductIds,#}
-{#            itemPrices: itemPrices, // 传递单价数组#}
-{#            itemQuantities: itemQuantities, // 传递数量数组#}
-{#            totalPrice: totalPrice#}
-{#        })#}
-{#    })#}
-{#    .then(response => response.json())#}
-{#    .then(data => {#}
-{#        console.log(data.message); // 打印服务器返回的消息#}
-{#        if (data.success) {#}
-{#            // 执行成功，您可以进行页面跳转或者显示成功信息#}
-{#            window.location.href = '/user/usercart';#}
-{#        } else {#}
-{#            // 执行失败，您可以处理错误情况，例如显示错误消息#}
-{#            alert("结算失败，请重试");#}
-{#        }#}
-{#    })#}
-{#    .catch(error => {#}
-{#        console.error('Error:', error);#}
-{#        // 处理请求失败的情况#}
-{#        alert("请求失败，请检查网络连接或稍后重试");#}
-{#    });#}
-//);
 
 document.querySelector('.jiesuan').addEventListener('click', function() {
     // 获取所有被选中的商品项
     var selectedItems = document.querySelectorAll('.select-item:checked');
     var selectedProductIds = [];
-
+    var uid = document.getElementById("uid").textContent;
     // 如果没有选中任何商品，给出提示并返回
     if (selectedItems.length === 0) {
         alert("请先选择商品再进行结算");
@@ -540,7 +502,7 @@ document.querySelector('.jiesuan').addEventListener('click', function() {
     localStorage.setItem('itemPrices', JSON.stringify(itemPrices));
     localStorage.setItem('itemQuantities', JSON.stringify(itemQuantities));
     localStorage.setItem('totalPrice', totalPrice);
-
+    localStorage.setItem('uid', uid);
     // 导航到下订单页面
     window.location.href = 'userorderpage'; // 请根据你的实际下订单页面路径进行修改
 });
