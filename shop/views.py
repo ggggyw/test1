@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -19,19 +19,21 @@ def shoppage(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
     shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-    paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
+    paginator = Paginator(shop_products, 8)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
     s_id = request.session.get('u_id')
     role = request.session.get('role')
+    category_id = request.GET.get('category_id', 0)
 
     context = {
         'shop_products': paged_products,
         'products': products,
         's_id': s_id,
-        'role': role
+        'role': role,
+        'category_id': category_id,
     }
     return render(request, 'shoppage.html', context)
 
@@ -41,102 +43,110 @@ def shop_profile(request):
     s_id = request.session.get('s_id')
     role = request.session.get('role')
     if role == 'shop':
-        # 获取并处理用户信息
         shop = get_object_or_404(Shops, s_id=s_id)
-        context = {
-            's_name': shop.s_name,
-            's_phone': shop.s_phone,
-            'email': shop.email,
-            'address': shop.address,
-            'role': role,
-        }
+        if s_id:
+            # 获取该商家所有的唯一订单ID
+            unique_order_ids = OrderDetails.objects.filter(shop__s_id=s_id).values_list('order', flat=True).distinct()
+
+            # 根据这些唯一的订单ID统计每个状态的订单数量
+            order_status_counts = Orders.objects.filter(o_id__in=unique_order_ids).values('status').annotate(
+                count=Count('status'))
+
+            # 统计该商家所有商品的审核状态数量
+            product_audit_status_counts = ShopProducts.objects.filter(shop__s_id=s_id).values(
+                'product_auditstatus').annotate(count=Count('product_auditstatus'))
+            # 转换查询结果为字典
+            status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
+            audit_status_counts = {status_count['product_auditstatus']: status_count['count'] for status_count in
+                                   product_audit_status_counts}
+            context = {
+                's_name': shop.s_name,
+                's_phone': shop.s_phone,
+                'email': shop.email,
+                'address': shop.address,
+                'order_status_counts': status_counts,
+                'product_audit_status_counts': audit_status_counts,
+                'role': role,
+            }
     return render(request, 'shop_profile.html', context)
 
 
-def shop_search_products(request):
-    query = request.GET.get('query')
-    category_id = request.GET.get('category_id', 0)  # 如果没有提供category_id，使用默认值0
-    if category_id == 'None':  # 如果category_id的值是'None'，将它设置为0
-        category_id = 0
-    category_id = int(category_id)  # 确保category_id是一个整数
-    page_num = request.GET.get('page')
+def edit_shop_profile(request):
+    context = {}
     s_id = request.session.get('s_id')
+    role = request.session.get('role')
+    if role == 'shop':
+        shop = get_object_or_404(Shops, s_id=s_id)
+        if request.method == 'POST':
+            # 处理表单提交
+            shop.s_name = request.POST.get('s_name')
+            shop.s_psw = request.POST.get('s_psw')
+            shop.s_phone = request.POST.get('s_phone')
+            shop.email = request.POST.get('email')
+            shop.address = request.POST.get('address')
+            shop.save()
+            return redirect('edit_shop_profile')
+        else:
+            # 显示表单
+            context = {
+                'shop': shop,
+                'role': role,
+            }
+    return render(request, 'edit_shop_profile.html', context)
 
-    if query is not None and query != '请输入想找的宝贝':
-        # 使用 p_id 进行搜索
-        if category_id == 0:  # 如果category_id为0，查询所有商品
+
+def myproducts(request):
+    # 从会话中获取用户的ID
+    s_id = request.session.get('s_id')
+    # 从GET请求中获取查询和类别ID
+    query = request.GET.get('query', '').strip()
+    category_id = request.GET.get('category_id', 0)
+    if category_id == 'None':
+        category_id = 0
+    category_id = int(category_id)
+    if query.lower() == 'none' or query == '请输入想找的宝贝':
+        query = ''
+    # 处理基于查询的商品搜索
+    if query is not None and query != '请输入想找的宝贝' and query != '':
+        if category_id == 0:
             ids = Products.objects.filter(
                 Q(p_name__icontains=query) |
                 Q(brand__icontains=query)
             ).values_list('p_id', flat=True)
-        else:  # 否则，查询特定类别的商品
+        else:
             ids = Products.objects.filter(
                 (Q(p_name__icontains=query) |
                  Q(brand__icontains=query)) &
                 Q(p_type__category_id=category_id)
             ).values_list('p_id', flat=True)
         shop_products = ShopProducts.objects.filter(product_id__in=ids, shop__s_id=s_id)
-
-        paginator = Paginator(shop_products, 2)  # 每页显示12个商品
-        try:
-            page_obj = paginator.page(page_num)
-        except PageNotAnInteger:
-            # 如果请求的页码不是整数，返回第一页
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            # 如果请求的页码超出分页器的页数，返回最后一页
-            page_obj = paginator.page(paginator.num_pages)
     else:
-        if category_id == 0:  # 如果category_id为0，查询所有商品
+        if category_id == 0:
             shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-            paginator = Paginator(shop_products, 2)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
-        else:  # 否则，查询特定类别的商品
+            query = None
+        else:
             shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
-            paginator = Paginator(shop_products, 2)
-            page = request.GET.get('page', 1)
-            page_obj = paginator.get_page(page)
-    products = Products.objects.all()
-
-    context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
-    return render(request, 'shop_search_results.html', context)
-
-
-def myproducts(request):
-    # 从会话中获取用户的ID
-    s_id = request.session.get('s_id')
-    # 从GET请求中获取类别ID
-    category_id = request.GET.get('category_id')
-    if category_id is not None and category_id != '0':
-        types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
-        ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product_id__in=ids)
-    else:
-        # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
-        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+            query = None
 
     products = Products.objects.all()
 
-    # 创建一个 Paginator 对象，每页显示 24 个商品
-    paginator = Paginator(shop_products, 3)
-    # 从 GET 请求的查询参数中获取页码
+    paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
     page = request.GET.get('page')
-    # 使用 Paginator 对象的 get_page 方法来获取当前页的商品
-    shop_products = paginator.get_page(page)
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
 
     # 检查用户是否已经登录
     if 's_id' in request.session:
-        # 如果用户已经登录
         template_name = 'shop_my_products.html'
     else:
-        # 如果用户没有登录，就渲染 首页.html 模板
         template_name = '首页.html'
 
-    content = render_to_string(template_name,
-                               {'shop_products': shop_products, 'products': products, 'category_id': category_id,
-                                'query': None})
-    return HttpResponse(content)
+    context = {'shop_products': page_obj, 'products': products, 'query': query, 'category_id': category_id}
+    return render(request, template_name, context)
 
 
 def shop_productdetails(request, p_id):
@@ -144,8 +154,9 @@ def shop_productdetails(request, p_id):
     role = request.session.get('role')
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
     products = Products.objects.get(p_id=shop_product.product_id)
+    category_id = products.p_type.category_id
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role , 'category_id': category_id})
 
 
 def manage_products(request):
@@ -342,6 +353,7 @@ def shop_search_manage_products(request):
 def edit_product(request, product_id):
     shop_product = get_object_or_404(ShopProducts, pk=product_id)
     product = shop_product.product
+    category_id = product.p_type.category_id
 
     if request.method == "POST":
         product_form = ProductForm(request.POST, request.FILES, instance=product)
@@ -382,6 +394,8 @@ def edit_product(request, product_id):
         'product_form': product_form,
         'shop_product_form': shop_product_form,
         'shop_products': shop_product,
+        'products': product,
+        'category_id': category_id,
         'query': None
     }
     return render(request, 'shop_edit_product.html', context)
@@ -502,6 +516,11 @@ def shop_search_orders(request):
     # 只展示当前商家(s_id)的订单
     if s_id:
         query_conditions &= Q(orderdetails__shop__s_id=s_id)
+        # 假设 'status' 是定义在 Orders 模型中的状态字段
+        order_status_counts = Orders.objects.filter(orderdetails__shop__s_id=s_id).values('status').annotate(
+            count=Count('status'))
+    else:
+        order_status_counts = Orders.objects.none()
     if product_name:
         query_conditions &= Q(orderdetails__product__product__p_name__icontains=product_name)
     if category_id != '0':
@@ -562,6 +581,8 @@ def shop_search_orders(request):
     paginator = Paginator(orders, 10)  # 例如每页显示10条记录
     page = request.GET.get('page')
     paged_orders = paginator.get_page(page)
+    # 创建一个字典来存储每种状态的订单数量
+    status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
 
     # 将搜索字段回传到模板中，以便保持搜索条件
     context = {
@@ -592,6 +613,7 @@ def shop_search_orders(request):
         'user_phone': user_phone,
         'user_email': user_email,
         'user_sex': user_sex,
+        'order_status_counts': status_counts,
         'query': None
     }
 
@@ -632,6 +654,7 @@ def product_detail(request, p_id):
     # 返回 JSON 形式的响应
     return JsonResponse(data)
 
+
 def return_product(request, o_id):
     if request.method == 'POST':
         try:
@@ -657,6 +680,7 @@ def return_product(request, o_id):
     else:
         # 对于非POST请求，返回一个错误响应
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
 
 def ship_product(request, o_id):
     if request.method == 'POST':
