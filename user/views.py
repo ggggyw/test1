@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from common.models import ShopProducts, Users, Carts, Shops, Admin, Orders, OrderDetails,Followers,ProductCategories
 from common.models import Products
 from django.shortcuts import render
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.utils import timezone
 from django.contrib import messages
 
@@ -364,6 +364,28 @@ def user_orders(request):
     except Exception as e:
         print("Error:", e)
         return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])  # 只处理HTTP POST请求
+def get_user_info(request):
+    data = json.loads(request.body)
+    user_id = data.get('uid')
+    # 从数据库中获取用户信息
+    user = Users.objects.get(u_id=user_id)
+    if user:  # 确定用户存在
+        # 创建一个字典来保存和返回用户信息
+        user_info = {
+            'u_name': user.u_name,
+            'u_sex': user.u_sex,
+            'u_phone': user.u_phone,
+            'email': user.email,
+            # 'address': user.address,
+        }
+        # 使用JsonResponse返回JSON数据
+        return JsonResponse(user_info)
+    else:
+        return JsonResponse({'error': 'User not found'}, status=404)
+
 
 from django.shortcuts import redirect, get_object_or_404
 from django.utils import timezone
