@@ -60,4 +60,5 @@ urlpatterns = [
     path('adminpage/', admin_views.adminpage, name='adminpage'),
     path('get_admin_info/', admin_views.get_admin_info, name='get_admin_info'),
     path('get_goods_list/', user_views.get_goods_list, name='get_goods_list'),
+    path('get_user_info/', user_views.get_user_info, name='get_user_info'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

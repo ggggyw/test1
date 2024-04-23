@@ -41,7 +41,7 @@ class ShopProductForm(forms.ModelForm):
         initial='待审核',
         widget=forms.HiddenInput(),  # 这会渲染成一个不可见的 input 字段
     )
-    discount = forms.DecimalField(max_digits=10, decimal_places=3)  # 设置最大位数和小数位数
+    discount = forms.DecimalField(max_digits=10, decimal_places=2)  # 设置最大位数和小数位数
     class Meta:
         model = ShopProducts
         fields = [ 'product_desc', 'product_status', 'stock_quantity',
@@ -51,8 +51,8 @@ class ShopProductForm(forms.ModelForm):
         discount = self.cleaned_data.get('discount')
 
         # 检查折扣是否在0到1的范围内，但不能等于1
-        if discount is not None and (discount < 0 or discount >= 1):
-            raise ValidationError('折扣必须在0到1的范围内，不能等于1')
+        if discount is not None and (discount <= 0 or discount > 1):
+            raise ValidationError('折扣必须在0到1的范围内，不能等于0')
 
         return discount
     def clean(self):
@@ -63,7 +63,7 @@ class ShopProductForm(forms.ModelForm):
 
         # 计算当前价格
         if original_price is not None and discount is not None:
-            current_price = original_price * (1 - discount )
+            current_price = original_price * (discount )
             current_price = round(current_price, 2)  # 四舍五入到两位小数
             cleaned_data['current_price'] = current_price
 

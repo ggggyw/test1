@@ -35,31 +35,32 @@
     <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();" style="cursor: pointer;">
 </form>
 </div>
-    <form method="POST" action="{% url 'address_management' %}">
-        {% csrf_token %}
-        <div class="address-list">
-            <h2>🏠 默认地址</h2>
-            <div class="address-item default-address">
-                <textarea class="address-text" name="default_address">{{ default_address }}</textarea>
-            </div>
-
-            {% if other_addresses %}
-                <h2>📜 其他地址</h2>
-                {% for address in other_addresses %}
-                    <div class="address-item">
-                        <textarea class="address-text" name="address_{{ address.address_id }}">{{ address.address }}</textarea>
-                        <div class="address-actions">
-                            <a href="{% url 'set_default_address' address.address_id %}">
-                                <span class="icon">⭐</span>设为默认
-                            </a>
-                            <a href="{% url 'delete_address' address.address_id %}">
-                                <span class="icon">🗑️</span>删除
-                            </a>
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endif %}
+<form method="POST" action="{% url 'address_management' %}">
+    {% csrf_token %}
+    <div class="address-list">
+        <h2>🏠 默认地址</h2>
+        <div class="address-item default-address">
+            <textarea class="address-text" name="default_address_id">{{ default_address.address }}</textarea>
         </div>
+
+        {% if other_addresses %}
+            <h2>📜 其他地址</h2>
+            {% for address in other_addresses %}
+                <div class="address-item">
+                    <textarea class="address-text"
+                              name="address_{{ address.address_id }}">{{ address.address }}</textarea>
+                    <div class="address-actions">
+                        <a href="{% url 'set_default_address' address.address_id %}">
+                            <span class="icon">⭐</span>设为默认
+                        </a>
+                        <a href="{% url 'delete_address' address.address_id %}">
+                            <span class="icon">🗑️</span>删除
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
         <div class="add-address">
             <input type="text" name="new_address" placeholder="✍️ 输入新地址" />

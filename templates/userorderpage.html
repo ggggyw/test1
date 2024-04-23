@@ -1,16 +1,69 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
+    <meta charset="UTF-8">
     <title>下订单</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
+    <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
 </head>
 <body>
-    <h1>下订单</h1>
+<div class="head">
+    <div class="head-in">
+        <ul class="options">
+            <li class="sub"><a href="/user/userorder">我的订单</a></li>
+            <li class="sub"><a href="/user/userserve">客户服务</a></li>
+            <li class="sub"><a href="/user/usercart">我的购物车</a></li>
+        </ul>
+        <div class="register"><a href="{% url 'userprofile' %}">查看个人信息</a></div>
+        <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
+        <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
+    </div>
+    {#---------------------------------------------地址问题-------------------------------------------------#}
+</div>
+    <h1>下订单页</h1>
     <form id="order-form">
-        <label for="address">地址：</label>
-        <input type="text" id="address" name="address"><br>
+    <label>用户名：</label>
+    <p id="u_name"></p>
+
+    <label>性别：</label>
+    <p id="u_sex"></p>
+
+    <label>电话：</label>
+    <p id="u_phone"></p>
+
+    <label>邮件：</label>
+    <p id="email"></p>
+
+    <label>地址：</label>
+    <input type="text" id="address" name="address"><br>
         <button type="button" class="xiadan">下单</button>
     </form>
 <script>
+    var uid = localStorage.getItem('uid');
+    fetch('/get_user_info/', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+    },
+    body: JSON.stringify({ uid: uid })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // 拿到后端传过来的用户信息，然后在页面上显示
+        document.querySelector('#address').value = data.address;
+        // 其他用户信息 data.u_name, data.u_phone, data.email
+         document.querySelector('#u_name').innerText = data.u_name;
+        document.querySelector('#u_sex').innerText = data.u_sex;
+        document.querySelector('#u_phone').innerText = data.u_phone;
+        document.querySelector('#email').innerText = data.email;
+    })
+    .catch(error => {
+    console.error('Error:', error);
+    });
+
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
