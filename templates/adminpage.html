@@ -204,16 +204,15 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
-  <div class="sidebar">
+<div class="sidebar">
     <h2>管理员界面</h2>
-    <a href="#" onclick="switchTable('userTable')">用户管理</a>
-    <a href="#" onclick="switchTable('shopTable')">商家管理</a>
-    <a href="#" onclick="switchTable('productTable')">商品管理</a>
-    <a href="#" onclick="switchTable('orderTable')">订单管理</a>
-    <a href="#" onclick="openAdminEditModal()">个人设置</a>
-    <!-- 添加退出登录按钮 -->
+    <a href="#" onclick="switchTable('userTable');changeTitle('用户管理')">用户管理</a>
+    <a href="#" onclick="switchTable('shopTable');changeTitle('商家管理')">商家管理</a>
+    <a href="#" onclick="switchTable('productTable');changeTitle('商品管理')">商品管理</a>
+    <a href="#" onclick="switchTable('orderTable');changeTitle('订单管理')">订单管理</a>
+    <a href="#" onclick="openAdminEditModal();">个人设置</a>
     <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
-  </div>
+</div>
 
   <div class="main-content">
     <h2 id="pageTitle">用户信息</h2>
@@ -678,22 +677,6 @@ function switchTable(tableId) {
     pagination.style.display = '';
   }
 
-  // 修改页面标题
-  var pageTitle = document.getElementById('pageTitle');
-  var params = new URLSearchParams(window.location.search);
-  var pageParam = tableName === 'userTable' ? 'user_page' : 'shop_page';
-  var page = params.get(pageParam) || 1;
-  switch (tableId) {
-    case 'userTable':
-      pageTitle.textContent = '用户信息';
-      window.history.pushState({}, '', '?table=user&user_page=' + page);
-      break;
-    case 'shopTable':
-      pageTitle.textContent = '商家信息';
-      window.history.pushState({}, '', '?table=shop&shop_page=' + page);
-      break;
-    // 添加更多的 case 以处理其他的表格
-  }
 }
 
 function toggleOrderDetails(orderId) {
@@ -756,6 +739,9 @@ $(document).ready(function(){
     });
 });
 
+    function changeTitle(title) {
+    document.getElementById('pageTitle').innerHTML = title;
+}
   </script>
 </body>
 </html>
