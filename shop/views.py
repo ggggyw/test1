@@ -156,7 +156,8 @@ def shop_productdetails(request, p_id):
     products = Products.objects.get(p_id=shop_product.product_id)
     category_id = products.p_type.category_id
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role , 'category_id': category_id})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role,
+                   'category_id': category_id})
 
 
 def manage_products(request):
@@ -734,7 +735,6 @@ def rfm_analysis(request):
     shop_id = request.session.get('s_id')
     filtered_data = filtered_data.query(f'shop_id == {shop_id}')
 
-
     # 创建一个空的DataFrame来存储RFM值
     RFM = pd.DataFrame()
     # 计算R（最近一次购买时间）注意，这个R是dataframe格式
@@ -778,6 +778,12 @@ def rfm_analysis(request):
 
     RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
 
+    # 获取选择的RFM标签
+    selected_rfm_label = request.GET.get('category_id')
+
+    # 如果有选择的RFM标签，则筛选数据
+    if selected_rfm_label and selected_rfm_label != 'all':
+        RFM_data = [d for d in RFM_data if d['RFM_Label'] == selected_rfm_label]
     # 创建一个字典，其中包含您想要在模板中使用的数据
     # 分页
     paginator = Paginator(RFM_data, 10)  # 例如每页显示10条记录
@@ -787,9 +793,10 @@ def rfm_analysis(request):
     context = {
         'RFM_data': paged_data,
         'category_id': '0',  # 用于保持搜索条件
+        'selected_rfm_label': selected_rfm_label or 'all',
         'query': None
         # 如果您还有其他数据需要传递，可以在这里添加
     }
 
- # 渲染模板，并将上下文传递给模板
+    # 渲染模板，并将上下文传递给模板
     return render(request, 'rfm.html', context)
