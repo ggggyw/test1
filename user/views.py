@@ -63,7 +63,6 @@ def userprofile(request):
             'u_sex': user.u_sex,
             'u_phone': user.u_phone,
             'email': user.email,
-            'address': user.address,
             'created_at': user.created_at,
             'role': role,
         }
@@ -82,7 +81,6 @@ def edit_userprofile(request):
             user.u_sex = request.POST.get('u_sex')
             user.u_phone = request.POST.get('u_phone')
             user.email = request.POST.get('email')
-            user.address = request.POST.get('address')
             user.save()
             return redirect('userprofile')
         else:
@@ -407,13 +405,17 @@ def address_management(request):
     user_id = request.session.get('u_id')
     user = get_object_or_404(Users, u_id=user_id)
 
-    default_address = user.address
-    other_addresses = UserAddresses.objects.filter(user=user)
+    default_address = UserAddresses.objects.filter(user=user, is_default=True).first()
+    other_addresses = UserAddresses.objects.filter(user=user, is_default=False)
 
     if request.method == 'POST':
-        default_address = request.POST.get('default_address')
-        user.address = default_address
-        user.save()
+        default_address_id = request.POST.get('default_address')
+        if default_address_id:
+            default_address = get_object_or_404(UserAddresses, address_id=default_address_id)
+            default_address.is_default = True
+            default_address.save()
+
+            UserAddresses.objects.filter(user=user).exclude(address_id=default_address_id).update(is_default=False)
 
         for address in other_addresses:
             address_id = address.address_id
@@ -424,7 +426,10 @@ def address_management(request):
 
         new_address = request.POST.get('new_address')
         if new_address:
-            UserAddresses.objects.create(user=user, address=new_address)
+            new_address_obj = UserAddresses.objects.create(user=user, address=new_address)
+            if not default_address:
+                new_address_obj.is_default = True
+                new_address_obj.save()
 
         return redirect('address_management')
 
@@ -442,15 +447,13 @@ def set_default_address(request, address_id):
 
     address = get_object_or_404(UserAddresses, address_id=address_id)
 
-    if user.address:
-        UserAddresses.objects.create(user=user, address=user.address)
+    address.is_default = True
+    address.save()
 
-    user.address = address.address
-    user.save()
-
-    address.delete()
+    UserAddresses.objects.filter(user=user).exclude(address_id=address_id).update(is_default=False)
 
     return redirect('address_management')
+
 
 
 def delete_address(request, address_id):
