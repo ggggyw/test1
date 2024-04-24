@@ -21,20 +21,18 @@ def shoppage(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
     # 从GET请求中获取查询和类别ID
-    query = request.GET.get('query', '').strip()
     category_id = request.GET.get('category_id', 0)
     if category_id == 'None':
         category_id = 0
     category_id = int(category_id)
-    if query.lower() == 'none' or query == '请输入想找的宝贝':
-        query = ''
-    if category_id == 0:
-        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-        query = None
-    else:
+
+    # 基于category_id来过滤shop_product
+    if category_id:
         shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
-        query = None
-    products = Products.objects.all()
+    else:
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+
+    # 分页器
     paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
     page = request.GET.get('page')
     try:
@@ -44,75 +42,94 @@ def shoppage(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
-    # 获取该商家所有的唯一订单ID
-    unique_order_ids = OrderDetails.objects.filter(shop__s_id=s_id).values_list('order', flat=True).distinct()
+    # 根据类别统计订单的各个状态的数量
+    if category_id:
+        orders_within_category = Orders.objects.filter(
+            orderdetails__product__product__p_type__category_id=category_id,
+            orderdetails__shop__s_id=s_id
+        )
+    else:
+        orders_within_category = Orders.objects.filter(orderdetails__shop__s_id=s_id)
 
-    # 根据这些唯一的订单ID统计每个状态的订单数量
-    order_status_counts = Orders.objects.filter(o_id__in=unique_order_ids).values('status').annotate(
-        count=Count('status'))
+    order_status_counts = orders_within_category.values('status').annotate(count=Count('status')).order_by()
 
-    # 统计该商家所有商品的审核状态数量
-    product_audit_status_counts = ShopProducts.objects.filter(shop__s_id=s_id).values('product_auditstatus').annotate(
-        count=Count('product_auditstatus'))
-    # 统计该商家所有商品的状态数量
-    product_status_counts = ShopProducts.objects.filter(shop__s_id=s_id).values('product_status').annotate(
-        count=Count('product_status'))
     # 转换查询结果为字典
-    order_status_counts = {status_count['status']: status_count['count'] for status_count in order_status_counts}
-    audit_status_counts = {status_count['product_auditstatus']: status_count['count'] for status_count in
-                           product_audit_status_counts}
-    product_status_counts = {status_count['product_status']: status_count['count'] for status_count in
-                             product_status_counts}
+    order_status_counts = dict(order_status_counts.values_list('status', 'count'))
+
+    # 根据类别统计商品审核状态的数量
+    product_audit_status_counts = shop_products.values('product_auditstatus').annotate(
+        count=Count('product_auditstatus'))
+    audit_status_counts = dict(product_audit_status_counts.values_list('product_auditstatus', 'count'))
+
+    # 根据类别统计商品状态的数量
+    product_status_counts = shop_products.values('product_status').annotate(count=Count('product_status'))
+    product_status_counts = dict(product_status_counts.values_list('product_status', 'count'))
 
     # 销量最高的商品信息
-    top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
-        '-quantity_sold').first()
+    if category_id:
+        top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+    else:
+        top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
+            '-quantity_sold').first()
 
     # 当天销量最高的商品信息
     today = timezone.now().date()
-    today_top_selling_product_info = ShopProducts.objects.filter(
-        orderdetails__order__o_time__date=today).annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
-        '-quantity_sold').first()
-
-    # 获取该商家所有已完成订单的总收入
-    # 获取该商家所有已完成订单的总收入
-    total_revenue = OrderDetails.objects.filter(
-        order__status='已完成',  # 确保订单状态是 '已完成'
-        shop__s_id=s_id  # 确保是对应 s_id 商家的订单详情
-    ).aggregate(total_income=Sum('order__total_price'))  # 注意此处要使用 'order__total_price' 因为 'total_price' 字段属于订单
-
-    total_revenue = total_revenue['total_income']
-    # 如果总收入非空，应用 round 函数保留两位小数
-    if total_revenue is not None:
-        total_revenue = round(total_revenue, 2)
+    if category_id:
+        today_top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id,
+                                                                     orderdetails__order__o_time__date=today).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
     else:
-        total_revenue = 0.00  # 如果没有收入，则设为0.00
+        today_top_selling_product_info = ShopProducts.objects.filter(orderdetails__order__o_time__date=today).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
 
-        # 定义一个订单状态的列表，包括 '待发货', '待收货', '已收货', '已完成'
-    order_statuses = ['待发货', '待收货', '已收货', '已完成']
+    # 获取该商家指定类别下的已售商品数
+    if category_id:
+        sold_products_count = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],
+            product__product__p_type__category_id=category_id,
+            shop__s_id=s_id
+        ).aggregate(total_sold=Sum('quantity'))
+    else:
+        sold_products_count = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],
+            shop__s_id=s_id
+        ).aggregate(total_sold=Sum('quantity'))
 
-    # 根据这些状态过滤订单详情，并计算所有这些订单中的商品总数量
-    sold_products_count = OrderDetails.objects.filter(
-        order__status__in=order_statuses,  # 确保订单状态在上述列表中
-        shop__s_id=s_id  # 确保是对应 s_id 商家的订单详情
-    ).aggregate(total_sold=Sum('quantity'))  # 对商品数量进行求和
+    # 从结果中获取商品总数，如果没有值则默认为0
+    total_sold = sold_products_count['total_sold'] if sold_products_count['total_sold'] is not None else 0
 
-    # 从结果中获取商品总数量，如果没有值则默认为0
-    sold_products_count = sold_products_count['total_sold'] if sold_products_count['total_sold'] is not None else 0
+    # 获取该商家指定类别下的总收入
+    order_statuses_for_revenue = ['已完成', '已收货']  # 包括 '已完成' 和 '已收货' 状态
+    if category_id:
+        total_revenue = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            product__product__p_type__category_id=category_id,
+            shop__s_id=s_id
+        ).aggregate(total_income=Sum('order__total_price'))
+    else:
+        total_revenue = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            shop__s_id=s_id
+        ).aggregate(total_income=Sum('order__total_price'))
+
+    # 如果 'total_income' 是 None，则使用默认值 0；否则保留两位小数
+    total_revenue = round(total_revenue['total_income'], 2) if total_revenue['total_income'] is not None else 0
+
+    # 拼接上下文信息
     context = {
         'shop_products': page_obj,
-        'products': products,
-        'query': query,
+        'query': None,
         'category_id': category_id,
         'order_status_counts': order_status_counts,
         'product_audit_status_counts': audit_status_counts,
         'product_status_counts': product_status_counts,
-        'sold_products_count': sold_products_count,
+        'sold_products_count': total_sold,
         'top_selling_product_info': top_selling_product_info if top_selling_product_info else None,
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
-
     }
+
     return render(request, 'shoppage.html', context)
 
 
