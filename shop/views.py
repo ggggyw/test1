@@ -122,10 +122,35 @@ def shoppage(request):
     today_date = timezone.now().date()
     today_date_str = today_date.strftime('%Y-%m-%d')
     # 根据今天的日期获取订单数
-    today_orders = Orders.objects.filter(
-        orderdetails__shop__s_id=s_id,
-        o_time__date=today_date
-    ).count()
+    if category_id:
+        today_orders = Orders.objects.filter(
+            orderdetails__shop__s_id=s_id,
+            orderdetails__product__product__p_type__category_id=category_id,
+            o_time__date=today_date
+        ).count()
+    else:
+        today_orders = Orders.objects.filter(
+            orderdetails__shop__s_id=s_id,
+            o_time__date=today_date
+        ).count()
+
+    # 根据 category_id 以及今天的日期获取今天售出的商品数量
+    if category_id:
+        today_product_sales = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],  # 根据状态筛选相关订单
+            product__product__p_type__category_id=category_id,  # 筛选指定类别下的商品
+            shop__s_id=s_id,  # 筛选该商家的订单详情
+            order__o_time__date=today  # 筛选今天的订单
+        ).aggregate(total_sold_today=Sum('quantity'))['total_sold_today']  # 计算数量之和
+    else:
+        today_product_sales = OrderDetails.objects.filter(  # 没有指定类别时，获取该商家所有类别商品的销售量
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],  # 根据状态筛选相关订单
+            shop__s_id=s_id,  # 筛选该商家的订单详情
+            order__o_time__date=today  # 筛选今天的订单
+        ).aggregate(total_sold_today=Sum('quantity'))['total_sold_today']  # 计算数量之和
+
+    # 如果没有值则默认为0
+    today_product_sales = today_product_sales if today_product_sales is not None else 0
 
     # 拼接上下文信息
     context = {
@@ -141,6 +166,7 @@ def shoppage(request):
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
         'today_orders': today_orders,
+        'today_product_sales': today_product_sales
     }
 
     return render(request, 'shoppage.html', context)
