@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.utils import timezone
+
 from .forms import ShopProductForm, ProductForm
 from common.models import ShopProducts, ProductCategories, Products, Users, Shops
 import pandas as pd
@@ -18,23 +20,116 @@ from common.models import ShopProducts, ProductCategories, Products, Orders, Ord
 def shoppage(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
-    shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-    paginator = Paginator(shop_products, 8)  # 假设每页显示多少个商品
-    products = Products.objects.all()
-    page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
-    paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
-
-    s_id = request.session.get('u_id')
-    role = request.session.get('role')
+    # 从GET请求中获取查询和类别ID
     category_id = request.GET.get('category_id', 0)
+    if category_id == 'None':
+        category_id = 0
+    category_id = int(category_id)
 
+    # 基于category_id来过滤shop_product
+    if category_id:
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id, product__p_type__category_id=category_id)
+    else:
+        shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
+
+    # 分页器
+    paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
+    page = request.GET.get('page')
+    try:
+        page_obj = paginator.page(page)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    # 根据类别统计订单的各个状态的数量
+    if category_id:
+        orders_within_category = Orders.objects.filter(
+            orderdetails__product__product__p_type__category_id=category_id,
+            orderdetails__shop__s_id=s_id
+        )
+    else:
+        orders_within_category = Orders.objects.filter(orderdetails__shop__s_id=s_id)
+
+    order_status_counts = orders_within_category.values('status').annotate(count=Count('status')).order_by()
+
+    # 转换查询结果为字典
+    order_status_counts = dict(order_status_counts.values_list('status', 'count'))
+
+    # 根据类别统计商品审核状态的数量
+    product_audit_status_counts = shop_products.values('product_auditstatus').annotate(
+        count=Count('product_auditstatus'))
+    audit_status_counts = dict(product_audit_status_counts.values_list('product_auditstatus', 'count'))
+
+    # 根据类别统计商品状态的数量
+    product_status_counts = shop_products.values('product_status').annotate(count=Count('product_status'))
+    product_status_counts = dict(product_status_counts.values_list('product_status', 'count'))
+
+    # 销量最高的商品信息
+    if category_id:
+        top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+    else:
+        top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
+            '-quantity_sold').first()
+
+    # 当天销量最高的商品信息
+    today = timezone.now().date()
+    if category_id:
+        today_top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id,
+                                                                     orderdetails__order__o_time__date=today).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+    else:
+        today_top_selling_product_info = ShopProducts.objects.filter(orderdetails__order__o_time__date=today).annotate(
+            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+
+    # 获取该商家指定类别下的已售商品数
+    if category_id:
+        sold_products_count = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],
+            product__product__p_type__category_id=category_id,
+            shop__s_id=s_id
+        ).aggregate(total_sold=Sum('quantity'))
+    else:
+        sold_products_count = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],
+            shop__s_id=s_id
+        ).aggregate(total_sold=Sum('quantity'))
+
+    # 从结果中获取商品总数，如果没有值则默认为0
+    total_sold = sold_products_count['total_sold'] if sold_products_count['total_sold'] is not None else 0
+
+    # 获取该商家指定类别下的总收入
+    order_statuses_for_revenue = ['已完成', '已收货']  # 包括 '已完成' 和 '已收货' 状态
+    if category_id:
+        total_revenue = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            product__product__p_type__category_id=category_id,
+            shop__s_id=s_id
+        ).aggregate(total_income=Sum('order__total_price'))
+    else:
+        total_revenue = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            shop__s_id=s_id
+        ).aggregate(total_income=Sum('order__total_price'))
+
+    # 如果 'total_income' 是 None，则使用默认值 0；否则保留两位小数
+    total_revenue = round(total_revenue['total_income'], 2) if total_revenue['total_income'] is not None else 0
+
+    # 拼接上下文信息
     context = {
-        'shop_products': paged_products,
-        'products': products,
-        's_id': s_id,
-        'role': role,
+        'shop_products': page_obj,
+        'query': None,
         'category_id': category_id,
+        'order_status_counts': order_status_counts,
+        'product_audit_status_counts': audit_status_counts,
+        'product_status_counts': product_status_counts,
+        'sold_products_count': total_sold,
+        'top_selling_product_info': top_selling_product_info if top_selling_product_info else None,
+        'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
+        'total_revenue': total_revenue,
     }
+
     return render(request, 'shoppage.html', context)
 
 
@@ -156,7 +251,8 @@ def shop_productdetails(request, p_id):
     products = Products.objects.get(p_id=shop_product.product_id)
     category_id = products.p_type.category_id
     return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role , 'category_id': category_id})
+                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role,
+                   'category_id': category_id})
 
 
 def manage_products(request):
@@ -734,7 +830,6 @@ def rfm_analysis(request):
     shop_id = request.session.get('s_id')
     filtered_data = filtered_data.query(f'shop_id == {shop_id}')
 
-
     # 创建一个空的DataFrame来存储RFM值
     RFM = pd.DataFrame()
     # 计算R（最近一次购买时间）注意，这个R是dataframe格式
@@ -778,11 +873,25 @@ def rfm_analysis(request):
 
     RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
 
+    # 获取选择的RFM标签
+    selected_rfm_label = request.GET.get('category_id')
+
+    # 如果有选择的RFM标签，则筛选数据
+    if selected_rfm_label and selected_rfm_label != 'all':
+        RFM_data = [d for d in RFM_data if d['RFM_Label'] == selected_rfm_label]
     # 创建一个字典，其中包含您想要在模板中使用的数据
+    # 分页
+    paginator = Paginator(RFM_data, 10)  # 例如每页显示10条记录
+    page = request.GET.get('page')
+    paged_data = paginator.get_page(page)
+
     context = {
-        'RFM_data': RFM_data,
+        'RFM_data': paged_data,
+        'category_id': '0',  # 用于保持搜索条件
+        'selected_rfm_label': selected_rfm_label or 'all',
+        'query': None
         # 如果您还有其他数据需要传递，可以在这里添加
     }
 
- # 渲染模板，并将上下文传递给模板
+    # 渲染模板，并将上下文传递给模板
     return render(request, 'rfm.html', context)

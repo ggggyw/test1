@@ -11,7 +11,8 @@ class ProductForm(forms.ModelForm):
         queryset=ProductCategories.objects.all(),  # 获取所有的产品类别实例
         empty_label="选择商品类型",  # 可以设置一个空白的选择提示，作为下拉菜单的第一项
         label='商品类型',
-        to_field_name='category_id'  # 指定p_type字段应该匹配ProductCategories表中的id字段
+        to_field_name='category_id',  # 指定p_type字段应该匹配ProductCategories表中的id字段
+        widget=forms.Select(attrs={'class': 'product-type-input'})
     )
 
     class Meta:
@@ -30,21 +31,40 @@ class ShopProductForm(forms.ModelForm):
     # 定义商品状态的选项
     STATUS_CHOICES = (
         ('上架', '上架'),  # 第一个值是存储在数据库中的实际值，第二个值是在表单上显示的友好名称
-        ('下架', '下架')
+        ('下架', '下架'),
+
     )
 
     product_status = forms.ChoiceField(
         choices=STATUS_CHOICES,
         label="商品状态",
+        widget=forms.Select(attrs={'class': 'product-status-input'})
     )
     product_auditstatus = forms.CharField(
         initial='待审核',
         widget=forms.HiddenInput(),  # 这会渲染成一个不可见的 input 字段
     )
-    discount = forms.DecimalField(max_digits=10, decimal_places=2)  # 设置最大位数和小数位数
+    stock_quantity = forms.IntegerField(
+        widget=forms.NumberInput(attrs={'class': 'stock-quantity-input'}),
+    )
+    original_price = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'original-price-input'}),
+    )
+    discount = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'discount-input'}),
+    )
+    product_desc = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'product-desc-textarea', 'rows': 10}),
+    )
+
+
     class Meta:
         model = ShopProducts
-        fields = [ 'product_desc', 'product_status', 'stock_quantity',
+        fields = ['product_desc', 'product_status', 'stock_quantity',
                   'original_price', 'discount', 'product_auditstatus']
 
     def clean_discount(self):
@@ -55,6 +75,7 @@ class ShopProductForm(forms.ModelForm):
             raise ValidationError('折扣必须在0到1的范围内，不能等于0')
 
         return discount
+
     def clean(self):
         cleaned_data = super().clean()
         # 获取原始价格和折扣
@@ -63,11 +84,12 @@ class ShopProductForm(forms.ModelForm):
 
         # 计算当前价格
         if original_price is not None and discount is not None:
-            current_price = original_price * (discount )
+            current_price = original_price * (discount)
             current_price = round(current_price, 2)  # 四舍五入到两位小数
             cleaned_data['current_price'] = current_price
 
         return cleaned_data
+
     def __init__(self, *args, **kwargs):
         super(ShopProductForm, self).__init__(*args, **kwargs)
         # 保留其他自定义标签设置
