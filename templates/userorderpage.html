@@ -7,6 +7,56 @@
     <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
+    <style>
+        /* Add this CSS to your existing stylesheet */
+#order-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 300px; /* Adjust width as needed */
+    margin: 0 auto; /* Center the form horizontally */
+}
+
+#order-form label {
+    margin-bottom: 5px;
+}
+
+#order-form input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#order-form .xiadan {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#order-form .xiadan:hover {
+    background-color: #45a049;
+}
+
+.user-info-container {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+.user-info-container label, .user-info-container p {
+    margin: 0 10px;
+}
+
+    </style>
 </head>
 <body>
 <div class="head">
@@ -23,7 +73,8 @@
     {#---------------------------------------------地址问题-------------------------------------------------#}
 </div>
     <h1>下订单页</h1>
-    <form id="order-form">
+    <form class="order-form" id="order-form">
+<div class="user-info-container">
     <label>用户名：</label>
     <p id="u_name"></p>
 
@@ -36,9 +87,12 @@
     <label>邮件：</label>
     <p id="email"></p>
 
-    <label>地址：</label>
+
+</div>
+                <label>地址：</label>
     <input type="text" id="address" name="address"><br>
-        <button type="button" class="xiadan">下单</button>
+          <button type="button" class="xiadan">下单</button>
+
     </form>
 <script>
     var uid = localStorage.getItem('uid');

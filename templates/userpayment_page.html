@@ -7,6 +7,51 @@
     <link rel="stylesheet" href="{% static '首页_files/login.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/index.css' %}">
     <link rel="stylesheet" href="{% static '首页_files/detail.css' %}">
+    <style>.modal {
+  display: none; /* 默认隐藏 */
+  position: fixed; /* 固定定位 */
+  z-index: 1; /* 在顶层 */
+  left: 0;
+  top: 0;
+  width: 100%; /* 宽度 100% */
+  height: 100%; /* 高度 100% */
+  overflow: auto; /* 支持滚动条 */
+  background-color: rgb(0,0,0); /* 黑色背景 */
+  background-color: rgba(0,0,0,0.9); /* 黑色半透明背景 */
+}
+
+/* Modal 内容 */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px; /* 最大宽度 */
+}
+
+/* 关闭按钮 */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 在大屏幕时居中 Modal */
+@media only screen and (min-width: 768px){
+  .modal-content {
+    width: 40%;
+  }
+}</style>
 </head>
 <body>
 <div class="head">
@@ -57,6 +102,12 @@
             <button id='cancel-btn'>放弃支付</button>
         </div>
     </form>
+    <!-- 放大的二维码 Modal -->
+    <div id="qr-modal" class="modal">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="large-qr">
+      <div id="modal-caption"></div>
+    </div>
 </div>
 
 <script src="{% static 'qrcodejs-master/qrcode.js' %}"></script>
@@ -118,12 +169,13 @@ document.getElementById('cancel-btn').addEventListener('click', function(e) {
     window.location.href = 'userorder';
 });
 
+// 这个函数可以在页面加载完成后被调用，比如在一个按钮点击处理函数或者页面载入时
 function generateQRCode(paymentInfo) {
-    // 首先清除之前可能存在的二维码
+    // 获取 'qrcode' 容器元素
     var qrcodeContainer = document.getElementById('qrcode');
-    qrcodeContainer.innerHTML = "";
+    qrcodeContainer.innerHTML = ""; // 清空之前的内容
 
-    // 使用 qrcode.js 创建二维码
+    // 使用 qrcode.js 生成二维码
     var qrCode = new QRCode(qrcodeContainer, {
         text: paymentInfo,
         width: 128,
@@ -132,7 +184,35 @@ function generateQRCode(paymentInfo) {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
+
+    // 选取二维码图像或画布元素（取决于生成方式）
+    var qrImg = qrcodeContainer.querySelector('img') || qrcodeContainer.querySelector('canvas');
+
+    if (qrImg) {
+        qrImg.addEventListener('click', function() {
+            // 二维码点击事件：显示二维码模态框并展示放大的二维码图像
+            var largeQR = document.getElementById("large-qr");
+            largeQR.src = qrImg.src || qrImg.toDataURL(); // 设置为对应的src或将canvas转为data URL
+            document.getElementById("qr-modal").style.display = "block";
+        });
+    } else {
+        console.error("QR Code not found or not yet generated.");
+    }
 }
+
+// 绑定模态框关闭逻辑
+var modal = document.getElementById('qr-modal'); // 获取模态框容器
+modal.onclick = function() {
+    this.style.display = "none";
+}
+
+// Prevent clicking on the large QR code from closing the modal
+var largeQR = document.getElementById("large-qr");
+largeQR.addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+
 
 // 当改变支付方式时，生成相应的二维码
 document.getElementById('payment-method').addEventListener('change', function(e) {
@@ -143,7 +223,8 @@ document.getElementById('payment-method').addEventListener('change', function(e)
     }
 
     // 假设生成二维码的数据基于选择的支付方式
-    var paymentDataForQR = "https://example.com/pay?method=" + selectedMethod;
+    {#var paymentDataForQR = "https://example.com/pay?method=" + selectedMethod;#}
+    var paymentDataForQR = "https://www.bilibili.com/video/BV1mm411D7dT/?spm_id_from=333.337.search-card.all.click&vd_source=14c5e001a374485e76f11977b7156b32";
 
     // 调用 generateQRCode 函数生成二维码
     generateQRCode(paymentDataForQR);
