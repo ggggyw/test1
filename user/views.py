@@ -532,9 +532,10 @@ def follow_page(request):
     user = get_object_or_404(Users, u_id=user_id)
     followers = Followers.objects.filter(u=user)
     shops = [follower.s for follower in followers]
+    all_shops = Shops.objects.all()
     #随机选12个商品
     products = ShopProducts.objects.filter(shop__in=shops).order_by('?')[:8]
-    return render(request, 'user_shops_follows.html', {'shops': shops, 'products': products})
+    return render(request, 'user_shops_follows.html', {'shops': shops, 'products': products, 'all_shops': all_shops})
 
 def shop_details(request, shop_id):
     shop = get_object_or_404(Shops, pk=shop_id)
