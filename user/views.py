@@ -370,6 +370,12 @@ def get_user_info(request):
     user_id = data.get('uid')
     # 从数据库中获取用户信息
     user = Users.objects.get(u_id=user_id)
+    addresses = UserAddresses.objects.filter(user__u_id=user_id).all()
+    address_list = [
+        {
+            'address': address.address
+        } for address in addresses
+    ]
     if user:  # 确定用户存在
         # 创建一个字典来保存和返回用户信息
         user_info = {
@@ -377,7 +383,7 @@ def get_user_info(request):
             'u_sex': user.u_sex,
             'u_phone': user.u_phone,
             'email': user.email,
-            # 'address': user.address,
+            'address':address_list
         }
         # 使用JsonResponse返回JSON数据
         return JsonResponse(user_info)

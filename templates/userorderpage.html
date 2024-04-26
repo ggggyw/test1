@@ -218,8 +218,19 @@
     })
     .then(response => response.json())
     .then(data => {
-        // 拿到后端传过来的用户信息，然后在页面上显示
-        document.querySelector('#address').value = data.address;
+        var selectElement = document.querySelector('#address');
+        selectElement.innerHTML = ''; // 清空现有的选项
+
+        // 这里假设后端传递来的 data 中 address 是一个包含地址的数组
+        data.address.forEach(function(addr) {
+            var option = document.createElement('option');
+            option.value = addr.address; // 假设 addr.address 是实际地址字符串
+            option.textContent = addr.address; // 同上
+            selectElement.appendChild(option);
+        });
+
+        // 更新下拉菜单，如果你在使用 Select2 插件
+        $('#address').select2();
         // 其他用户信息 data.u_name, data.u_phone, data.email
          document.querySelector('#u_name').innerText = data.u_name;
         document.querySelector('#u_sex').innerText = data.u_sex;
