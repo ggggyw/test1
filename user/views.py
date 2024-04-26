@@ -210,30 +210,46 @@ def delete_item(request):
     else:
         return JsonResponse({'error': 'Invalid request method'})
 
-def checkout(request):#以下内容shopid没有定下来-----------两个时间错乱
+
+def checkout(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
-        itemPrices=request_data.get('itemPrices')
-        totalPrice=request_data.get('totalPrice')
-        itemQuantities=request_data.get('itemQuantities')
-        address=request_data.get('address')
-        u_id = request.session.get('u_id')
         selected_product_ids = request_data.get('selectedProductIds')
+        address = request_data.get('address')
+        u_id = request.session.get('u_id')
+        itemPrices = request_data.get('itemPrices')
+        totalPrice = request_data.get('totalPrice')
+        itemQuantities = request_data.get('itemQuantities')
+
         try:
             # 从购物车表中删除选中的商品
-            Carts.objects.filter(product_id__in=selected_product_ids,user_id=u_id).delete()
-            i=0
-            new_order=Orders.objects.create(
-                status='1', paid_time=timezone.localtime(timezone.now())
-                ,o_time=timezone.localtime(timezone.now())
-                , total_price=totalPrice, user_id=u_id,order_address=address)
-            # 在订单表中添加选中的商品
-            for product_id in selected_product_ids:
-                #shopid未定,orderid未定
-                OrderDetails.objects.create(quantity=itemQuantities[i],current_single_price=itemPrices[i],order_id=new_order.o_id,product_id=product_id,shop_id=1)
-                i=i+1
+            Carts.objects.filter(product_id__in=selected_product_ids, user_id=u_id).delete()
+
+            # 减少库存量
+            ShopProducts.objects.filter(product_id__in=selected_product_ids).update(
+                stock_quantity=F('stock_quantity') - 1
+            )
+
+            # 创建新订单
+            new_order = Orders.objects.create(
+                status='1', paid_time=timezone.localtime(timezone.now()),
+                o_time=timezone.localtime(timezone.now()),
+                total_price=totalPrice, user_id=u_id, order_address=address
+            )
+
+            # 在订单详情表中添加选中的商品详情
+            for i, product_id in enumerate(selected_product_ids):
+                OrderDetails.objects.create(
+                    quantity=itemQuantities[i],
+                    current_single_price=itemPrices[i],
+                    order_id=new_order.o_id,
+                    product_id=product_id,
+                    shop_id=1  # 假设shop_id是已知的
+                )
+
             return JsonResponse({'success': True, 'message': '结算成功', 'order_id': new_order.o_id})
         except Exception as e:
+            # 在实务中，应当记录这个异常
             return JsonResponse({'success': False, 'message': '结算失败'})
 
 def payment(request):
