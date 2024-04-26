@@ -136,4 +136,18 @@ def update_user_info(request):
         # 捕获并处理任何其他异常
         return JsonResponse({'success': False, 'message': '更新过程中出错', 'error': str(e)})
 
+@require_http_methods(["POST"])
+@csrf_exempt
+def delete_user(request):
+    try:
+        data = json.loads(request.body)
+        u_id = data['u_id']
+        user = Users.objects.get(u_id=u_id)
+        user.delete()
+        return JsonResponse({'success': True, 'message': '用户已删除'})
+    except Users.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '用户不存在'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '删除过程出错', 'error': str(e)})
+
 

@@ -245,7 +245,7 @@
             <td>{{ user.created_at }}</td>
             <td>
               <button onclick="openEditModal('{{ user.u_id }}')">编辑</button>
-              <button>删除</button>
+              <button class="delete-btn" data-u_id="{{ user.u_id }}">删除</button>
             </td>
           </tr>
           {% endfor %}
@@ -695,6 +695,36 @@ span.onclick = function() {
 
       xhr.send();
     }
+
+    $(document).ready(function() {
+    $('.delete-btn').click(function() {
+        var u_id = $(this).data('u_id');  // 获取用户 ID
+
+        if (confirm('确定要删除此用户吗？')) {  // 简单的确认对话框
+            $.ajax({
+                url: '/delete_user/',  // 后端删除用户的 URL
+                type: 'POST',
+                data: JSON.stringify({'u_id': u_id}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新用户列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
+
+
 function switchTable(tableId) {
   // 隐藏所有的表格
   var tables = document.getElementsByTagName('table');
