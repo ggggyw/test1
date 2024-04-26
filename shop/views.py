@@ -746,10 +746,26 @@ def shop_search_orders(request):
     if order_address:
         query_conditions &= Q(order_address__icontains=order_address)
         # 统一处理时间字符串
-    if min_paid_time:
+    if min_paid_time and min_paid_time != 'None':
         min_paid_time = datetime.strptime(min_paid_time, '%Y-%m-%d').date()
-    if max_paid_time:
+    else:
+        min_paid_time = None
+
+    if max_paid_time and max_paid_time != 'None':
         max_paid_time = datetime.strptime(max_paid_time, '%Y-%m-%d').date()
+    else:
+        max_paid_time = None
+
+    # 对提供的创建时间字符串进行处理
+    if min_created_time and min_created_time != 'None':
+        min_created_time = datetime.strptime(min_created_time, '%Y-%m-%d').date()
+    else:
+        min_created_time = None
+
+    if max_created_time and max_created_time != 'None':
+        max_created_time = datetime.strptime(max_created_time, '%Y-%m-%d').date()
+    else:
+        max_created_time = None
 
     # 如果最小和最大时间相同，表示搜索特定一天的订单
     if min_paid_time and max_paid_time and min_paid_time == max_paid_time:
@@ -763,11 +779,6 @@ def shop_search_orders(request):
         if max_paid_time:
             end_of_day = datetime.combine(max_paid_time, datetime.max.time())
             query_conditions &= Q(paid_time__lte=end_of_day)
-    # 对提供的创建时间字符串进行处理
-    if min_created_time:
-        min_created_time = datetime.strptime(min_created_time, '%Y-%m-%d').date()
-    if max_created_time:
-        max_created_time = datetime.strptime(max_created_time, '%Y-%m-%d').date()
 
     # 如果最小和最大创建时间相同，表示搜索特定一天的订单
     if min_created_time and max_created_time and min_created_time == max_created_time:
