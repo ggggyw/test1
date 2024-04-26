@@ -51,7 +51,36 @@
   .modal-content {
     width: 40%;
   }
-}</style>
+}
+
+    #qrcode, .bank_input_field {
+    display: none;
+}
+
+.payment-section {
+    display: flex;
+    align-items: center; /* 垂直居中对齐 */
+    justify-content: flex-start; /* 开始位置对齐 */
+}
+
+.payment-method-section {
+    margin-right: 0; /* 确保 select 紧挨着二维码，没有右边距 */
+}
+
+#qrcode {
+    margin-left: 0; /* 确保二维码紧挨着 select，没有左边距 */
+    height: 128px; /* 设置一个固定高度，或根据二维码实际大小调整 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qrcode-placeholder {
+    width: 128px; /* 设置二维码显示区域的宽度，确保与二维码的实际尺寸相匹配 */
+    background-color: #f0f0f0; /* 可以设置一个背景色方便观察，或根据需要调整或移除 */
+}
+
+    </style>
 </head>
 <body>
 <div class="head">
@@ -71,32 +100,36 @@
 <div class="payment-container">
     <h2>支付页面</h2>
     <form id='payment-form' method='post'>
-        <div class='payment-method'>
-            <h3>支付方式：</h3>
-            <select name='payment-method' id='payment-method' required>
-                <option value="">请选择支付方式</option>
-                <option value="alipay">支付宝</option>
-                <option value="wechat">微信</option>
-                <option value="bank">银行</option>
-            </select>
+        <div class="payment-section">
+            <!-- 二维码容器 -->
+            <div id="qrcode"></div>
+            <div class='payment-method-section'>
+                <select name='payment-method' id='payment-method' required>
+                    <option value="">请选择支付方式</option>
+                    <option value="alipay">支付宝</option>
+                    <option value="wechat">微信</option>
+                    <option value="bank">银行</option>
+                </select>
+            </div>
+            <div class='payment-amount'>
+                <h3>支付金额：</h3>
+                <span id='total-price'>¥0.00</span>
+            </div>
+
         </div>
-        <div class='payment-info'>
-            <h3>支付信息：</h3>
-            <label for='name'>姓名：</label>
-            <input type='text' id='name' name='name' required><br/>
-            <label for='card_number'>卡号/账户：</label>
-            <input type='text' id='card_number' name='card_number' required><br/>
-            <label for='exp_date'>到期日期（仅限银行卡）：</label>
-            <input type='text' id='exp_date' name='exp_date' ><br/>
-            <label for='cvc'>CVC/安全码（仅限银行卡）：</label>
-            <input type='text' id='cvc' name='cvc'><br/>
-        </div>
-        <div class='payment-amount'>
-            <h3>支付金额：</h3>
-            <span id='total-price'>¥0.00</span>
-        </div>
-        <!-- 二维码容器 -->
-        <div id="qrcode"></div>
+<div id='bank-details' style="display:none">
+    <h3>支付信息：</h3>
+    <label for='name'>姓名：</label>
+    <input type='text' id='name' name='name' required><br/>
+    <label for='card_number'>卡号/账户：</label>
+    <input type='text' id='card_number' name='card_number' required><br/>
+    <label for='exp_date'>到期日期（仅限银行卡）：</label>
+    <input type='text' id='exp_date' name='exp_date'><br/>
+    <label for='cvc'>CVC/安全码（仅限银行卡）：</label>
+    <input type='text' id='cvc' name='cvc'><br/>
+</div>
+
+
         <div class='payment-confirmation'>
             <input type='submit' id='confirm-btn' value='确认支付'>
             <button id='cancel-btn'>放弃支付</button>
@@ -217,17 +250,23 @@ largeQR.addEventListener('click', function(event) {
 // 当改变支付方式时，生成相应的二维码
 document.getElementById('payment-method').addEventListener('change', function(e) {
     var selectedMethod = e.target.value;
-    if (selectedMethod === "") {
-        document.getElementById('qrcode').innerHTML = "";
-        return;
+    var bankDetails = document.getElementById('bank-details');
+    if (selectedMethod === "bank") {
+        bankDetails.style.display = "block";
+    } else {
+        bankDetails.style.display = "none";
     }
 
-    // 假设生成二维码的数据基于选择的支付方式
-    {#var paymentDataForQR = "https://example.com/pay?method=" + selectedMethod;#}
-    var paymentDataForQR = "https://www.bilibili.com/video/BV1mm411D7dT/?spm_id_from=333.337.search-card.all.click&vd_source=14c5e001a374485e76f11977b7156b32";
+    if (selectedMethod === "alipay" || selectedMethod === "wechat") {
+        // 假设生成二维码的数据基于选择的支付方式
+        var paymentDataForQR = "https://example.com/pay?method=" + selectedMethod;
+        // 调用 generateQRCode 函数生成二维码
+        generateQRCode(paymentDataForQR);
 
-    // 调用 generateQRCode 函数生成二维码
-    generateQRCode(paymentDataForQR);
+        document.getElementById('qrcode').style.display = "block";
+    } else {
+        document.getElementById('qrcode').style.display = "none";
+    }
 });
 
 </script>
