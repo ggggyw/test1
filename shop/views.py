@@ -532,32 +532,47 @@ def edit_product(request, product_id):
         shop_product_form = ShopProductForm(request.POST, request.FILES, instance=shop_product)
 
         if product_form.is_valid() and shop_product_form.is_valid():
-            # 更新Products实例
-            product_form.save()
-            shop_product = shop_product_form.save(commit=False)
-            if 'product_image' in request.FILES:
-                # 创建一个文件系统存储对象
-                fs = FileSystemStorage(location='static/商品图片')
-                # 如果已经存在旧的图片，就先删除旧的图片
-                if shop_product.product_image_url:
-                    fs.delete(shop_product.product_image_url)
-                # 保存新的图片
-                myfile = request.FILES['product_image']
-                filename = fs.save(myfile.name, myfile)
-                shop_product.product_image_url = filename
-            shop_product.current_price = shop_product_form.cleaned_data['current_price']
-            # 设置product_auditstatus的值为"待审核"
-            shop_product.product_auditstatus = '待审核'
-            shop_product.save()
-            # 更新ShopProducts实例
-            shop_product_form.save()
-            messages.success(request, '修改成功！')
-            # 保存后重定向回修改商品页面
-            return redirect('edit_product', product_id=product_id)
+            # 检查表单字段是否有变化
+            form_has_changes = product_form.has_changed() or shop_product_form.has_changed()
+            # 检查商品状态是否有变化
+            status_changed_to_off_sale = (
+                    'product_status' in shop_product_form.changed_data and shop_product_form.cleaned_data[
+                'product_status'] == '下架')
+            # 当前审核状态是否为“审核通过”
+            current_audit_status_is_approved = (shop_product.product_auditstatus == '审核通过')
+
+            # 检查商品图片是否有变化
+            image_has_changed = 'product_image' in request.FILES
+
+            if form_has_changes or image_has_changed:
+                product_form.save()
+                shop_product = shop_product_form.save(commit=False)
+                if image_has_changed:
+                    fs = FileSystemStorage(location='static/商品图片')
+                    if shop_product.product_image_url:
+                        fs.delete(shop_product.product_image_url)
+                    myfile = request.FILES['product_image']
+                    filename = fs.save(myfile.name, myfile)
+                    shop_product.product_image_url = filename
+
+                shop_product.current_price = shop_product_form.cleaned_data['current_price']
+
+                # 如果不是从“上架”变为“下架”且当前审核状态为“审核通过”的特殊情况
+                if not (status_changed_to_off_sale and current_audit_status_is_approved):
+                    shop_product.product_auditstatus = '待审核'
+
+                shop_product.save()
+                shop_product_form.save()
+
+                messages.success(request, '修改成功！')
+                return redirect('edit_product', product_id=product_id)
+            else:
+                messages.info(request, '商品信息没有修改。')
+                return redirect('edit_product', product_id=product_id)
         else:
-            messages.error(request, '修改不成功，请重新修改。')
+            messages.error(request, '修改不成功，请重新修改.')
     else:
-        # GET 请求，创建表单并填充当前模型实例数据
+
         product_form = ProductForm(instance=product)
         shop_product_form = ShopProductForm(instance=shop_product)
 

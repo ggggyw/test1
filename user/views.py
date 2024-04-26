@@ -542,5 +542,8 @@ def shop_details(request, shop_id):
     return render(request, 'shop_details.html', {'shop': shop, 'products': products})
 
 def chat(request, shop_id):
+    shop_product_id=request.GET.get('product')
+    product = ShopProducts.objects.get(shop_product_id=shop_product_id)
+    product_det=Products.objects.get(p_id=product.product_id)
     shop= get_object_or_404(Shops, pk=shop_id)
-    return render(request, 'chat.html', { 'shop': shop})
+    return render(request, 'chat.html', { 'shop': shop, 'product': product_det, 'product_base': product})

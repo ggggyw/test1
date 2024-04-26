@@ -375,7 +375,7 @@ function unfollowShop(shopId) {
     });
 });
     function redirectToCustomerService() {
-    window.location.href = '{% url 'chat' shop.s_id %}';
+    window.location.href = '{% url 'chat' shop.s_id %}?product={{product.shop_product_id}}';
 }
 </script>
 <footer>
