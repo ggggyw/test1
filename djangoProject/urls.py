@@ -60,6 +60,7 @@ urlpatterns = [
     path('adminpage/', admin_views.adminpage, name='adminpage'),
     path('get_admin_info/', admin_views.get_admin_info, name='get_admin_info'),
     path('get_users_info/', admin_views.get_users_info, name='get_users_info'),
+    path('update_user_info/', admin_views.update_user_info, name='update_user_info'),
     path('get_goods_list/', user_views.get_goods_list, name='get_goods_list'),
     path('get_user_info/', user_views.get_user_info, name='get_user_info'),
     path('user/shops_follow_page/', user_views.follow_page, name='follow_page'),

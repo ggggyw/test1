@@ -1,9 +1,9 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_http_methods, require_POST
+import json
 from common.models import Admin, Users,Shops,ShopProducts,Orders,OrderDetails,Products
 from django.core.paginator import Paginator
 
@@ -98,4 +98,42 @@ def get_users_info(request):
     except Exception as e:
         # 捕获其他异常
         return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+
+
+@require_POST  # 确保只接受 POST 请求
+@csrf_exempt
+def update_user_info(request):
+    try:
+        data = json.loads(request.body)
+        u_id = data.get('u_id')
+        u_acc = data.get('u_acc')
+        u_name = data.get('u_name')
+        u_sex = data.get('u_sex')
+        u_phone = data.get('u_phone')
+        email = data.get('email')
+
+
+        # 根据 u_id 查找用户并更新信息
+        user = Users.objects.get(u_id=u_id)
+        user.u_acc = u_acc
+        user.u_name = u_name
+        user.u_sex=u_sex
+        user.u_phone=u_phone
+        user.email=email
+
+        user.save()
+
+        # 返回成功响应
+        return JsonResponse({'success': True, 'message': '用户信息已更新'})
+
+    except Users.DoesNotExist:
+        # 如果找不到用户
+        return JsonResponse({'success': False, 'message': '未找到用户'})
+    except json.JSONDecodeError:
+        # 如果请求体不是有效的 JSON
+        return JsonResponse({'success': False, 'message': '无效的 JSON 数据'})
+    except Exception as e:
+        # 捕获并处理任何其他异常
+        return JsonResponse({'success': False, 'message': '更新过程中出错', 'error': str(e)})
+
 
