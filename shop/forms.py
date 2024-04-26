@@ -19,6 +19,24 @@ class ProductForm(forms.ModelForm):
         model = Products
         fields = ['p_name', 'p_type', 'brand']
 
+    def clean_p_name(self):
+        p_name = self.cleaned_data.get('p_name')
+
+        # 判断商品名称的长度是否超过50个字符
+        if len(p_name) > 20:
+            raise ValidationError('商品名称不得超过20个字符')
+
+        return p_name
+
+    def clean_brand(self):
+        brand = self.cleaned_data.get('brand')
+
+        # 判断品牌名称的长度是否超过50个字符
+        if len(brand) > 20:
+            raise ValidationError('品牌名称不得超过20个字符')
+
+        return brand
+
     def __init__(self, *args, **kwargs):
         super(ProductForm, self).__init__(*args, **kwargs)
         # 设置自定义标签
@@ -61,7 +79,6 @@ class ShopProductForm(forms.ModelForm):
         widget=forms.Textarea(attrs={'class': 'product-desc-textarea', 'rows': 10}),
     )
 
-
     class Meta:
         model = ShopProducts
         fields = ['product_desc', 'product_status', 'stock_quantity',
@@ -75,6 +92,33 @@ class ShopProductForm(forms.ModelForm):
             raise ValidationError('折扣必须在0到1的范围内，不能等于0')
 
         return discount
+
+    def clean_stock_quantity(self):
+        stock_quantity = self.cleaned_data.get('stock_quantity')
+
+        # 判断库存数量是否小于1
+        if stock_quantity is not None and stock_quantity < 0:
+            raise ValidationError('库存数量必须大于或等于0')
+
+        return stock_quantity
+
+    def clean_original_price(self):
+        original_price = self.cleaned_data.get('original_price')
+
+        # 判断原始价格是否小于0
+        if original_price is not None and original_price < 0:
+            raise ValidationError('原始价格必须大于或等于0')
+
+        return original_price
+
+    def clean_product_desc(self):
+        product_desc = self.cleaned_data.get('product_desc')
+
+        # 判断商品描述的长度是否超过50个字符
+        if len(product_desc) > 50:
+            raise ValidationError('商品描述不得超过50个字符')
+
+        return product_desc
 
     def clean(self):
         cleaned_data = super().clean()
