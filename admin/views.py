@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from common.models import Admin, Users,Shops,ShopProducts,Orders,OrderDetails,Products
 from django.core.paginator import Paginator
@@ -66,3 +67,35 @@ def get_admin_info(request):
             return JsonResponse({'success': False, 'error': '管理员不存在'})
     else:
         return JsonResponse({'success': False, 'error': '无效的请求'})
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def get_users_info(request):
+    # 检查用户ID是否被提交
+    user_id = request.POST.get('u_id')
+    if not user_id:
+        return JsonResponse({'success': False, 'message': '缺少用户ID参数'})
+
+    try:
+        # 使用get()查询数据库以获取用户信息
+        user = Users.objects.get(u_id=user_id)
+
+        # 返回用户信息
+        user_info = {
+            'u_id': user.u_id,
+            'u_acc': user.u_acc,
+            'u_name': user.u_name,
+            'u_sex': user.u_sex,
+            'u_phone': user.u_phone,
+            'email': user.email,
+            # 'created_at': user.created_at.strftime('%Y-%m-%d %H:%M:%S')  # 如果需要的话格式化日期
+        }
+        return JsonResponse({'success': True, 'data': user_info})
+    except Users.DoesNotExist:
+        # 如果没找到用户，返回错误
+        return JsonResponse({'success': False, 'message': '用户不存在'})
+    except Exception as e:
+        # 捕获其他异常
+        return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+

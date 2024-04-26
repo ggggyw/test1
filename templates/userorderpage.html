@@ -164,6 +164,34 @@
         <div class="register"><a href="{% url 'logout' %}">退出登录</a></div>
         <div class="hello">欢迎您！欢迎来到数码产品网上交易平台</div>
     </div>
+
+    <div class="search">
+    <ul class="items">
+        <li class="item">
+            <a href="http://127.0.0.1:8000/userpage">
+                <img src="{% static '首页_files/1_09.png' %}">
+                <p>10:00开抢</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/userpage">
+                <img src="{% static '首页_files/1_11.png' %}">
+                <p>买手砍价</p>
+            </a>
+        </li>
+        <li class="item">
+            <a href="http://127.0.0.1:8000/userpage">
+                <img src="{% static '首页_files/1_13.png' %}">
+                <p>验货质检</p>
+            </a>
+        </li>
+    </ul>
+    <form action="{% url 'search_products' %}" method="get" id="search-form" class="input">
+    <input type="text" name="q" value="请输入想找的宝贝" style="color: #aaa;" onfocus="if (this.value == '请输入想找的宝贝') {this.value = ''; this.style.color = '#000';}" onblur="if (this.value == '') {this.value = '请输入想找的宝贝'; this.style.color = '#aaa';}">
+    <img src="{% static '首页_files/1_06.png' %}" onclick="document.getElementById('search-form').submit();" style="cursor: pointer;">
+</form>
+</div>
+
     {#---------------------------------------------地址问题-------------------------------------------------#}
 </div>
 <div class="waveWrapper waveAnimation">

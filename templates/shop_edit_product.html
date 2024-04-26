@@ -382,7 +382,7 @@
     </form>
 </div>
 <div class="shop_classes">
-   <div class="shop_classes">
+    <div class="shop_classes">
         <div class="shop_classes-top">
             <ul class="shop_classes-items">
                 <li class="shop_items"><a
@@ -465,12 +465,25 @@
         <p>现在价格: {{ shop_products.current_price }}</p>
         <p>商品图片: </p>
         <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
-             height="200px">
+             height="200px" onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
     </div>
 
     <!-- 商品信息编辑表单 -->
     <div class="edit-form">
-        <div class="title">修改商品</div>
+        <div class="title">修改商品
+             <span style="color:
+                {% if shop_products.product_auditstatus == '审核通过' %}
+                    green
+                {% elif shop_products.product_auditstatus == '待审核' %}
+                    yellow
+                {% else %}
+                    red
+                {% endif %};margin-bottom: 0px; margin-left: 300px;font-weight: 900;
+                font-size: 25px; /* 修改后的字体大小 */">
+            {{ shop_products.product_auditstatus }}
+        </span>
+        </div>
+
         <!-- 使用POST方法发送表单数据 -->
         <!-- 注意这里添加了 enctype="multipart/form-data" -->
         <form method="post" action="{% url 'edit_product' shop_products.shop_product_id %}"

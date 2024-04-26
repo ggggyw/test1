@@ -212,16 +212,25 @@ def delete_item(request):
 
 
 def checkout(request):
+    # 地址输入有问题
     if request.method == 'POST':
         request_data = json.loads(request.body)
         selected_product_ids = request_data.get('selectedProductIds')
         address = request_data.get('address')
+        address_text = request_data.get('address')
+        print(address_text)
         u_id = request.session.get('u_id')
         itemPrices = request_data.get('itemPrices')
         totalPrice = request_data.get('totalPrice')
         itemQuantities = request_data.get('itemQuantities')
 
         try:
+            # 检查地址是否存在，如果不存在，则创建新地址
+            address_obj, created = UserAddresses.objects.get_or_create(
+                user_id=u_id,
+                address=address_text,
+                defaults={'is_default': False}  # 如果需要其他默认值，可以在此处设置
+            )
             # 从购物车表中删除选中的商品
             Carts.objects.filter(product_id__in=selected_product_ids, user_id=u_id).delete()
 
@@ -265,13 +274,18 @@ def process_payment(request):
     # 更新订单状态和时间
     Orders.objects.filter(o_id=order_id).update(status="待发货", o_time=current_time)
     return JsonResponse({'success': True, 'message': '支付成功'})
+
+
 def update_quantity(request):
-    #有bug，更改数字不可以输入enter键
     if request.method == 'POST':
         request_data = json.loads(request.body)
         cart_id = request_data.get('cart_id')
         new_quantity = request_data.get('newQuantity')
-        # print(new_quantity)
+
+        # 首先检查 new_quantity 是否为正数
+        if new_quantity is not None and new_quantity < 1:
+            return JsonResponse({'success': False, 'message': '数量不可为负数或零'})
+
         try:
             # 更新数据库中对应商品的数量
             product = Carts.objects.get(id=cart_id)

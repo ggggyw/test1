@@ -204,6 +204,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
+{% csrf_token %}
 <div class="sidebar">
     <h2>管理员界面</h2>
     <a href="#" onclick="switchTable('userTable');changeTitle('用户管理')">用户管理</a>
@@ -574,7 +575,7 @@
       modal.style.display = "block";
       // 在此处填写获取用户信息并渲染到表单的代码
       $.ajax({
-        url: '/get_user_info/',   // 你的获取用户信息的 API 接口
+        url: '/get_users_info/',   // 你的获取用户信息的 API 接口
         type: 'POST',
         data: {u_id: userId},
         success: function(response) {

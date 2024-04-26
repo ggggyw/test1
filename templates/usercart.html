@@ -321,7 +321,7 @@ button:hover::before {
                 <span class="current-price">{{ b.current_price }}</span>
                 <span class="original-price">{{ b.original_price }}</span>
             </div>
-            <input type="number" class="item-quantity" value="{{ a.quantity }}">
+            <input type="number" class="item-quantity" value="{{ a.quantity }}" min="1">
             <div class="item-remove" >删除</div>
         </form>
                 {% endif %}
