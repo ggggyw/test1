@@ -8,6 +8,176 @@
 
 
     <style>
+        /* --------------------------------------页面整体字体和背景 ------------------------------*/
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Arial", sans-serif;
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
+        }
+
+        /* ------------------------------------------头部样式--------------------------------- */
+        .shop_head {
+            background-color: #8accf8; /* 深色背景 */
+            color: #fff;
+            padding: 10px 0;
+            width: 100%; /* 设置宽度为100% */
+        }
+
+        .shop_head-in {
+            max-width: 1320px;
+            margin: 0 auto;
+            display: flex;
+            width: 100%; /* 设置宽度为100% */
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop_register a {
+            color: #fff;
+            margin-right: 1px;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .shop_register a:hover {
+            color: #030303;
+            font-size: 15px;
+        }
+
+        /* --------------------------------------------搜索框样式----------------------------------- */
+        .shop_search {
+            padding: 15px 0;
+            background-color: #fff;
+            border-bottom: 1px solid #eaeaea;
+        }
+
+        .shop_search .input {
+            display: flex; /* 使用flex布局 */
+            align-items: center; /* 垂直居中对齐 */
+            justify-content: start; /* 从左边开始排列 */
+            max-width: 1320px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .shop_search input[type="text"] {
+            flex-grow: 1; /* 让输入框填满剩余空间 */
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 2px;
+            margin-left: 10px; /* 在图标和输入框之间添加间距 */
+            color: #000; /* 默认颜色，可根据实际需要调整 */
+        }
+
+        .shop_search img {
+            width: 50px;
+            height: auto;
+            transition: transform 0.3s ease; /* 添加平滑过渡效果 */
+        }
+
+        .shop_search img:hover {
+            cursor: pointer;
+            transform: scale(1.2); /* 放大10% */
+        }
+
+        /* -------------------------------------------------------------类别导航样式--------------------------------------------- */
+        .shop_classes {
+            z-index: 0;
+            padding: 10px 0;
+            background: #ffffff;
+            margin: 10px auto; /* 增加外部间距 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 2000px; /* 设置一个最大宽度 */
+            display: flex; /* 使用flex布局 */
+            justify-content: center; /* 水平居中 */
+            flex-wrap: wrap; /* 允许子元素换行 */
+            border-radius: 0; /* 修改这里 */
+        }
+
+        /* 将每个类别列表设置为块级元素，这样它们将各占一行 */
+        .shop_classes-items {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            padding: 0;
+            margin: 0 1px; /* 添加左右间距用于分隔两个列表 */
+            text-align: center; /* 文字居中 */
+            list-style: none; /* 去除列表默认样式 */
+            position: relative;
+        }
+
+
+        .shop_classes-items a {
+
+            text-align: center;
+            display: block;
+            font: bold 16px Arial, sans-seri;
+            white-space: nowrap;
+            clear: both;
+            padding: 0 1px;
+            margin: 0 5px;
+            transition: background-color 0.3s, color 0.3s;
+            border-radius: 0; /* 修改这里 */
+        }
+
+        .shop_classes-items a:hover {
+            background-color: #524747;
+            color: #ee4848;
+        }
+
+        /* 选中的类别样式 */
+        .shop_classes-items a.selected {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        .shop_classes-items a.selected1 {
+            background-color: #89cdda; /* 被选中项的背景色 */
+            color: #fff; /* 被选中项的文本色 */
+            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
+            transition: all 0.8s ease;
+            /* 可加入其他样式，如边框、阴影等 */
+        }
+
+        /* 底部滑块的样式 */
+        .shop_classes-slider {
+            height: 6px;
+            width: 2px;
+            background-color: #89cdda; /* 滑块颜色 */
+            position: absolute;
+            bottom: 0;
+            transition: all 0.2s ease; /* 平滑的过渡效果 */
+        }
+
+        /* 类别项样式 */
+        .shop_items {
+            display: flex;
+            flex-direction: row;
+            margin: 5px; /* 给每个项目添加外边距增加间隔感 */
+        }
+
+        .shop_items a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            border-right: 1px solid #e5e5e5; /* 在列表项之间添加边框 */
+            transition: background-color 0.3s;
+        }
+
+
+        .shop_items a:hover {
+            background-color: #c2c2c2; /* 将背景设置为深灰色 */
+            color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
+        }
 
         .product-actions a {
             margin-right: 5px; /* 在按钮之间添加一些间隔 */
@@ -193,156 +363,6 @@
             }
         }
 
-        /* --------------------------------------页面整体字体和背景 ------------------------------*/
-        body {
-            font-family: "Arial", sans-serif;
-            background-color: #f8f8f8; /* 设置一个轻柔的背景颜色 */
-        }
-
-        /* ------------------------------------------头部样式--------------------------------- */
-        .shop_head {
-            background-color: #8accf8; /* 深色背景 */
-            color: #fff;
-            padding: 10px 0;
-        }
-
-        .shop_head-in {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .shop_register a {
-            color: #fff;
-            margin-right: 20px;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .shop_register a:hover {
-            color: #030303;
-            font-size: 15px;
-        }
-
-        /* --------------------------------------------搜索框样式----------------------------------- */
-        .shop_search {
-            padding: 15px 0;
-            background-color: #fff;
-            border-bottom: 1px solid #eaeaea;
-        }
-
-        .shop_search .input {
-            display: flex; /* 使用flex布局 */
-            align-items: center; /* 垂直居中对齐 */
-            justify-content: start; /* 从左边开始排列 */
-            max-width: 1300px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .shop_search input[type="text"] {
-            flex-grow: 1; /* 让输入框填满剩余空间 */
-            padding: 10px 15px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 2px;
-            margin-left: 10px; /* 在图标和输入框之间添加间距 */
-            color: #000; /* 默认颜色，可根据实际需要调整 */
-        }
-
-        /* 可以考虑给搜索图标添加一些样式，例如大小、边距等 */
-        .shop_search img {
-            width: 50px; /* 或根据图片实际大小调整 */
-            height: auto;
-            /* 按需添加其他样式 */
-        }
-
-        /* -------------------------------------------------------------类别导航样式--------------------------------------------- */
-        .shop_classes {
-            padding: 15px 0;
-            border-radius: 8px; /* 添加圆角 */
-            margin: 20px auto; /* 增加外部间距 */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 1300px; /* 设置一个最大宽度 */
-            display: flex; /* 使用flex布局 */
-            justify-content: center; /* 水平居中 */
-            flex-wrap: wrap; /* 允许子元素换行 */
-
-        }
-
-        /* 将每个类别列表设置为块级元素，这样它们将各占一行 */
-        .shop_classes-items {
-            display: flex; /* 设为弹性布局 */
-            justify-content: center;
-            flex-flow: row wrap; /* 允许内容换行，并且是横向排布 */
-            padding: 0;
-            margin: 0 1px; /* 添加左右间距用于分隔两个列表 */
-            text-align: center; /* 文字居中 */
-            list-style: none; /* 去除列表默认样式 */
-            position: relative;
-        }
-
-
-        .shop_classes-items a {
-            font-size: 14px;
-            text-align: center;
-            display: block;
-            white-space: nowrap;
-            clear: both;
-            padding: 0 1px;
-            margin: 0 5px;
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .shop_classes-items a:hover {
-            background-color: #524747;
-            color: #ee4848;
-        }
-
-        /* 选中的类别样式 */
-        .shop_classes-items a.selected {
-            background-color: #89cdda; /* 被选中项的背景色 */
-            color: #fff; /* 被选中项的文本色 */
-            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
-            /* 可加入其他样式，如边框、阴影等 */
-        }
-
-        .shop_classes-items a.selected1 {
-            background-color: #89cdda; /* 被选中项的背景色 */
-            color: #fff; /* 被选中项的文本色 */
-            border: 2px solid #ffffff; /* 边框，可以根据需要调整颜色和大小 */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* 阴影效果 */
-            /* 可加入其他样式，如边框、阴影等 */
-        }
-
-        /* 类别项样式 */
-        .shop_items {
-            margin: 5px; /* 给每个项目添加外边距增加间隔感 */
-        }
-
-        .shop_items a {
-            display: block;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #333;
-            border-right: 1px solid #e5e5e5; /* 在列表项之间添加边框 */
-            transition: background-color 0.3s;
-        }
-
-        .shop_items a:hover {
-            background-color: #fd5454; /* 将背景设置为深灰色 */
-            color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
-        }
-
-        .shop_manage_content {
-            max-width: 1350px; /* 根据设计调整 */
-            margin: 0 auto; /* 水平居中 */
-            padding: 20px; /* 增加一些内边距 */
-            box-sizing: border-box; /* 防止内边距影响宽度 */
-        }
 
     </style>
 </head>
@@ -365,15 +385,24 @@
     </form>
 </div>
 <div class="shop_classes">
-    <ul class="shop_classes-items">
+    <div class="shop_classes-top">
+        <ul class="shop_classes-items">
+            <li class="shop_items"><a
+                    href="http://127.0.0.1:8000/shop/shoppage/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}">首页</a>
+            </li>
+            <li class="shop_items"><a
+                    href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+            >我的商品</a>
+            </li>
+            <li class="shop_items"><a
+                    href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0"
+                    class="selected1">管理商品</a>
+            </li>
+            <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+            <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
+        </ul>
+    </div>
 
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query=">我的商品</a></li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0"
-                                  class="selected1">管理商品</a>
-        </li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
-    </ul>
 </div>
 <!-- 在这里添加一个 '增加商品' 的按钮 -->
 <div class="shop_manage_content">
