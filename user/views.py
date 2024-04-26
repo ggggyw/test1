@@ -243,10 +243,11 @@ def payment(request):
 def process_payment(request):
     # 从请求中获取支付数据
     data = json.loads(request.body)
-
     order_id = data['order_id']  # 获取请求中的订单 ID
-    Orders.objects.filter(o_id=order_id).update(status="待发货")  # 更新订单状态
-
+    # 获取当前的时间
+    current_time = timezone.now()
+    # 更新订单状态和时间
+    Orders.objects.filter(o_id=order_id).update(status="待发货", o_time=current_time)
     return JsonResponse({'success': True, 'message': '支付成功'})
 def update_quantity(request):
     #有bug，更改数字不可以输入enter键
