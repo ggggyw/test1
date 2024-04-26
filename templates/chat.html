@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+    {% load static %}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -14,7 +15,7 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 20px auto;
     padding: 30px;
     background-color: rgba(255, 255, 255, 0.9);
@@ -50,7 +51,7 @@ body {
     pointer-events: none;
 }
 #chat-container {
-    height: 500px;
+    height: 700px;
     padding: 20px;
     overflow-y: scroll;
     background-color: #FFFFFF;
@@ -318,9 +319,19 @@ body {
     opacity: 0;
     top: 40%;
 }
+#image-button {
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+}
 </style>
 </head>
 <body>
+
 <div class="container">
     <div id="chat-container"></div>
     <div id="input-container">
@@ -329,7 +340,7 @@ body {
     </div>
     <div id="default-message">{{ shop.s_name }}客服</div>
 </div>
-
+<button id="image-button" class="button" style="background-image: url({% static '商品图片/返回按钮.png' %}); background-size: cover;"></button>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
   const chatContainer = document.getElementById('chat-container');
@@ -338,7 +349,7 @@ body {
 
   // 聊天历史记录数组
   let history = [];
-  history.push({ role: "system", content: "从现在起你不再是人工智能，而是{{ shop.s_name }}的一名客服。你需要尽一切可能解答用户的任何问题，做到态度良好，有耐心，用词专业。你可以在回复中多加入淘宝客服的口癖，比如“亲”，“好的呢亲亲”，“亲亲这边我们也不清楚呢”。顾客可能正在咨询{{product.p_name}}产品的问题，其价格{{ product_base.current_price }}元。" });
+  history.push({ role: "system", content: "系统提示：从现在起你不再是人工智能，而是{{ shop.s_name }}的一名客服。你需要尽一切可能解答用户的任何问题，做到态度良好，有耐心，用词专业。你可以在回复中多加入淘宝客服的口癖，比如“亲”，“好的呢亲亲”，“亲亲这边我们也不清楚呢”。系统提示：顾客此时正在浏览{{product.p_name}}产品，其价格为{{ product_base.current_price }}元。" });
   chatContainer.innerHTML += `<div class="bot-message">欢迎来到{{shop.s_name}}，我是您的专属客服，请问有什么我可以帮助您的嘛？</div><div style="clear:both;"></div>`;
   sendButton.addEventListener('click', sendMessage);
 
@@ -406,6 +417,10 @@ body {
       .catch(error => console.error('Error:', error));
     }
   }
+  const imageButton = document.getElementById('image-button');
+imageButton.addEventListener('click', () => {
+    window.history.back();
+});
 </script>
 </body>
 </html>
