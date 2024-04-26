@@ -430,14 +430,18 @@ def address_management(request):
     default_address = UserAddresses.objects.filter(user=user, is_default=True).first()
     other_addresses = UserAddresses.objects.filter(user=user, is_default=False)
 
-    if request.method == 'POST':
-        default_address_id = request.POST.get('default_address')
-        if default_address_id:
-            default_address = get_object_or_404(UserAddresses, address_id=default_address_id)
-            default_address.is_default = True
-            default_address.save()
+    if not default_address and other_addresses.count() == 1:
+        only_address = other_addresses.first()
+        only_address.is_default = True
+        only_address.save()
+        default_address = only_address
+        other_addresses = UserAddresses.objects.none()
 
-            UserAddresses.objects.filter(user=user).exclude(address_id=default_address_id).update(is_default=False)
+    if request.method == 'POST':
+        default_address_id = request.POST.get('default_address_id')
+        if default_address_id:
+            default_address.address = default_address_id
+            default_address.save()
 
         for address in other_addresses:
             address_id = address.address_id
@@ -463,6 +467,8 @@ def address_management(request):
     return render(request, 'edit_useradress.html', context)
 
 
+
+
 def set_default_address(request, address_id):
     user_id = request.session.get('u_id')
     user = get_object_or_404(Users, u_id=user_id)
@@ -483,3 +489,17 @@ def delete_address(request, address_id):
     address.delete()
 
     return redirect('address_management')
+
+def follow_page(request):
+    user_id = request.session.get('u_id')
+    user = get_object_or_404(Users, u_id=user_id)
+    followers = Followers.objects.filter(u=user)
+    shops = [follower.s for follower in followers]
+    #随机选12个商品
+    products = ShopProducts.objects.filter(shop__in=shops).order_by('?')[:8]
+    return render(request, 'user_shops_follows.html', {'shops': shops, 'products': products})
+
+def shop_details(request, shop_id):
+    shop = get_object_or_404(Shops, pk=shop_id)
+    products = ShopProducts.objects.filter(shop=shop)
+    return render(request, 'shop_details.html', {'shop': shop, 'products': products})
