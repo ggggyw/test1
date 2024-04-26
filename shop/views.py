@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -116,10 +118,45 @@ def shoppage(request):
     # 如果 'total_income' 是 None，则使用默认值 0；否则保留两位小数
     total_revenue = round(total_revenue['total_income'], 2) if total_revenue['total_income'] is not None else 0
 
+    # 获取今天的日期
+    today_date = timezone.now().date()
+    today_date_str = today_date.strftime('%Y-%m-%d')
+    # 根据今天的日期获取订单数
+    if category_id:
+        today_orders = Orders.objects.filter(
+            orderdetails__shop__s_id=s_id,
+            orderdetails__product__product__p_type__category_id=category_id,
+            o_time__date=today_date
+        ).count()
+    else:
+        today_orders = Orders.objects.filter(
+            orderdetails__shop__s_id=s_id,
+            o_time__date=today_date
+        ).count()
+
+    # 根据 category_id 以及今天的日期获取今天售出的商品数量
+    if category_id:
+        today_product_sales = OrderDetails.objects.filter(
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],  # 根据状态筛选相关订单
+            product__product__p_type__category_id=category_id,  # 筛选指定类别下的商品
+            shop__s_id=s_id,  # 筛选该商家的订单详情
+            order__o_time__date=today  # 筛选今天的订单
+        ).aggregate(total_sold_today=Sum('quantity'))['total_sold_today']  # 计算数量之和
+    else:
+        today_product_sales = OrderDetails.objects.filter(  # 没有指定类别时，获取该商家所有类别商品的销售量
+            order__status__in=['待发货', '待收货', '已收货', '已完成'],  # 根据状态筛选相关订单
+            shop__s_id=s_id,  # 筛选该商家的订单详情
+            order__o_time__date=today  # 筛选今天的订单
+        ).aggregate(total_sold_today=Sum('quantity'))['total_sold_today']  # 计算数量之和
+
+    # 如果没有值则默认为0
+    today_product_sales = today_product_sales if today_product_sales is not None else 0
+
     # 拼接上下文信息
     context = {
         'shop_products': page_obj,
         'query': None,
+        'today_date_str': today_date_str,
         'category_id': category_id,
         'order_status_counts': order_status_counts,
         'product_audit_status_counts': audit_status_counts,
@@ -128,6 +165,8 @@ def shoppage(request):
         'top_selling_product_info': top_selling_product_info if top_selling_product_info else None,
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
+        'today_orders': today_orders,
+        'today_product_sales': today_product_sales
     }
 
     return render(request, 'shoppage.html', context)
@@ -654,14 +693,44 @@ def shop_search_orders(request):
         query_conditions &= Q(total_price__lte=max_order_total_price)
     if order_address:
         query_conditions &= Q(order_address__icontains=order_address)
+        # 统一处理时间字符串
     if min_paid_time:
-        query_conditions &= Q(paid_time__gte=min_paid_time)
+        min_paid_time = datetime.strptime(min_paid_time, '%Y-%m-%d').date()
     if max_paid_time:
-        query_conditions &= Q(paid_time__lte=max_paid_time)
+        max_paid_time = datetime.strptime(max_paid_time, '%Y-%m-%d').date()
+
+    # 如果最小和最大时间相同，表示搜索特定一天的订单
+    if min_paid_time and max_paid_time and min_paid_time == max_paid_time:
+        start_of_day = datetime.combine(min_paid_time, datetime.min.time())
+        end_of_day = datetime.combine(min_paid_time, datetime.max.time())
+        query_conditions &= Q(paid_time__range=(start_of_day, end_of_day))
+    else:
+        if min_paid_time:
+            start_of_day = datetime.combine(min_paid_time, datetime.min.time())
+            query_conditions &= Q(paid_time__gte=start_of_day)
+        if max_paid_time:
+            end_of_day = datetime.combine(max_paid_time, datetime.max.time())
+            query_conditions &= Q(paid_time__lte=end_of_day)
+    # 对提供的创建时间字符串进行处理
     if min_created_time:
-        query_conditions &= Q(o_time__gte=min_created_time)
+        min_created_time = datetime.strptime(min_created_time, '%Y-%m-%d').date()
     if max_created_time:
-        query_conditions &= Q(o_time__lte=max_created_time)
+        max_created_time = datetime.strptime(max_created_time, '%Y-%m-%d').date()
+
+    # 如果最小和最大创建时间相同，表示搜索特定一天的订单
+    if min_created_time and max_created_time and min_created_time == max_created_time:
+        start_of_day = datetime.combine(min_created_time, datetime.min.time())
+        end_of_day = datetime.combine(max_created_time, datetime.max.time())
+        query_conditions &= Q(o_time__range=(start_of_day, end_of_day))
+    else:
+        # 如果最小创建时间被指定，搜索从那一天开始的订单
+        if min_created_time:
+            start_of_day = datetime.combine(min_created_time, datetime.min.time())
+            query_conditions &= Q(o_time__gte=start_of_day)
+        # 如果最大创建时间被指定，搜索直到那一天结束的订单
+        if max_created_time:
+            end_of_day = datetime.combine(max_created_time, datetime.max.time())
+            query_conditions &= Q(o_time__lte=end_of_day)
     if user_name:
         query_conditions &= Q(user__u_name__icontains=user_name)
     if user_phone:
@@ -701,10 +770,10 @@ def shop_search_orders(request):
         'min_order_total_price': min_order_total_price,
         'max_order_total_price': max_order_total_price,
         'order_address': order_address,
-        'min_paid_time': min_paid_time,
-        'max_paid_time': max_paid_time,
-        'min_created_time': min_created_time,
-        'max_created_time': max_created_time,
+        'min_paid_time': min_paid_time.strftime('%Y-%m-%d') if min_paid_time else None,
+        'max_paid_time': max_paid_time.strftime('%Y-%m-%d') if max_paid_time else None,
+        'min_created_time': min_created_time.strftime('%Y-%m-%d') if min_created_time else None,
+        'max_created_time': max_created_time.strftime('%Y-%m-%d') if max_created_time else None,
         'user_name': user_name,
         'user_phone': user_phone,
         'user_email': user_email,
@@ -721,7 +790,6 @@ def user_detail(request, user_id):
     data = {
         'u_name': user.u_name,
         'u_sex': user.u_sex,
-        'u_address': user.address,
         'u_email': user.email,
         'u_phone': user.u_phone,
     }

@@ -341,7 +341,7 @@ function unfollowShop(shopId) {
 </script>
 <footer>
     <div class="store-name-follow">
-        <div class="store-name"> {{ store_name }}</div>
+        <div class="store-name"> <a href="{% url 'shop_details' shop.s_id %}" style="display: block; color: inherit; text-decoration: none;"> <i class="fas fa-store"></i> {{ shop.s_name }}</a></div>
         <div class="follow-button">
             {% if u_id and is_following %}
             <button class="followed" onclick="unfollowShop({{ shop.s_id }})">已关注</button>
