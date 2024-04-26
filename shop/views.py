@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
@@ -152,6 +152,41 @@ def shoppage(request):
     # 如果没有值则默认为0
     today_product_sales = today_product_sales if today_product_sales is not None else 0
 
+    # 根据条件筛选今日订单并计算总收入
+    if category_id:
+        total_revenue_today = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            product__product__p_type__category_id=category_id,
+            shop__s_id=s_id,
+            order__o_time__date=today_date  # 确保只计算今天的订单
+        ).aggregate(total_income_today=Sum('order__total_price'))
+    else:
+        total_revenue_today = OrderDetails.objects.filter(
+            order__status__in=order_statuses_for_revenue,
+            shop__s_id=s_id,
+            order__o_time__date=today_date  # 确保只计算今天的订单
+        ).aggregate(total_income_today=Sum('order__total_price'))
+
+    # 如果 'total_income_today' 是 None，则使用默认值 0；
+    # 否则保留两位小数
+    total_revenue_today = round(total_revenue_today['total_income_today'], 2) if total_revenue_today[
+                                                                                     'total_income_today'] is not None else 0
+    # 获取一周前的日期
+    start_date = timezone.now().date() - timedelta(days=7)
+
+    if category_id:
+        weekly_top_selling_product_info = ShopProducts.objects.filter(
+            product__p_type__category_id=category_id,
+            orderdetails__order__o_time__date__range=(start_date, today_date)  # 确保只计算过去一周内的订单
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()  # 排序并获取销量最高的商品
+    else:
+        weekly_top_selling_product_info = ShopProducts.objects.filter(
+            orderdetails__order__o_time__date__range=(start_date, today_date)  # 确保只计算过去一周内的订单
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()  # 排序并获取销量最高的商品
     # 拼接上下文信息
     context = {
         'shop_products': page_obj,
@@ -166,7 +201,9 @@ def shoppage(request):
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
         'today_orders': today_orders,
-        'today_product_sales': today_product_sales
+        'today_product_sales': today_product_sales,
+        'total_revenue_today': total_revenue_today,
+        'weekly_top_selling_product_info': weekly_top_selling_product_info if weekly_top_selling_product_info else None
     }
 
     return render(request, 'shoppage.html', context)
