@@ -245,7 +245,7 @@
             <td>{{ user.created_at }}</td>
             <td>
               <button onclick="openEditModal('{{ user.u_id }}')">编辑</button>
-              <button>删除</button>
+              <button class="delete-btn" data-u_id="{{ user.u_id }}">删除</button>
             </td>
           </tr>
           {% endfor %}
@@ -603,10 +603,51 @@
     });
     }
 
+    document.getElementById("edit-form").addEventListener("submit", function(e) {
+  e.preventDefault(); // 阻止表单的默认提交行为
+
+  // 收集表单数据用于提交
+  var formData = {
+    u_id: document.getElementById("u_id").value,
+    u_acc: document.getElementById("u_acc").value,
+    u_name: document.getElementById("u_name").value,
+    u_sex: document.getElementById("u_sex").value,
+    u_phone:document.getElementById("u_phone").value,
+    email:document.getElementById("email").value,
+  };
+
+  // 发送 AJAX POST 请求
+  $.ajax({
+    url: '/update_user_info/', // 确定你用于更新用户信息的正确 URL
+    type: 'POST',
+    data: JSON.stringify(formData),
+    contentType: 'application/json; charset=utf-8',
+    headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // 从 meta 标签获取 CSRF token
+    success: function(response) {
+      if (response.success) {
+        alert('用户信息更新成功');
+        modal.style.display = "none"; // 关闭模态框
+        location.reload()
+      } else {
+        alert('更新失败：' + response.message); // 显示失败消息
+      }
+    },
+    error: function(xhr, status, error) {
+      console.error(error); // 控制台记录错误
+      alert('更新时发生错误，请稍后再试');
+    }
+  });
+});
+
     // 关闭模态框
     span.onclick = function() {
       modal.style.display = "none";
     }
+
+    var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
+span.onclick = function() {
+  modal.style.display = "none"; // 当点击时隐藏模态框
+}
 
     // 当用户点击模态框外部时关闭模态框
     window.onclick = function(event) {
@@ -654,6 +695,36 @@
 
       xhr.send();
     }
+
+    $(document).ready(function() {
+    $('.delete-btn').click(function() {
+        var u_id = $(this).data('u_id');  // 获取用户 ID
+
+        if (confirm('确定要删除此用户吗？')) {  // 简单的确认对话框
+            $.ajax({
+                url: '/delete_user/',  // 后端删除用户的 URL
+                type: 'POST',
+                data: JSON.stringify({'u_id': u_id}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新用户列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
+
+
 function switchTable(tableId) {
   // 隐藏所有的表格
   var tables = document.getElementsByTagName('table');
