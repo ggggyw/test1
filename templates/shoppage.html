@@ -12,8 +12,13 @@
     <style>
         /* --------------------------------------页面整体字体和背景 ------------------------------*/
         body {
+            margin: 0;
+            padding: 0;
             font-family: "Arial", sans-serif;
-            background-color: #f8f8f8; /* 设置一个轻柔的背景颜色 */
+            background-image: url('https://front-end-noobs.com/jecko/img/wave-mid.png');
+            background-attachment: fixed;
+            background-size: cover;
+            color: #333;
         }
 
         /* ------------------------------------------头部样式--------------------------------- */
@@ -21,19 +26,21 @@
             background-color: #8accf8; /* 深色背景 */
             color: #fff;
             padding: 10px 0;
+            width: 100%; /* 设置宽度为100% */
         }
 
         .shop_head-in {
-            max-width: 1200px;
+            max-width: 1320px;
             margin: 0 auto;
             display: flex;
+            width: 100%; /* 设置宽度为100% */
             justify-content: space-between;
             align-items: center;
         }
 
         .shop_register a {
             color: #fff;
-            margin-right: 20px;
+            margin-right: 1px;
             text-decoration: none;
             transition: color 0.3s;
         }
@@ -54,7 +61,7 @@
             display: flex; /* 使用flex布局 */
             align-items: center; /* 垂直居中对齐 */
             justify-content: start; /* 从左边开始排列 */
-            max-width: 1300px;
+            max-width: 1320px;
             margin: 0 auto;
             position: relative;
         }
@@ -69,29 +76,34 @@
             color: #000; /* 默认颜色，可根据实际需要调整 */
         }
 
-        /* 可以考虑给搜索图标添加一些样式，例如大小、边距等 */
         .shop_search img {
-            width: 50px; /* 或根据图片实际大小调整 */
+            width: 50px;
             height: auto;
-            /* 按需添加其他样式 */
+            transition: transform 0.3s ease; /* 添加平滑过渡效果 */
+        }
+
+        .shop_search img:hover {
+            cursor: pointer;
+            transform: scale(1.2); /* 放大10% */
         }
 
         /* -------------------------------------------------------------类别导航样式--------------------------------------------- */
         .shop_classes {
-            padding: 15px 0;
-            border-radius: 8px; /* 添加圆角 */
-            margin: 20px auto; /* 增加外部间距 */
+            z-index: 0;
+            padding: 10px 0;
+            background: #ffffff;
+            margin: 0px auto; /* 增加外部间距 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 1300px; /* 设置一个最大宽度 */
+            max-width: 2000px; /* 设置一个最大宽度 */
             display: flex; /* 使用flex布局 */
             justify-content: center; /* 水平居中 */
             flex-wrap: wrap; /* 允许子元素换行 */
-
+            border-radius: 0; /* 修改这里 */
         }
 
         /* 将每个类别列表设置为块级元素，这样它们将各占一行 */
         .shop_classes-items {
-            display: flex; /* 设为弹性布局 */
+
             justify-content: center;
             flex-flow: row wrap; /* 允许内容换行，并且是横向排布 */
             padding: 0;
@@ -103,14 +115,16 @@
 
 
         .shop_classes-items a {
-            font-size: 14px;
+
             text-align: center;
             display: block;
+            font: bold 16px Arial, sans-seri;
             white-space: nowrap;
             clear: both;
             padding: 0 1px;
             margin: 0 5px;
             transition: background-color 0.3s, color 0.3s;
+            border-radius: 0; /* 修改这里 */
         }
 
         .shop_classes-items a:hover {
@@ -143,7 +157,7 @@
             background-color: #89cdda; /* 滑块颜色 */
             position: absolute;
             bottom: 0;
-            transition: all 0.8s ease; /* 平滑的过渡效果 */
+            transition: all 0.2s ease; /* 平滑的过渡效果 */
         }
 
         /* 类别项样式 */
@@ -160,119 +174,13 @@
             transition: background-color 0.3s;
         }
 
+
         .shop_items a:hover {
             background-color: #c2c2c2; /* 将背景设置为深灰色 */
             color: #fff; /* 通常鼠标悬停时文本颜色需要设为亮色，以保证对比 */
         }
 
-        /* ------------------------------------------- 商品模型样式-------------------------------------------- */
-        .shop_goods-model {
-            padding: 10px 0;
-            background-color: #fff;
-            max-width: 1300px; /* 设置一个最大宽度 */
-            margin: 20px auto; /* 上下保持20px间距，左右自动，以达到居中效果 */
-        }
-
-        .shop_good-item {
-            display: none; /* 初始状态隐藏，以便fadeIn效果 */
-        }
-
-        .shop_goods-content {
-            width: 1300px;
-            display: flex;
-            flex-wrap: wrap;
-            margin-left: 10px;
-            justify-content: flex-start; /* 改为从左侧开始排列，而不是居中 */
-        }
-
-        .shop_good {
-            width: 300px;
-            height: 435px;
-            margin-left: 15px;
-            margin-top: 20px;
-            min-height: 400px; /* 为商品卡片设置一个最小高度，允许内容增长时可以伸展 */
-            background-color: #ffffff; /* 为商品卡片添加背景颜色 */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
-            border-radius: 10px; /* 边框圆角 */
-            overflow: hidden; /* 防止子元素的内容溢出边框圆角 */
-            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
-        }
-
-        .shop_good:hover {
-            transform: translateY(-5px) scale(1.05); /* 悬停时上移效果 */
-            z-index: 10; /* 确保放大的商品浮在其他商品上方 */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 2.0); /* 悬停时阴影加深 */
-        }
-
-        .shop_good a {
-            display: block; /* 确保链接是块级元素，可以容纳其他块级子元素 */
-            text-decoration: none; /* 移除链接的下划线 */
-            color: inherit; /* 继承文字颜色 */
-        }
-
-        .shop_good img {
-            width: 300px; /* 指定宽度 */
-            height: 300px; /* 指定高度 */
-            object-fit: cover; /* 确保图片填充指定区域，可能会裁切部分图片 */
-            border-radius: 5px; /* 可选：为图片添加圆角 */
-            border-bottom: 5px solid #f0f0f0; /* 可选：图片下方的分隔线 */
-            /* 保留已经设置的属性 */
-            display: block; /* 使图片也是块级元素，防止下面的元素上升 */
-            transition: all 0.3s ease; /* 添加过渡效果 */
-        }
-
-        .shop_good > a > .shop_product_name, .shop_good .shop_product_price {
-            /* 下面的属性在之前的CSS已经设置 */
-            padding: 1px 1px;
-            display: block; /* 默认就是块级元素，这里可以不用写 */
-        }
-
-        .shop_good .shop_product_name {
-            margin-top: 5px; /* 距离图片底部的间距 */
-            font-size: 20px;
-            color: #333;
-            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
-            text-align: center; /* 中心对齐文本 */
-        }
-
-        .shop_good .shop_product_name:hover {
-            text-decoration: underline; /* 鼠标悬停时显示下划线 */
-            color: #e51818; /* 这里设置悬停颜色为红色，可根据需要调整 */
-            font-size: 23px;
-            transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
-        }
-
-        .shop_good .shop_product_price {
-            margin-top: 5px; /* 距离名称的间距 */
-            font-size: 30px;
-            bottom: 15px;
-            color: #E57373; /* 价格的颜色 */
-            font-weight: bold; /* 字体加粗 */
-            margin-bottom: 10px; /* 距离链接底部的间距 */
-            text-align: right; /* 价格在右边 */
-            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
-        }
-
-
-        @media (max-width: 767px) {
-            .shop_goods-content {
-                justify-content: center; /* 移动端设备上商品居中显示 */
-            }
-
-            .shop_good {
-                width: calc(50% - 20px); /* 移动端设备上两列布局 */
-            }
-        }
-
-        /* 添加媒体查询，用于处理屏幕尺寸变化的情况 */
-        @media (max-width: 767px) {
-            .shop_items {
-                display: block; /* 在小屏幕上，每个项改为块级元素，各占一行 */
-                border-right: none; /* 移除边框，因为现在每项各占一行 */
-            }
-        }
-
-
+        /* -------------------------------------------分页-------------------------------------------- */
         #shop_pagination {
             text-align: center; /* 居中显示 */
             margin: 20px 0; /* 顶部和底部间距 */
@@ -336,6 +244,349 @@
         #shop_pagination input[type="submit"]:hover {
             background-color: #286090;
         }
+
+        /* ------------------------------------------- 商品模型样式-------------------------------------------- */
+
+        /* 最畅销商品信息块样式 */
+        .top-selling-products-block {
+            background: #ffffff; /* 背景颜色 */
+            padding: 20px;
+            margin: 1px auto;
+            max-width: 1300px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            border-radius: 8px; /* 边角圆滑处理 */
+            display: flex; /* 使用Flex布局 */
+            justify-content: space-around; /* 内部元素间距平均分配 */
+        }
+
+        /* 最畅销商品信息样式 */
+        .shop_goods-model {
+            display: flex;
+            justify-content: space-between; /* 平分空间 */
+            margin: 20px auto;
+            max-width: 1300px;
+        }
+
+        .shop_good-item {
+            display: flex; /* 使用flex布局以便内部元素水平布局 */
+            flex-direction: column; /* 确保子元素垂直排列 */
+            align-items: center; /* 子元素水平居中 */
+        }
+
+        .shop_goods-content {
+            flex: 1; /* 平均分布 */
+            display: flex; /* 设置为 flex 布局 */
+            flex-direction: column; /* 子元素垂直排列 */
+            align-items: center; /* 水平居中对齐 */
+            margin: 0 10px;
+
+            padding: 20px;
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1); /* 轻微的阴影效果 */
+            border-radius: 8px; /* 圆角边缘 */
+        }
+
+        .shop_goods-content h2 {
+            width: 100%; /* 宽度设置为 100%，以确保标题居中 */
+            text-align: center; /* 标题居中 */
+            margin-bottom: 20px; /* 增加下边距 */
+        }
+
+        .shop_good {
+            width: 300px;
+            height: 435px;
+            margin-left: 15px;
+            margin-top: 20px;
+            min-height: 400px; /* 为商品卡片设置一个最小高度，允许内容增长时可以伸展 */
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            border-radius: 10px; /* 边框圆角 */
+            overflow: hidden; /* 防止子元素的内容溢出边框圆角 */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* 平滑过渡效果 */
+        }
+
+        .shop_good:hover {
+            transform: translateY(-5px) scale(1.05); /* 悬停时上移效果 */
+            z-index: 10; /* 确保放大的商品浮在其他商品上方 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 2.0); /* 悬停时阴影加深 */
+        }
+
+        .shop_good a {
+            display: block; /* 确保链接是块级元素，可以容纳其他块级子元素 */
+            text-decoration: none; /* 移除链接的下划线 */
+            color: inherit; /* 继承文字颜色 */
+        }
+
+        .shop_good img {
+            width: 300px; /* 指定宽度 */
+            height: 300px; /* 指定高度 */
+            object-fit: cover; /* 确保图片填充指定区域，可能会裁切部分图片 */
+            border-radius: 5px; /* 可选：为图片添加圆角 */
+            border-bottom: 5px solid #f0f0f0; /* 可选：图片下方的分隔线 */
+            /* 保留已经设置的属性 */
+            display: block; /* 使图片也是块级元素，防止下面的元素上升 */
+            transition: all 0.3s ease; /* 添加过渡效果 */
+        }
+
+        .shop_good > a > .shop_product_name, .shop_good .shop_product_price {
+            /* 下面的属性在之前的CSS已经设置 */
+            padding: 1px 1px;
+            display: block; /* 默认就是块级元素，这里可以不用写 */
+
+        }
+
+        .shop_good .shop_product_name {
+            margin-top: 5px; /* 距离图片底部的间距 */
+            font-size: 20px;
+            color: #333;
+            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+            text-align: center; /* 中心对齐文本 */
+        }
+
+        .shop_good .shop_product_name:hover {
+            text-decoration: underline; /* 鼠标悬停时显示下划线 */
+            color: #e51818; /* 这里设置悬停颜色为红色，可根据需要调整 */
+            font-size: 23px;
+            transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
+        }
+
+        .shop_good .shop_product_price {
+            margin-top: 5px; /* 距离名称的间距 */
+            font-size: 30px;
+            bottom: 15px;
+            color: #E57373; /* 价格的颜色 */
+            font-weight: bold; /* 字体加粗 */
+            margin-bottom: 10px; /* 距离链接底部的间距 */
+            text-align: right; /* 价格在右边 */
+            transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+        }
+
+        /* 统计信息块样式 */
+        .statistics-block {
+            padding: 10px;
+            margin: 1px auto;
+            max-width: 1320px;
+            background: #ffffff; /* 背景颜色 */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            border-radius: 8px; /* 边角圆滑处理 */
+        }
+
+        .statistics {
+            display: flex;
+            flex-direction: row; /* 改变为水平排列 */
+            align-items: flex-start; /* 子元素从行首开始对齐，考虑到可能不同的高度 */
+            flex-wrap: wrap; /* 允许子元素换行 */
+        }
+
+        @keyframes colorChange {
+            0% {
+                border-color: #81f5e3;
+            }
+            25% {
+                border-color: #5de8e8;
+            }
+            50% {
+                border-color: #e91e63;
+            }
+            75% {
+                border-color: #ff9800;
+            }
+            100% {
+                border-color: #37d0de;
+            }
+        }
+
+        .statistics-group {
+            flex: 1;
+            border: 2px solid #37d0de;
+            border-radius: 10px;
+            min-width: 200px;
+            animation: colorChange 10s infinite; /* 应用动画，每10秒循环一次 */
+        }
+
+        .statistics-group h3 {
+            text-align: center; /* 标题居中 */
+            font-size: 30px;
+            color: #333;
+        }
+
+        .statistics-info {
+            display: flex;
+            flex-direction: row; /* 子项垂直排列 */
+            justify-content: space-around; /* 子项水平分布 */
+
+            align-items: center; /* 子项水平居中 */
+            flex-wrap: wrap; /* 允许子项换行 */
+            width: 100%; /* 确保统计信息区占满整个容器宽度 */
+        }
+
+        .statistics-info > div {
+            flex-basis: 33%; /* 每个子元素占据30%的容器宽度 */
+            text-align: center; /* 文本居中 */
+        }
+
+        .card {
+            position: relative;
+            width: 100%;
+            height: 90px;
+            background: #79d3e7;
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-bottom: 2px; /* 底部间距 */
+            overflow: hidden; /* 防止伪元素在卡片外显示 */
+            box-sizing: border-box;
+        }
+
+        .card a {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px; /* 轻微的圆角 */
+            color: inherit; /* 继承父元素颜色 */
+            text-decoration: none; /* 移除下划线 */
+        }
+
+        .card::before,
+        .card::after {
+            position: absolute;
+            content: "";
+            width: 20%;
+            height: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: #00c4ff;
+            transition: all 0.5s;
+        }
+
+        .card::before {
+            top: 0;
+            right: 0;
+            border-radius: 0 15px 0 100%;
+        }
+
+        .card::after {
+            bottom: 0;
+            left: 0;
+            border-radius: 0 100% 0 15px;
+        }
+
+        .card:hover::before,
+        .card:hover:after {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            transition: all 0.5s;
+        }
+
+        /* 当鼠标悬停在.card上时，.hover-text显示 */
+        .card:hover .hover-text {
+            display: flex;
+        }
+
+        .hover-text {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            opacity: 0.9;
+            color: black;
+            padding: 4px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        @keyframes move_wave {
+            0% {
+                transform: translateX(0) translateZ(0) scaleY(1)
+            }
+            50% {
+                transform: translateX(-25%) translateZ(0) scaleY(0.55)
+            }
+            100% {
+                transform: translateX(-50%) translateZ(0) scaleY(1)
+            }
+        }
+
+        .waveWrapper {
+            position: fixed; /* 或 absolute, 根据需求选择 */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            z-index: -1; /* 确保它位于其他内容之下 */
+        }
+
+        .waveWrapperInner {
+            position: absolute;
+            width: 100%;
+            overflow: hidden;
+            height: 100%;
+            bottom: -1px;
+            background-image: linear-gradient(to top, #72c4d7 20%, #34c1fd 80%);
+        }
+
+        .bgTop {
+            z-index: 15;
+            opacity: 0.5;
+        }
+
+        .bgMiddle {
+            z-index: 10;
+            opacity: 0.75;
+        }
+
+        .bgBottom {
+            z-index: 5;
+        }
+
+        .wave {
+            position: absolute;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background-repeat: repeat no-repeat;
+            background-position: 0 bottom;
+            transform-origin: center bottom;
+        }
+
+        .waveTop {
+            background-size: 50% 100px;
+        }
+
+        .waveAnimation .waveTop {
+            animation: move-wave 3s;
+            -webkit-animation: move-wave 3s;
+            -webkit-animation-delay: 1s;
+            animation-delay: 1s;
+        }
+
+        .waveMiddle {
+            background-size: 50% 120px;
+        }
+
+        .waveAnimation .waveMiddle {
+            animation: move_wave 10s linear infinite;
+        }
+
+        .waveBottom {
+            background-size: 50% 100px;
+        }
+
+        .waveAnimation .waveBottom {
+            animation: move_wave 15s linear infinite;
+        }
     </style>
 </head>
 <body>
@@ -357,154 +608,231 @@
     </form>
 </div>
 <div class="shop_classes">
-    <ul class="shop_classes-items">
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="selected1">首页</a>
-        </li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}">我的商品</a>
-        </li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
-        </li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
-        <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
-    </ul>
-    <ul class="shop_classes-items">
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+    <div class="shop_classes">
+        <div class="shop_classes-top">
+            <ul class="shop_classes-items">
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="selected1">首页</a>
+                </li>
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}">我的商品</a>
+                </li>
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
+                </li>
+                <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
+                <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
+            </ul>
+        </div>
+        <div class="shop_classes-bottom">
+            <ul class="shop_classes-items">
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 0 %}selected{% endif %}">全部商品</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=1&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=1&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 1 %}selected{% endif %}">个人电脑和配件</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=2&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=2&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 2 %}selected{% endif %}">移动设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=3&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=3&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 3 %}selected{% endif %}">家用电子产品</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=4&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=4&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 4 %}selected{% endif %}">厨房电子设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=5&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=5&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 5 %}selected{% endif %}">办公设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=6&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=6&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 6 %}selected{% endif %}">汽车电子设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=7&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=7&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 7 %}selected{% endif %}">网络和通信设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=8&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=8&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 8 %}selected{% endif %}">可穿戴设备</a></li>
-        <li class="shop_items"><a
-                href="http://127.0.0.1:8000/shop/shoppage/?category_id=9&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                class="
+                <li class="shop_items"><a
+                        href="http://127.0.0.1:8000/shop/shoppage/?category_id=9&query={{ query|default_if_none:'请输入想找的宝贝' }}"
+                        class="
                 {% if category_id == 9 %}selected{% endif %}">智能家居设备</a></li>
-        <!-- 在类别列表的末尾添加一个新的div作为滑块 -->
-        <div class="shop_classes-slider"></div>
-    </ul>
-
+                <!-- 在类别列表的末尾添加一个新的div作为滑块 -->
+                <div class="shop_classes-slider"></div>
+            </ul>
+        </div>
+    </div>
 </div>
+<div class="statistics-block">
+    <div class="statistics">
+        <!-- 订单部分 -->
+        <div class="statistics-group statistics-order-group">
+            <h3>订单信息</h3>
+            <div class="statistics-info">
 
-<div class="statistics">
-    <p>待发货订单数: {{ order_status_counts.待发货|default:"0" }}</p>
-    <p>待退货订单数: {{ order_status_counts.待退货|default:"0" }}</p>
-    <p>已完成订单数: {{ order_status_counts.已完成|default:"0" }}</p>
-    <p>待审核商品数: {{ product_audit_status_counts.待审核|default:"0" }}</p>
-    <p>审核不通过商品数: {{ product_audit_status_counts.审核不通过|default:"0" }}</p>
-    <p>已上架商品数: {{ product_status_counts.上架|default:"0" }}</p>
-    <p>已下架商品数: {{ product_status_counts.下架|default:"0" }}</p>
-    <p>已售商品数: {{ sold_products_count|default:"0" }}</p>
-    <p>总销售额: {{ total_revenue|default:"0" }}</p>
+                <div class="card">
+                    <a href="{% url 'shop_search_orders' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=待发货&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time=&max_created_time=&user_name=&user_phone=&user_sex=&user_email=">
+                        <span class="hover-text" style="display:none;">点击查看待发货订单</span>
+                        <div class="text-first">待发货订单数: {{ order_status_counts.待发货|default:"0" }}</div>
+                    </a>
+                </div>
+                <!-- 待退货订单数 -->
+                <div class="card">
+                    <a href="{% url 'shop_search_orders' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=待退货&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time=&max_created_time=&user_name=&user_phone=&user_sex=&user_email=">
+                        <span class="hover-text" style="display:none;">点击查看待退货订单</span>
+                        <div class="text-first">待退货订单数: {{ order_status_counts.待退货|default:"0" }}</div>
+                    </a>
+                </div>
 
+                <!-- 已完成订单数 -->
+                <div class="card">
+                    <a href="{% url 'shop_search_orders' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time={{ today_date_str }}&max_created_time={{ today_date_str }}&user_name=&user_phone=&user_sex=&user_email=">
+                        <span class="hover-text" style="display:none;">点击查看今日订单</span>
+                        <div class="text-first">今日订单数: {{ today_orders | default:"0" }}</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 商品部分 -->
+        <div class="statistics-group statistics-product-group">
+            <h3>商品信息</h3>
+            <div class="statistics-info">
+                <!-- 待审核商品数 -->
+                <div class="card">
+                    <a href="{% url 'shop_search_manage_products' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=待审核&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=">
+                        <span class="hover-text" style="display:none;">点击查看待审核商品</span>
+                        <div class="text-first">
+                            待审核商品数: {{ product_audit_status_counts.待审核|default:"0" }}</div>
+                    </a>
+                </div>
+                <!-- 审核不通过商品数 -->
+                <div class="card">
+                    <a href="{% url 'shop_search_manage_products' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=审核不通过&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=">
+                        <span class="hover-text" style="display:none;">点击查看审核不通过商品</span>
+                        <div class="text-first">
+                            审核不通过商品数: {{ product_audit_status_counts.审核不通过|default:"0" }}</div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'shop_search_orders' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time={{ today_date_str }}&max_created_time={{ today_date_str }}&user_name=&user_phone=&user_sex=&user_email=">
+                        <span class="hover-text" style="display:none;">点击查看今天销售商品</span>
+                        <div class="text-first">
+                            今天销售商品数: {{ today_product_sales|default:"0" }}</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <!-- 销售部分 -->
+        <div class="statistics-group statistics-sale-group">
+            <h3>销售信息</h3>
+            <div class="statistics-info">
+                <!-- 已售商品数 -->
+                <div class="card">
+                    <a href="{% url 'myproducts' %}">
+                        <span class="hover-text" style="display:none;">点击查看我的商品</span>
+                        <div class="text-first">已售商品数: {{ sold_products_count|default:"0" }}</div>
+                    </a>
+                </div>
+
+                <!-- 总销售额 -->
+                <div class="card">
+                    <a href="{% url 'shop_order' %}">
+                        <span class="hover-text" style="display:none;">点击查看我的订单</span>
+                        <div class="text-first">总销售额: {{ total_revenue|default:"0" }}</div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="{% url 'shop_search_orders' %}?product_name=&brand=&min_stock=&max_stock=&category_id={{ category_id }}&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time={{ today_date_str }}&max_created_time={{ today_date_str }}&user_name=&user_phone=&user_sex=&user_email=">
+                        <span class="hover-text" style="display:none;">点击查看今日销售</span>
+                        <div class="text-first">今日销售额: {{ total_revenue_today|default:"0" }}</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="top-selling-products-block">
     <div class="shop_goods-model">
         <div class="shop_goods-content">
             <h2>最畅销商品信息</h2>
             {% if top_selling_product_info %}
-                    <div class="shop_good shop_good-item">
-                        <a href="{% url 'shop_productdetails' top_selling_product_info.shop_product_id %}">
-                            <img src="{% static '商品图片/'|add:top_selling_product_info.product_image_url %}"
-                                 onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
-                            <p class="shop_product_name">{{ top_selling_product_info.product.p_name }}</p>
-                            <p class="shop_product_price">￥{{ top_selling_product_info.current_price }}</p>
-                        </a>
-                    </div>
+                <div class="shop_good shop_good-item">
+                    <a href="{% url 'shop_productdetails' top_selling_product_info.shop_product_id %}">
+                        <img src="{% static '商品图片/'|add:top_selling_product_info.product_image_url %}"
+                             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+                        <p class="shop_product_name">{{ top_selling_product_info.product.p_name }}</p>
+                        <p class="shop_product_price">￥{{ top_selling_product_info.current_price }}</p>
+                    </a>
+                </div>
             {% else %}
-                <p>暂无数据</p>
+                <p style="font-size: 25px;color: #fd0000">暂无数据</p>
+            {% endif %}
+        </div>
+        <div class="shop_goods-content">
+            <h2>7天内最畅销商品信息</h2>
+            {% if weekly_top_selling_product_info %}
+
+                <div class="shop_good shop_good-item">
+                    <a href="{% url 'shop_productdetails' weekly_top_selling_product_info.shop_product_id %}">
+                        <img src="{% static '商品图片/'|add:weekly_top_selling_product_info.product_image_url %}"
+                             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+                        <p class="shop_product_name">{{ weekly_top_selling_product_info.product.p_name }}</p>
+                        <p class="shop_product_price">￥{{ weekly_top_selling_product_info.current_price }}</p>
+                    </a>
+                </div>
+            {% else %}
+                <p style="font-size: 25px;color: #fd0000">暂无数据</p>
             {% endif %}
         </div>
         <div class="shop_goods-content">
             <h2>今日最畅销商品信息</h2>
             {% if today_top_selling_product_info %}
 
-                    <div class="shop_good shop_good-item">
-                        <a href="{% url 'shop_productdetails' today_top_selling_product_info.shop_product_id %}">
-                            <img src="{% static '商品图片/'|add:today_top_selling_product_info.product_image_url %}"
-                                 onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
-                            <p class="shop_product_name">{{ today_top_selling_product_info.product.p_name }}</p>
-                            <p class="shop_product_price">￥{{ today_top_selling_product_info.current_price }}</p>
-                        </a>
-                    </div>
+                <div class="shop_good shop_good-item">
+                    <a href="{% url 'shop_productdetails' today_top_selling_product_info.shop_product_id %}">
+                        <img src="{% static '商品图片/'|add:today_top_selling_product_info.product_image_url %}"
+                             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+                        <p class="shop_product_name">{{ today_top_selling_product_info.product.p_name }}</p>
+                        <p class="shop_product_price">￥{{ today_top_selling_product_info.current_price }}</p>
+                    </a>
+                </div>
             {% else %}
-                <p>暂无数据</p>
+                <p style="font-size: 25px;color: #fd0000">暂无数据</p>
             {% endif %}
         </div>
+
     </div>
 </div>
 
 
-{% if shop_products %}
-    <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
-        <!-- 如果不是第一页，添加跳转到第一页的链接 -->
-        {% if shop_products.number != 1 %}
-            <a href="?query={{ query }}&category_id={{ category_id }}&page=1"
-               style="display: inline-block; padding: 5px; margin: 5px;">&laquo;第一页</a>
-        {% endif %}
-
-        {% if shop_products.has_previous %}
-            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.previous_page_number }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">上一页</a>
-        {% endif %}
-
-        <span>第 {{ shop_products.number }} 页, 共 {{ shop_products.paginator.num_pages }} 页</span>
-
-        {% if shop_products.has_next %}
-            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.next_page_number }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">下一页</a>
-        {% endif %}
-
-        <!-- 如果不是最后一页，添加跳转到最后一页的链接 -->
-        {% if shop_products.number != shop_products.paginator.num_pages %}
-            <a href="?query={{ query }}&category_id={{ category_id }}&page={{ shop_products.paginator.num_pages }}"
-               style="display: inline-block; padding: 5px; margin: 5px;">最后一页&raquo;</a>
-        {% endif %}
-        <!-- 添加页面跳转功能 -->
-        <form action="" method="get" style="display: inline-block;">
-            <input type="hidden" name="query" value="{{ query }}">
-            <input type="hidden" name="category_id" value="{{ category_id }}">
-            <input type="number" name="page" min="1" max="{{ shop_products.paginator.num_pages }}" required
-                   placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
-            <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
-        </form>
-        <!-- 在这里显示商品的总数 -->
-        <span style="margin-top: 10px;">商品总数: {{ shop_products.paginator.count }}</span>
+<div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
+    <span style="margin-top: 10px;">商品总数: {{ shop_products.paginator.count }}</span>
+</div>
+<div class="waveWrapper waveAnimation">
+    <div class="waveWrapperInner bgTop">
+        <div class="wave waveTop"
+             style="background-image: url('http://front-end-noobs.com/jecko/img/wave-top.png')"></div>
     </div>
-{% else %}
-    <div class="no-products-animation">
-
+    <div class="waveWrapperInner bgMiddle">
+        <div class="wave waveMiddle"
+             style="background-image: url('http://front-end-noobs.com/jecko/img/wave-mid.png')"></div>
     </div>
-{% endif %}
+    <div class="waveWrapperInner bgBottom">
+        <div class="wave waveBottom"
+             style="background-image: url('http://front-end-noobs.com/jecko/img/wave-bot.png')"></div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         // 当一个分类项被点击时
@@ -532,7 +860,22 @@
             });
         }
     });
+    $(document).ready(function () {
+        // 鼠标移入
+        $('.card').hover(function () {
+            $(this).find('.hover-text').show();
+            $(this).find('.text-first').hide();
+        }, function () {
+            // 鼠标移出
+            $(this).find('.hover-text').hide();
+            $(this).find('.text-first').show();
+        });
 
+        // 给.card添加点击事件
+        $('.card').click(function () {
+            window.location = $(this).find('a').attr('href');
+        });
+    });
     $(document).ready(function () {
         // 假设你的商品有一个共同的class名为good-item
         var items = $(".shop_good-item").toArray();
