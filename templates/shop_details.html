@@ -126,7 +126,11 @@
                 opacity: 0;
             }
         }
-
+        .no_product {
+            font-size: 24px;
+            color: #333;
+            margin-top: 300px;
+        }
     </style>
 </head>
 <body>
@@ -187,6 +191,9 @@
                         </a>
                     </div>
                 {% endfor %}
+            {% if products|length == 0 %}
+                    <h1 class="no_product">暂无商品</h1>
+            {% endif %}
             </div>
         </div>
     </div>
