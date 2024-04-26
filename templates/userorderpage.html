@@ -148,6 +148,12 @@
     </style>
 </head>
 <body>
+<!-- 引入 jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- 引入 Select2 CSS 文件 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<!-- 引入 Select2 JS 文件 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 <div class="head">
     <div class="head-in">
         <ul class="options">
@@ -175,6 +181,7 @@
 <div class="wenzi"><h1>下订单页</h1></div>
     <form class="order-form" id="order-form">
 <div class="user-info-container">
+    <p>用户信息：</p>
     <label>用户名：</label>
     <p id="u_name"></p>
 
@@ -188,10 +195,14 @@
     <p id="email"></p>
 
 </div>
-        <div class="wenzi">
-            <label>地址：</label>
-    <input type="text" id="address" name="address"><br>
-          <button type="button" class="xiadan">下单</button></div>
+<label for="address">地址：</label>
+<select id="address" name="address" style="width: 100%;">
+  <option value="地址选项 1">地址选项 1</option>
+  <option value="地址选项 2">地址选项 2</option>
+  <option value="地址选项 3">地址选项 3</option>
+  <!-- 在这里添加更多选项 -->
+</select>
+<button type="button" class="xiadan">下单</button>
 
 
     </form>
@@ -272,6 +283,15 @@
             alert("请求失败，请检查网络连接或稍后重试");
         });
     });
+
+$(document).ready(function() {
+    $('#address').select2({
+        tags: true, // 允许用户输入的标记(tags)
+        placeholder: "选择或输入地址", // 设置占位符
+        allowClear: true, // 允许清除
+        selectOnClose: false // 在关闭下拉菜单时不自动选择高亮的选项
+    });
+});
 </script>
 </body>
 </html>

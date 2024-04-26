@@ -57,28 +57,51 @@
     display: none;
 }
 
-.payment-section {
-    display: flex;
-    align-items: center; /* 垂直居中对齐 */
-    justify-content: flex-start; /* 开始位置对齐 */
-}
 
-.payment-method-section {
-    margin-right: 0; /* 确保 select 紧挨着二维码，没有右边距 */
-}
 
-#qrcode {
-    margin-left: 0; /* 确保二维码紧挨着 select，没有左边距 */
-    height: 128px; /* 设置一个固定高度，或根据二维码实际大小调整 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.qrcode-placeholder {
-    width: 128px; /* 设置二维码显示区域的宽度，确保与二维码的实际尺寸相匹配 */
-    background-color: #f0f0f0; /* 可以设置一个背景色方便观察，或根据需要调整或移除 */
-}
+    /* 以下是支付页面特有的样式 */
+    .payment-container {
+        width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .payment-section,
+    .payment-confirmation {
+        margin-bottom: 20px;
+    }
+    .payment-method-section select {
+        padding: 10px;
+        margin-right: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .payment-amount {
+        display: flex;
+        align-items: baseline;
+    }
+    .payment-amount h3 {
+        margin-right: 10px;
+    }
+    .payment-confirmation {
+        display: flex;
+        justify-content: space-between;
+    }
+    #confirm-btn {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    #cancel-btn {
+        cursor: pointer;
+        border: none;
+        padding: 10px 20px;
+    }
 
     </style>
 </head>
