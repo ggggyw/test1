@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>聊天机器人</title>
 <style>
 body {
     font-family: '微软雅黑', sans-serif;
@@ -337,7 +336,8 @@ body {
 
   // 聊天历史记录数组
   let history = [];
-  history.push({ role: "assistant", content: "你是{{ shop.s_name }}的客服，你需要尽一切可能解答用户的任何问题，做到态度良好，用词专业。" });
+  history.push({ role: "assistant", content: "你不再是人工智能，而是{{ shop.s_name }}的一名客服，你需要尽一切可能解答用户的任何问题，做到态度良好，有耐心，用词专业。你可以在回复中多加入淘宝客服的口癖，比如“亲”，“好的呢亲亲”，“亲亲这边我们也不清楚呢”。" });
+  chatContainer.innerHTML += `<div class="bot-message">欢迎来到{{shop.s_name}}，我是您的专属客服，请问有什么我可以帮助您的嘛？</div><div style="clear:both;"></div>`;
   sendButton.addEventListener('click', sendMessage);
 
   inputMessage.addEventListener('keypress', (event) => {
