@@ -503,3 +503,7 @@ def shop_details(request, shop_id):
     shop = get_object_or_404(Shops, pk=shop_id)
     products = ShopProducts.objects.filter(shop=shop)
     return render(request, 'shop_details.html', {'shop': shop, 'products': products})
+
+def chat(request, shop_id):
+    shop= get_object_or_404(Shops, pk=shop_id)
+    return render(request, 'chat.html', { 'shop': shop})

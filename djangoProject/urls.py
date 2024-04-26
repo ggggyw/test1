@@ -63,4 +63,5 @@ urlpatterns = [
     path('get_user_info/', user_views.get_user_info, name='get_user_info'),
     path('user/shops_follow_page/', user_views.follow_page, name='follow_page'),
     path('user/userpage/shop_details/<int:shop_id>/', user_views.shop_details, name='shop_details'),
+    path('user/userpage/chat/<int:shop_id>/', user_views.chat, name='chat'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

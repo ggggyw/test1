@@ -64,6 +64,44 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
 }
+/* 气泡样式 */
+.chat-bubble {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden; /* 确保图片不超出气泡范围 */
+    animation: pulse 2s infinite;
+}
+
+/* 气泡内的图片 */
+.chat-bubble img {
+    width: 100%; /* 图片宽度完全填充 */
+    height: auto; /* 自动调整图片高度以保持宽高比 */
+}
+
+/* 简单的脉冲动画 */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
     </style>
 </head>
 <body>
@@ -74,7 +112,6 @@
                 <ul class="options">
                 <!-- 用户已登录 -->
                 <li class="sub"><a href="/user/userorder">我的订单</a></li>
-                <li class="sub"><a href="/user/userserve">客户服务</a></li>
                 <li class="sub"><a href="/user/usercart">我的购物车</a></li>
                 </ul>
                 <div class="register"><a href="{% url 'userprofile'%}">查看个人信息</a></div>
@@ -84,7 +121,6 @@
                 <ul class="options">
                 <!-- 用户未登录 -->
                 <li class="sub"><a href="/user/login">我的订单</a></li>
-                <li class="sub"><a href="/user/login">客户服务</a></li>
                 <li class="sub"><a href="/user/login">我的购物车</a></li>
                 </ul>
                 <div class="register"><a href="/user/register">免费注册</a></div>
@@ -338,6 +374,9 @@ function unfollowShop(shopId) {
         delay += 0.1;
     });
 });
+    function redirectToCustomerService() {
+    window.location.href = '{% url 'chat' shop.s_id %}';
+}
 </script>
 <footer>
     <div class="store-name-follow">
@@ -353,6 +392,11 @@ function unfollowShop(shopId) {
         </div>
     </div>
 </footer>
+
+<div class="chat-bubble" onclick="redirectToCustomerService()">
+    <img src="{% static '商品图片/聊天.png' %}" alt="Chat Icon" style="width: 50px; height: 50px;">
+</div>
+
 <div class="recommend-products">
         <h2>猜你喜欢</h2>
         <div class="goods-model">

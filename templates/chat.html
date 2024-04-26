@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聊天机器人</title>
+<style>
+body {
+    font-family: '微软雅黑', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+    background-image: linear-gradient(135deg, #f2f2f2 0%, #e5e5e5 100%);
+    background-attachment: fixed;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 10px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.2));
+    z-index: -1;
+    pointer-events: none;
+}
+
+.container::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    right: -20px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+}
+#chat-container {
+    height: 500px;
+    padding: 20px;
+    overflow-y: scroll;
+    background-color: #FFFFFF;
+    border-radius: 15px;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 2px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+#chat-container::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+#chat-container::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 150px;
+    height: 150px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+#chat-container::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 100px;
+    height: 100px;
+    background: rgba(0, 0, 0, 0.01);
+    border-radius: 50%;
+    pointer-events: none;
+}
+@keyframes messageFlow {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.user-message, .bot-message {
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+    animation: messageFlow 0.5s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-message::after, .bot-message::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border: 10px solid transparent;
+}
+
+.user-message::after {
+    right: -10px;
+    border-bottom-color: #DCF8C6;
+    border-left-color: #DCF8C6;
+}
+
+.bot-message::after {
+    left: -10px;
+    border-bottom-color: #F0F0F0;
+    border-right-color: #F0F0F0;
+}
+
+.user-message {
+    background-color: #DCF8C6;
+    float: right;
+    clear: both;
+}
+
+.bot-message {
+    background-color: #F0F0F0;
+    float: left;
+    clear: both;
+}
+#input-container {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+#input-message {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+#input-message:focus {
+    outline: none;
+    background-color: #ffffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transform: scale(1.02);
+}
+
+#role-select, #tts-select {
+    padding: 10px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #888888 50%), linear-gradient(135deg, #888888 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 2px), calc(100% - 15px) calc(1em + 2px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+}
+
+#role-select:focus, #tts-select:focus {
+    outline: none;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+    transform: scale(1.02);
+}
+
+.button {
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.button:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    transform: skewX(-30deg);
+}
+
+.button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:hover:before {
+    left: 100%;
+}
+
+.button:active {
+    transform: scale(0.98);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+#clear-button {
+    background-color: #f44336;
+}
+
+#send-button {
+    background-color: #4CAF50;
+}
+
+#record-button, #stop-button {
+    background-color: #2196F3;
+}
+
+#stop-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#role-select, #tts-select {
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#record-button, #stop-button {
+    background-color: #2196F3;
+}
+
+.audio-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 10px;
+}
+
+#audio-player, #recorded-audio {
+    width: 48%;
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+#audio-player:hover, #recorded-audio:hover {
+    transform: scale(1.05);
+}
+.typing-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    margin-right: 5px;
+    animation: typing-dot-animation 1.5s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-dot-animation {
+    0%, 60%, 100% {
+        transform: initial;
+    }
+    30% {
+        transform: translateY(-10px);
+    }
+}
+#default-message {
+    font-size: 24px;
+    font-weight: bold;
+    color: #888;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    transition: opacity 0.5s, top 0.5s;
+}
+
+#default-message.hidden {
+    opacity: 0;
+    top: 40%;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div id="chat-container"></div>
+    <div id="input-container">
+        <input type="text" id="input-message" placeholder="输入消息...">
+        <button id="send-button" class="button">发送</button>
+    </div>
+    <div id="default-message">{{ shop.s_name }}客服</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const inputMessage = document.getElementById('input-message');
+  const sendButton = document.getElementById('send-button');
+
+  // 聊天历史记录数组
+  let history = [];
+  history.push({ role: "assistant", content: "你是{{ shop.s_name }}的客服，你需要尽一切可能解答用户的任何问题，做到态度良好，用词专业。" });
+  sendButton.addEventListener('click', sendMessage);
+
+  inputMessage.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const message = inputMessage.value.trim();
+    inputMessage.value = ''; // 立即清空输入框
+
+    if (chatContainer.querySelector('#default-message')) {
+        chatContainer.querySelector('#default-message').classList.add('hidden');
+        setTimeout(() => {
+            chatContainer.querySelector('#default-message').remove();
+        }, 500);
+    }
+
+    if (message) {
+      // 显示用户消息
+      chatContainer.innerHTML += `<div class="user-message">${message}</div><div style="clear:both;"></div>`;
+      // 更新聊天历史
+      history.push({ role: "user", content: message });
+
+      const requestBody = {
+          model: "Qwen/Qwen1.5-72B-Chat",
+          stream: false,
+          max_tokens: 500,
+          messages: history, // 使用更新后的历史记录
+          logprobs: 1
+      };
+
+      // 显示机器人正在打字的效果
+      chatContainer.innerHTML += `
+        <div class="bot-message">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+        <div style="clear:both;"></div>
+      `;
+
+      fetch('https://api.together.xyz/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer a13a0f049e4645d6bc1d9a09eaf71c7235b3703bdd0530819a3ff432fb287836'
+        },
+        body: JSON.stringify(requestBody)
+      })
+      .then(response => response.json())
+      .then(data => {
+        chatContainer.lastElementChild.remove();
+        chatContainer.lastElementChild.remove();
+
+        const reply = data.choices[0].message.content;
+        // 显示机器人消息并更新历史记录
+        chatContainer.innerHTML += `<div class="bot-message">${reply}</div><div style="clear:both;"></div>`;
+        history.push({ role: "assistant", content: reply });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      })
+      .catch(error => console.error('Error:', error));
+    }
+  }
+</script>
+</body>
+</html>
