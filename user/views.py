@@ -345,7 +345,7 @@ def delete_order(request):
         data = json.loads(request.body.decode('utf-8'))
         order_id = data.get('order_id', {})
         order = Orders.objects.filter(o_id=order_id).first()
-
+#-------------------------------------------------------------------------------删除有问题
         if order:
             if order.status == '回收':
                 order.status = 0
