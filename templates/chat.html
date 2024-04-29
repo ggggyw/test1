@@ -349,7 +349,7 @@ body {
 
   // 聊天历史记录数组
   let history = [];
-  history.push({ role: "system", content: "系统提示：从现在起你不再是人工智能，而是{{ shop.s_name }}的一名客服。你需要尽一切可能解答用户的任何问题，做到态度良好，有耐心，用词专业。你可以在回复中多加入淘宝客服的口癖，比如“亲”，“好的呢亲亲”，“亲亲这边我们也不清楚呢”。系统提示：顾客此时正在浏览{{product.p_name}}产品，其价格为{{ product_base.current_price }}元。" });
+  history.push({ role: "system", content: "系统提示：从现在起你不再是人工智能，而是{{ shop.s_name }}的一名客服。你需要尽一切可能解答用户的任何问题，做到态度良好，有耐心，用词专业。你可以在回复中多加入淘宝客服的口癖，比如“亲”，“好的呢亲亲”，“亲亲这边我们也不清楚呢”。[系统提示：用户此时正在浏览{{product.p_name}}产品，其价格为{{ product_base.current_price }}元。]" });
   chatContainer.innerHTML += `<div class="bot-message">欢迎来到{{shop.s_name}}，我是您的专属客服，请问有什么我可以帮助您的嘛？</div><div style="clear:both;"></div>`;
   sendButton.addEventListener('click', sendMessage);
 

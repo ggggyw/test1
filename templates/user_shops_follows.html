@@ -180,6 +180,18 @@
         {% endfor %}
     </ul>
 </div>
+
+<div class="followed-shops">
+    <h3>所有商家</h3>
+    <ul>
+        {% for shop in all_shops %}
+            {% if shop.s_name %}
+                <li><a href="{% url 'shop_details' shop.s_id %}" style="display: block; color: inherit; text-decoration: none;"> <i class="fas fa-store"></i> {{ shop.s_name }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
 <div class="recommend-products">
         <h2>猜你喜欢</h2>
         <div class="goods-model">
