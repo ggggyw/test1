@@ -151,3 +151,35 @@ def delete_user(request):
         return JsonResponse({'success': False, 'message': '删除过程出错', 'error': str(e)})
 
 
+@require_http_methods(["POST"])
+@csrf_exempt  # 如果你的前端不处理 CSRF token，可以暂时放宽 CSRF 限制
+def get_shop_info(request):
+    try:
+        # 解析请求体中的 JSON 数据
+        data = json.loads(request.body)
+        s_id = data.get('s_id')
+
+        # 使用 s_id 查询商家信息
+        shop = Shops.objects.get(s_id=s_id)
+
+        # 将商家信息构造成一个字典以便返回
+        shop_info = {
+            's_id': shop.s_id,
+            's_name': shop.s_name,
+            's_acc': shop.s_acc,
+            's_psw': shop.s_psw,  # 出于安全考虑，通常不应该传输密码
+            's_phone': shop.s_phone,
+            'email': shop.email,
+            'address': shop.address,
+        }
+        print(shop_info)
+        # 返回包含商家信息的 JSON 响应
+        return JsonResponse({'success': True, 'data': shop_info})
+    except Shops.DoesNotExist:
+        # 如果商家不存在，返回错误信息
+        return JsonResponse({'success': False, 'message': '商家不存在'})
+    except Exception as e:
+        # 捕获并处理任何其他异常
+        return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+
+

@@ -352,7 +352,9 @@ def user_orders(request):
         'all': None,
         'pending': '待付款',
         'shipped': '待收货',
+        'beshipped': '待发货',
         'review': '待评价',
+        'returned': '已退货',
         'recycle': '回收'
     }
     # 获取映射后的状态值

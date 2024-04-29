@@ -263,7 +263,9 @@ button {
     <ul class="order-options">
         <li><a href="/user/userorder" data-status="all" class="title">全部订单</a></li>
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
+        <li><a href="/user/userorder?status=beshipped" data-status="beshipped">待发货</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
+        <li><a href="/user/userorder?status=returned" data-status="returned">已退货</a></li>
         <li><a href="/user/userorder?status=review" data-status="review">待评价</a></li>
         <li><a href="/user/userorder?status=recycle" data-status="recycle">订单回收站</a></li>
     </ul>
@@ -349,7 +351,7 @@ success: function(response) {
             '</div>' +
             '<div class="caozuo">' +
                 '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
-              (order.status === '待付款' ? '<button onclick="processPayment(' + order.order_id + ')"><span class="box">付款</span></button>' : '') +
+              (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                  '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
             '</div>' +
             '</div>';
@@ -458,7 +460,7 @@ function getOrdersByStatus(status) {
                     '</div>' +
                     '<div class="caozuo">' +
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
-                    (order.status === '待付款' ? '<button onclick="location.href=\'/payment?order_id=' + order.order_id + '\'">付款</button>' : '') +
+                    (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                      '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
                     '</div>' +
                     '</div>';
@@ -530,6 +532,17 @@ function processPayment(orderId) {
         }
     });
 }
+
+function redirectToPaymentPage(orderId,total_amount) {
+    // 可以选择性地在这里执行其他逻辑，例如验证等
+
+    // 将 orderId 存储到 localStorage 或 sessionStorage
+    localStorage.setItem('order_id', orderId);
+    localStorage.setItem('totalPrice', total_amount);
+    // 重定向到付款页面，并将 orderId 作为查询参数传递
+    window.location.href = '/user/userpayment_page';
+}
+
 </script>
 
 </body>

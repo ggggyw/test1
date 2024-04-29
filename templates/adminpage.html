@@ -275,7 +275,7 @@
             <td>{{ shop.email }}</td>
             <td>{{ shop.address }}</td>
             <td>
-              <button onclick="openEditModal('{{ shop.s_id }}')">编辑</button>
+              <button onclick="openshopEditModal('{{ shop.s_id }}')">编辑</button>
               <button>删除</button>
             </td>
           </tr>
@@ -316,7 +316,7 @@
       <td>{{ shop_product.discount }}</td>
       <td>{{ shop_product.current_price }}</td>
       <td>
-        <button onclick="openEditModal('{{ product.shop_product_id }}')">编辑</button>
+        <button onclick="openshopEditModal('{{ product.shop_product_id }}')">编辑</button>
         <button>删除</button>
       </td>
     </tr>
@@ -385,14 +385,10 @@
     <span class="close">&times;</span>
     <h2>编辑管理员信息</h2>
     <form id="admin-edit-form">
-      <label for="ad_id">管理员 ID:</label>
-      <input type="text" id="ad_id" name="ad_id">
       <label for="ad_acc">用户名:</label>
       <input type="text" id="ad_acc" name="ad_acc">
       <label for="ad_psw">密码:</label>
       <input type="password" id="ad_psw" name="ad_psw">
-      <label for="is_super">是否为超级管理员:</label>
-      <input type="checkbox" id="is_super" name="is_super">
       <button type="submit">提交</button>
     </form>
   </div>
@@ -533,8 +529,6 @@
       <span class="close">&times;</span>
       <h2>编辑用户信息</h2>
       <form id="edit-form">
-        <label for="u_id">用户 ID:</label>
-        <input type="text" id="u_id" name="u_id">
         <label for="u_acc">用户名:</label>
         <input type="text" id="u_acc" name="u_acc">
         <label for="u_name">姓名:</label>
@@ -549,6 +543,26 @@
       </form>
     </div>
   </div>
+
+<div id="shopEditModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>编辑商家信息</h2>
+    <form id="shop-edit-form">
+        <label for="s_name">商家名称:</label>
+      <input type="text" id="s_name" name="s_acc">
+        <label for="s_acc">商家账号:</label>
+      <input type="text" id="s_acc" name="s_acc">
+      <label for="s_phone">手机号:</label>
+        <input type="text" id="s_phone" name="s_phone">
+        <label for="email">邮箱:</label>
+        <input type="text" id="email" name="email">
+        <label for="address">地址:</label>
+        <input type="text" id="address" name="address">
+      <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
 
   <script>
       window.onload = function() {
@@ -814,6 +828,57 @@ $(document).ready(function(){
     function changeTitle(title) {
     document.getElementById('pageTitle').innerHTML = title;
 }
+
+function openshopEditModal(shopId) {
+  var modal = $('#shopEditModal');
+  var span = $('.close');
+
+  // 使用 AJAX 请求获取商家信息
+  $.ajax({
+    url: '/get_shop_info/',   // 根据你的后端定义修改 URL
+    type: 'POST',
+    data: JSON.stringify({s_id: shopId}),
+    contentType: 'application/json; charset=utf-8',
+    headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // CSRF token
+    success: function(response) {
+        if(response.success) {
+            // 渲染数据到模态框的输入框
+            // 注意，下面的每个输入框 ID 应与模态中的对应
+            $('#s_name').val(response.data.s_name);
+            $('#s_acc').val(response.data.s_acc);
+            $('#s_phone').val(response.data.s_phone);
+            $('#email').val(response.data.email);
+            $('#address').val(response.data.address);
+
+            // 由于 s_id 通常作为一个隐藏的字段来保存，在这里没必要设置它的值，
+            // 除非你在表单中做了一个隐藏的输入来存储它。
+
+            // 显示模态框
+            modal.show();
+        } else {
+            alert('获取数据失败！');
+        }
+    },
+    error: function(error) {
+        console.error(error);
+        alert('请求失败，请检查网络连接或稍后重试');
+    }
+  });
+
+  // 关闭按钮事件
+  span.click(function() {
+    modal.hide();
+  });
+
+  // 点击模态框外面关闭窗口
+  $(window).click(function(event) {
+    if (event.target == modal[0]) {
+        modal.hide();
+    }
+  });
+}
+
+
   </script>
 </body>
 </html>
