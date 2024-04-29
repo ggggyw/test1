@@ -320,7 +320,7 @@ def again_buy(request):
             cart.join_time = timezone.now()
             cart.save()
 
-        return JsonResponse({'message': '再次购买成功'}, status=200)
+        return JsonResponse({'message': '添加到购物车'}, status=200)
     else:
         return JsonResponse({'error': '请求方法不支持'}, status=400)
 
