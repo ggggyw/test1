@@ -351,7 +351,7 @@ def delete_order(request):
                 order.status = 0
                 order.save()
             else:
-                order.status = '回收'
+                order.status = '待付款'
                 order.save()
 
             return JsonResponse({'message': '删除成功'}, status=200)
