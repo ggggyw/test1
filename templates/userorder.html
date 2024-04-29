@@ -352,6 +352,7 @@ success: function(response) {
             '<div class="caozuo">' +
                 '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
               (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
+            (order.status === '待收货' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
                  '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
             '</div>' +
             '</div>';
@@ -461,6 +462,7 @@ function getOrdersByStatus(status) {
                     '<div class="caozuo">' +
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
                     (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
+                    (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
                      '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
                     '</div>' +
                     '</div>';
@@ -533,6 +535,32 @@ function processPayment(orderId) {
     });
 }
 
+function confirmReceipt(orderId) {
+    var data = { o_id: orderId};
+    fetch('/confirm_receipt/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 确保你已正确处理 CSRF token。
+            'X-CSRFToken': getCSRFToken()  // 假定 getCSRFToken() 是一个用于获取 CSRF token 的函数。
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("收货确认成功！");
+            location.reload();  // 重新加载页面以获取最新的订单状态。
+        } else {
+            alert("收货确认失败：" + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('错误:', error);
+        alert("请求发生错误，请稍后再试。");
+    });
+}
+
 function redirectToPaymentPage(orderId,total_amount) {
     // 可以选择性地在这里执行其他逻辑，例如验证等
 
@@ -541,6 +569,22 @@ function redirectToPaymentPage(orderId,total_amount) {
     localStorage.setItem('totalPrice', total_amount);
     // 重定向到付款页面，并将 orderId 作为查询参数传递
     window.location.href = '/user/userpayment_page';
+}
+
+function getCSRFToken() {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, 10) === ('csrftoken=')) {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 </script>

@@ -43,6 +43,7 @@ urlpatterns = [
     path('delete_item/',user_views.delete_item, name='delete_item'),
     path('checkout/',user_views.checkout, name='checkout'),
     path('again_buy/',user_views.again_buy, name='again_buy'),
+    path('confirm_receipt/',user_views.confirm_receipt, name='confirm_receipt'),
     path('delete_order/',user_views.delete_order, name='delete_order'),
     path('update_quantity/',user_views.update_quantity, name='update_quantity'),
     path('add-to-cart/',user_views.add_to_cart, name='add_to_cart'),

@@ -325,6 +325,21 @@ def again_buy(request):
         return JsonResponse({'error': '请求方法不支持'}, status=400)
 
 @csrf_exempt
+def confirm_receipt(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            order = Orders.objects.get(o_id=data['o_id'])
+            order.status = '已完成'  # 假设 '已完成' 是完成状态的正确值
+            order.save()
+            return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
+        except Orders.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '该订单不存在。'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': '无效的请求方法。'})
+@csrf_exempt
 def delete_order(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
@@ -353,7 +368,7 @@ def user_orders(request):
         'pending': '待付款',
         'shipped': '待收货',
         'beshipped': '待发货',
-        'review': '待评价',
+        'review': '已完成',
         'returned': '已退货',
         'recycle': '回收'
     }
