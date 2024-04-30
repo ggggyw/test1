@@ -1127,7 +1127,7 @@
         // 获取用户名字的元素并添加高亮类
         var userNameElem = document.querySelector('td[onclick="showUserModel(' + userId + ')"]');
         if (userNameElem) {
-            userNameElem.classList.add('highlight');
+            userNqameElem.classList.add('highlight');
         }
         // 发起 AJAX 请求以获取用户信息
         fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变

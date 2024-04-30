@@ -393,8 +393,16 @@
 
 <h1 align="center">RFM 消费者类型分析</h1>
 <p></p>
-
-
+<form method="post">
+{#<select id='timeFilter' name="timeFilter" class="time-filter" onchange="filterTableBySelect()" >#}
+{#    <option value=10000 {% if time_range == 10000 %}selected{% endif %}>全部</option>#}
+{#    <option value=6>最近六个月</option>#}
+{#    <option value=12>最近一年</option>#}
+{#    <option value=24>最近两年</option>#}
+{#    <option value=36>最近三年</option>#}
+{#</select>#}
+</form>
+<p></p>
 <div>
     <table align="center" id="dataTable" style="display: ">
         <thead>
@@ -435,7 +443,7 @@
                 <tr>
                     <td>
                         <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
-                            {{ consumer.u_id }}
+                            {{ consumer.u_name }}
                         </div>
                     </td>
                     <td>{{ consumer.Recency }}</td>
@@ -461,8 +469,6 @@
             <p>手机号: <span id="userModel_u_phone"></span></p>
             <p>邮箱: <span id="userModel_u_email"></span></p>
             <p>地址: <span id="userModel_u_address"></span></p>
-            <p>订单: <span id="userModel_u_order"></span></p>
-            <button id="showOrdersButton" class="btn btn-primary">显示订单</button> <!-- 新增的按钮 -->
         </div>
     </div>
 </div>
@@ -519,6 +525,15 @@
     }
 
 
+    function filterTime(){
+        //筛选时间
+        var select,time_range;
+        select = document.getElementById('timeFilter');
+        time_range = select.value;
+        var queryString = '?time_range' + time_range;
+        window.location.search = queryString;
+    }
+
     function filterTableBySelect() {
         var select, category_id;
         select = document.getElementById('filterSelect');
@@ -533,6 +548,7 @@
         document.getElementById('userModel').style.display = 'none';
     };
 
+    // 在商家点击消费者（user_id）时调用的函数
     function showUserModel(userId) {
     // 发起 AJAX 请求以获取用户信息
     fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变
@@ -583,6 +599,7 @@
             closeModel('userModel');
         }
     };
+
 </script>
 </body>
 </html>
