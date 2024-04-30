@@ -393,8 +393,16 @@
 
 <h1 align="center">RFM 消费者类型分析</h1>
 <p></p>
-
-
+<form method="post">
+{#<select id='timeFilter' name="timeFilter" class="time-filter" onchange="filterTableBySelect()" >#}
+{#    <option value=10000 {% if time_range == 10000 %}selected{% endif %}>全部</option>#}
+{#    <option value=6>最近六个月</option>#}
+{#    <option value=12>最近一年</option>#}
+{#    <option value=24>最近两年</option>#}
+{#    <option value=36>最近三年</option>#}
+{#</select>#}
+</form>
+<p></p>
 <div>
     <table align="center" id="dataTable" style="display: ">
         <thead>
@@ -435,7 +443,7 @@
                 <tr>
                     <td>
                         <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
-                            {{ consumer.u_id }}
+                            {{ consumer.u_name }}
                         </div>
                     </td>
                     <td>{{ consumer.Recency }}</td>
@@ -500,6 +508,7 @@
     {% endif %}
     <!-- 添加页面跳转功能 -->
     <form action="" method="get" style="display: inline-block;">
+        <input type="hidden" name="category_id" value="{{ selected_rfm_label }}">
         <input type="number" name="page" min="1" max="{{ RFM_data.paginator.num_pages }}" required
                placeholder="页码" style="margin-left: 5px; margin-right: 5px; text-align: center;">
         <input type="submit" value="跳转" style="padding: 5px; margin: 5px;">
@@ -517,13 +526,21 @@
     }
 
 
+    function filterTime(){
+        //筛选时间
+        var select,time_range;
+        select = document.getElementById('timeFilter');
+        time_range = select.value;
+        var queryString = '?time_range' + time_range;
+        window.location.search = queryString;
+    }
+
     function filterTableBySelect() {
         var select, category_id;
         select = document.getElementById('filterSelect');
         category_id = select.value;
         var queryString = '?category_id=' + category_id;
         window.location.search = queryString;
-
     }
 
     // 默认情况下，模态框应该被隐藏
@@ -548,6 +565,7 @@
                 document.getElementById('userModel_u_phone').textContent = user.u_phone;
                 document.getElementById('userModel_u_email').textContent = user.u_email;
                 document.getElementById('userModel_u_address').textContent = user.u_address;
+                document.getElementById('userModel_u_order').textContent = user.u_address;
                 // 显示模态框
                 document.getElementById('userModel').style.display = 'block';
             })

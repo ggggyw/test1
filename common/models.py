@@ -7,6 +7,7 @@ class ProductCategories(models.Model):
 
     class Meta:
         db_table = 'product_categories'
+
     def __str__(self):
         return self.category_name
 
@@ -84,9 +85,9 @@ class Users(models.Model):
 
 
 class Carts(models.Model):
-    product = models.ForeignKey(ShopProducts,  on_delete=models.CASCADE)
+    product = models.ForeignKey(ShopProducts, on_delete=models.CASCADE)
     user = models.ForeignKey(Users, on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shops,  on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shops, on_delete=models.CASCADE)
     join_time = models.DateTimeField()
     quantity = models.IntegerField()
 
