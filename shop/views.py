@@ -666,7 +666,6 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
-
 def shop_search_orders(request):
     # 为所有可能的搜索字段获取值
     s_id = request.session.get('s_id', None)

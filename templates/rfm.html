@@ -461,6 +461,8 @@
             <p>手机号: <span id="userModel_u_phone"></span></p>
             <p>邮箱: <span id="userModel_u_email"></span></p>
             <p>地址: <span id="userModel_u_address"></span></p>
+            <p>订单: <span id="userModel_u_order"></span></p>
+            <button id="showOrdersButton" class="btn btn-primary">显示订单</button> <!-- 新增的按钮 -->
         </div>
     </div>
 </div>
@@ -531,30 +533,42 @@
         document.getElementById('userModel').style.display = 'none';
     };
 
-    // 在商家点击消费者（user_id）时调用的函数
     function showUserModel(userId) {
-        // 发起 AJAX 请求以获取用户信息
-        fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(user => {
-                // 以下代码是将获取到的用户数据填充到模态框
-                document.getElementById('userModel_u_name').textContent = user.u_name;
-                document.getElementById('userModel_u_sex').textContent = user.u_sex;
-                document.getElementById('userModel_u_phone').textContent = user.u_phone;
-                document.getElementById('userModel_u_email').textContent = user.u_email;
-                document.getElementById('userModel_u_address').textContent = user.u_address;
-                // 显示模态框
-                document.getElementById('userModel').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error fetching user data:', error);
-            });
-    }
+    // 发起 AJAX 请求以获取用户信息
+    fetch('/shop/shoppage/shop_order/user/' + userId + '/') // 请注意路径的改变
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(user => {
+            // 以下代码是将获取到的用户数据填充到模态框
+            document.getElementById('userModel_u_name').textContent = user.u_name;
+            document.getElementById('userModel_u_sex').textContent = user.u_sex;
+            document.getElementById('userModel_u_phone').textContent = user.u_phone;
+            document.getElementById('userModel_u_email').textContent = user.u_email;
+            document.getElementById('userModel_u_address').textContent = user.u_address;
+
+            // 获取显示订单的按钮
+            var showOrdersButton = document.getElementById('showOrdersButton');
+            // 为按钮添加点击事件处理器
+            showOrdersButton.onclick = function() {
+                // 使用encodeURI函数确保姓名被正确地编码
+                var encodedUserName = encodeURI(user.u_name);
+                // 构造URL
+                var url = '/shop/shoppage/shop_search_orders/?product_name=&brand=&min_stock=&max_stock=&category_id=0&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time=&max_created_time=&user_phone=&user_sex=&user_email=&user_name=' + encodedUserName;
+                // 跳转到新的URL
+                window.location.href = url;
+            };
+
+            // 显示模态框
+            document.getElementById('userModel').style.display = 'block';
+        })
+        .catch(error => {
+            console.error('Error fetching user data:', error);
+        });
+}
 
     // 关闭模态框的函数
     function closeModel(modelId) {
@@ -569,7 +583,6 @@
             closeModel('userModel');
         }
     };
-
 </script>
 </body>
 </html>
