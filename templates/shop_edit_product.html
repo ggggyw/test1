@@ -198,25 +198,67 @@
 
         /* 商品信息区域样式 */
         .product-info {
-            background-color: white; /* 设置背景颜色为白色 */
             padding: 20px; /* 设置内边距 */
             border-radius: 10px; /* 设置圆角 */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); /* 添加阴影 */
             margin-right: 2px; /* 与编辑表单区域分开 */
+            --bg-color: beige;
+            --main-color: black;
+            background: lightblue;
+            --input-focus: #2d8cf0;
+            --font-color: #323232;
+            --font-color-sub: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 5px;
+            border: 2px solid var(--main-color);
+            box-shadow: 4px 4px var(--main-color);
+            width: 100%; /* 设置编辑表单区域宽度 */
+            max-width: 500px; /* 超过500px则不再扩展 */
+            transition: all 0.3s ease-in-out; /* 添加过渡效果 */
         }
 
-        .product-info:hover {
-            transform: translateY(-10px); /* 鼠标悬浮时产生轻微的上浮效果 */
+
+        .product-info .title {
+            color: var(--font-color);
+            font-weight: 900;
+            font-size: 35px; /* 修改后的字体大小 */
+            margin-bottom: 10px;
+            text-align: center; /* 设置文本居中 */
         }
 
-        .product-info p {
-            margin-bottom: 12px; /* 区分每一行商品信息 */
+        .product-detail {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
         }
 
-        .product-info img {
-            margin-top: 12px; /* 图像与上方文字留出空隙 */
-            border: 1px solid #ddd; /* 图片添加边框 */
-            border-radius: 5px; /* 图片边框圆角 */
+        .product-info .description {
+            color: #333; /* 字体颜色 */
+            font-size: 16px; /* 字体大小 */
+            font-weight: bold; /* 字体加粗 */
+            white-space: nowrap;
+        }
+
+        .product-info .value {
+            flex-grow: 1;
+            min-width: 0;
+            display: block; /* 或者使用 flex; 如果你希望它填充剩余空间 */
+            margin-left: 5px; /* 为值文本添加左边距 */
+            margin-bottom: 6px;
+            box-sizing: border-box; /* 修改盒模型 */
+            width: 250px;
+           
+            border-radius: 5px;
+            border: 2px solid var(--main-color);
+            background-color: var(--bg-color);
+            box-shadow: 4px 4px var(--main-color);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--font-color);
+            padding: 5px 10px;
+            outline: none;
         }
 
         /* 商品编辑表单样式 */
@@ -328,6 +370,7 @@
 
         ul.errorlist li {
             list-style-type: none; /* 去除列表符号 */
+            color: #ff0000;
         }
 
         .messages {
@@ -348,10 +391,6 @@
             margin-bottom: 10px; /* 外边距 */
             display: inline-block;
             border-radius: 5px; /* 边框圆角 */
-        }
-
-        ul.errorlist li {
-            color: red;
         }
 
         /* 淡出动画 */
@@ -390,10 +429,11 @@
                 </li>
                 <li class="shop_items"><a
                         href="http://127.0.0.1:8000/shop/shoppage/myproducts/?category_id=0&query={{ query|default_if_none:'请输入想找的宝贝' }}"
-                        class="selected1">我的商品</a>
+                >我的商品</a>
                 </li>
                 <li class="shop_items"><a
-                        href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0">管理商品</a>
+                        href="http://127.0.0.1:8000/shop/shoppage/manage_products/?category_id=0"
+                        class="selected1">管理商品</a>
                 </li>
                 <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/shop_order/">我的订单</a></li>
                 <li class="shop_items"><a href="http://127.0.0.1:8000/shop/shoppage/rfm/">RFM分析</a></li>
@@ -451,35 +491,66 @@
 <div class="shop_content">
     <!-- 显示旧的商品信息 -->
     <div class="product-info">
-        <!-- 在这里显示原来的商品信息 -->
-        <p>商品名称: {{ shop_products.product.p_name }}</p>
-        <!-- 显示商品图片和其他信息 -->
-        <p>商品类别: {{ shop_products.product.p_type.category_name }}</p>
-        <p>品牌名称: {{ shop_products.product.brand }}</p>
-        <p>当前价格: {{ shop_products.current_price }}</p>
-        <p>商品描述: {{ shop_products.product_desc }}</p>
-        <p>商品状态: {{ shop_products.product_status }}</p>
-        <p>库存数量: {{ shop_products.stock_quantity }}</p>
-        <p>原始价格: {{ shop_products.original_price }}</p>
-        <p>商品折扣: {{ shop_products.discount }}</p>
-        <p>现在价格: {{ shop_products.current_price }}</p>
-        <p>商品图片: </p>
-        <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
-             height="200px" onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+        <div class="title">商品信息</div>
+        <div class="product-detail">
+            <span class="description">商品名称:</span>
+            <span class="value">{{ shop_products.product.p_name }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">商品类别:</span>
+            <span class="value">{{ shop_products.product.p_type.category_name }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">品牌名称:</span>
+            <span class="value">{{ shop_products.product.brand }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">当前价格:</span>
+            <span class="value">{{ shop_products.current_price }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">商品描述:</span>
+            <span class="value">{{ shop_products.product_desc }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">商品状态:</span>
+            <span class="value">{{ shop_products.product_status }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">库存数量:</span>
+            <span class="value">{{ shop_products.stock_quantity }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">原始价格:</span>
+            <span class="value">{{ shop_products.original_price }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">商品折扣:</span>
+            <span class="value">{{ shop_products.discount }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">现在价格:</span>
+            <span class="value">{{ shop_products.current_price }}</span>
+        </div>
+        <div class="product-detail">
+            <span class="description">商品图片:</span>
+            <img src="{% static '商品图片/'|add:shop_products.product_image_url %}" alt="商品图片" width="200px"
+                 height="200px" onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+        </div>
     </div>
 
     <!-- 商品信息编辑表单 -->
     <div class="edit-form">
         <div class="title">修改商品
-             <span style="color:
-                {% if shop_products.product_auditstatus == '审核通过' %}
-                    green
-                {% elif shop_products.product_auditstatus == '待审核' %}
-                    yellow
-                {% else %}
-                    red
-                {% endif %};margin-bottom: 0px; margin-left: 300px;font-weight: 900;
-                font-size: 25px; /* 修改后的字体大小 */">
+            <span style="color:
+                    {% if shop_products.product_auditstatus == '审核通过' %}
+                        green
+                    {% elif shop_products.product_auditstatus == '待审核' %}
+                        yellow
+                    {% else %}
+                        red
+                    {% endif %};margin-bottom: 0px; margin-left: 300px;font-weight: 900;
+                    font-size: 25px; /* 修改后的字体大小 */">
             {{ shop_products.product_auditstatus }}
         </span>
         </div>
