@@ -334,7 +334,7 @@ def shop_productdetails(request, p_id):
 def manage_products(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
-    category_id = request.GET.get('category_id')
+    category_id = request.GET.get('category_id', '0')
     if category_id is not None and category_id != '0' and category_id != '':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
@@ -666,6 +666,7 @@ def shop_order(request):
     }
     return render(request, 'shop_order.html', context)
 
+
 def shop_search_orders(request):
     # 为所有可能的搜索字段获取值
     s_id = request.session.get('s_id', None)
@@ -950,6 +951,7 @@ def get_time_range(request):
     # 如果是GET请求，就渲染表单
     return render(request, 'rfm.html')
 
+
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
     products_data = pd.read_sql_query('select * from products', engine)
@@ -964,7 +966,6 @@ def rfm_analysis(request):
     merged_data = pd.merge(orders_data, order_details_data, left_on='o_id', right_on='order_id')
     merged_data = pd.merge(merged_data, products_data, left_on='product_id', right_on='p_id')
     merged_data = pd.merge(merged_data, user_data, left_on='user_id', right_on='u_id')
-
 
     months = request.POST.get('timeFilter')
     print(months)
@@ -1016,7 +1017,6 @@ def rfm_analysis(request):
         '001': '重要挽留客户',
         '000': '流失用户'
     }
-
 
     RFM['RFM_Label'] = RFM['RFM_Class'].map(rfm_labels)
 
