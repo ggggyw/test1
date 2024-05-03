@@ -330,6 +330,22 @@ def confirm_receipt(request):
         data = json.loads(request.body)
         try:
             order = Orders.objects.get(o_id=data['o_id'])
+            order.status = '待退货'  # 假设 '已完成' 是完成状态的正确值
+            order.save()
+            return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
+        except Orders.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '该订单不存在。'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': '无效的请求方法。'})
+
+@csrf_exempt
+def confirm(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            order = Orders.objects.get(o_id=data['o_id'])
             order.status = '已完成'  # 假设 '已完成' 是完成状态的正确值
             order.save()
             return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
@@ -339,13 +355,28 @@ def confirm_receipt(request):
             return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
     else:
         return JsonResponse({'success': False, 'message': '无效的请求方法。'})
+
+@require_POST
+def return_order(request):
+    data = json.loads(request.body)
+    order_id = data.get('o_id')
+    try:
+        order = Orders.objects.get(o_id=order_id)
+        order.status = '已退货'
+        order.save()
+        return JsonResponse({'success': True, 'message': '退货成功。'})
+    except Orders.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '订单不存在。'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
+
 @csrf_exempt
 def delete_order(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         order_id = data.get('order_id', {})
         order = Orders.objects.filter(o_id=order_id).first()
-#-------------------------------------------------------------------------------删除有问题
+
         if order:
             if order.status == '已取消':
                 order.status = 0
@@ -369,6 +400,7 @@ def user_orders(request):
         'shipped': '待收货',
         'beshipped': '待发货',
         'review': '已完成',
+        'bereturned':'待退货',
         'returned': '已退货',
         'recycle': '已取消'
     }

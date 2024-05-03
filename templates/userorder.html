@@ -265,8 +265,9 @@ button {
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
         <li><a href="/user/userorder?status=beshipped" data-status="beshipped">待发货</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
-        <li><a href="/user/userorder?status=review" data-status="review">待评价</a></li>
+        <li><a href="/user/userorder?status=bereturned" data-status="bereturned">待退货</a></li>
         <li><a href="/user/userorder?status=returned" data-status="returned">已退货</a></li>
+        <li><a href="/user/userorder?status=review" data-status="review">已完成</a></li>
         <li><a href="/user/userorder?status=recycle" data-status="recycle">订单回收站</a></li>
     </ul>
 
@@ -463,6 +464,8 @@ function getOrdersByStatus(status) {
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
                     (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                     (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
+                    (order.status === '待退货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
+                    (order.status === '待退货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
                      '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
                     '</div>' +
                     '</div>';
@@ -561,6 +564,32 @@ function confirmReceipt(orderId) {
     });
 }
 
+function confirm(orderId) {
+    var data = { o_id: orderId};
+    fetch('/confirm/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 确保你已正确处理 CSRF token。
+            'X-CSRFToken': getCSRFToken()  // 假定 getCSRFToken() 是一个用于获取 CSRF token 的函数。
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("确认成功！");
+            location.reload();  // 重新加载页面以获取最新的订单状态。
+        } else {
+            alert("确认失败：" + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('错误:', error);
+        alert("请求发生错误，请稍后再试。");
+    });
+}
+
 function redirectToPaymentPage(orderId,total_amount) {
     // 可以选择性地在这里执行其他逻辑，例如验证等
 
@@ -585,6 +614,39 @@ function getCSRFToken() {
         }
     }
     return cookieValue;
+}
+
+function returnOrder(orderId) {
+
+
+    // 准备请求数据
+    var data = { o_id: orderId };
+
+    // 从cookie中获取CSRF token
+    var csrfToken = getCSRFToken();
+
+    // 发送 AJAX POST 请求给服务器以处理退货
+    fetch('/return_order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("退货操作成功！");
+            location.reload(); // 重新加载页面获取最新状态
+        } else {
+            alert("退货操作失败：" + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('错误:', error);
+        alert("请求发生错误，请稍后再试。");
+    });
 }
 
 </script>
