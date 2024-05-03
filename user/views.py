@@ -347,11 +347,11 @@ def delete_order(request):
         order = Orders.objects.filter(o_id=order_id).first()
 #-------------------------------------------------------------------------------删除有问题
         if order:
-            if order.status == '回收':
+            if order.status == '已取消':
                 order.status = 0
                 order.save()
             else:
-                order.status = '待付款'
+                order.status = '已取消'
                 order.save()
 
             return JsonResponse({'message': '删除成功'}, status=200)
@@ -370,7 +370,7 @@ def user_orders(request):
         'beshipped': '待发货',
         'review': '已完成',
         'returned': '已退货',
-        'recycle': '回收'
+        'recycle': '已取消'
     }
     # 获取映射后的状态值
     status_value = status_mapping.get(status)
