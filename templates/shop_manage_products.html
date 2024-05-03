@@ -18,6 +18,7 @@
             color: #333;
         }
 
+
         /* ------------------------------------------头部样式--------------------------------- */
         .shop_head {
             background-color: #8accf8; /* 深色背景 */
@@ -129,6 +130,17 @@
             color: #ee4848;
         }
 
+        /* 表单错误信息 */
+        ul.errorlist {
+            padding: 0;
+            margin: 0;
+            color: #dc3545; /* 错误信息颜色 */
+        }
+
+        ul.errorlist li {
+            list-style-type: none; /* 去除列表符号 */
+            color: #ff0000;
+        }
         /* 选中的类别样式 */
         .shop_classes-items a.selected {
             background-color: #89cdda; /* 被选中项的背景色 */
@@ -191,6 +203,7 @@
         table {
             margin: 20px auto;
             width: 100%; /* 宽度已经是100%，这会使表格根据其父容器的宽度进行伸展 */
+            background-color: #efefef;
             border-collapse: collapse; /* 移除单元格之间的间隔 */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 给表格增加一些阴影效果 */
         }

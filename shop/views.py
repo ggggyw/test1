@@ -334,7 +334,7 @@ def shop_productdetails(request, p_id):
 def manage_products(request):
     # 从会话中获取用户的ID
     s_id = request.session.get('s_id')
-    category_id = request.GET.get('category_id')
+    category_id = request.GET.get('category_id', '0')
     if category_id is not None and category_id != '0' and category_id != '':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
@@ -936,11 +936,28 @@ def ship_product(request, o_id):
         return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
+def get_time_range(request):
+    # 初始化months变量
+    months = None
+
+    if request.method == 'POST':
+        # 从POST请求中获取months的值
+        months = request.POST.get('months')
+
+        # 现在，months变量包含了<select>的值，你可以根据这个值进行后续处理
+        # 比如，重定向到另一个视图或者渲染一个新页面
+        return redirect('some_other_view')
+
+    # 如果是GET请求，就渲染表单
+    return render(request, 'rfm.html')
+
+
 def rfm_analysis(request):
     engine = create_engine('mysql+pymysql://web:dzh20030112@47.93.125.169/web')
     products_data = pd.read_sql_query('select * from products', engine)
     orders_data = pd.read_sql_query("select * from orders", engine)
     order_details_data = pd.read_sql_query("select * from order_details", engine)
+    user_data = pd.read_sql_query("select u_name,u_id from users", engine)
 
     # 转换时间类型
     orders_data['o_time'] = pd.to_datetime(orders_data['o_time'])
@@ -948,13 +965,14 @@ def rfm_analysis(request):
     # 将表融合
     merged_data = pd.merge(orders_data, order_details_data, left_on='o_id', right_on='order_id')
     merged_data = pd.merge(merged_data, products_data, left_on='product_id', right_on='p_id')
+    merged_data = pd.merge(merged_data, user_data, left_on='user_id', right_on='u_id')
 
-    merged_data.head(1)
-
+    months = request.POST.get('timeFilter')
+    print(months)
     # 筛选出一年之内的购买记录
     current_time = pd.Timestamp.now()
-    two_years_ago = current_time - relativedelta(years=1)
-    filtered_data = merged_data[(merged_data['paid_time'] >= two_years_ago) &
+    time_range = current_time - relativedelta(years=2)
+    filtered_data = merged_data[(merged_data['paid_time'] >= time_range) &
                                 (merged_data['paid_time'] <= current_time)]
 
     # 根据当下的商铺号来筛选订单
@@ -964,12 +982,12 @@ def rfm_analysis(request):
     # 创建一个空的DataFrame来存储RFM值
     RFM = pd.DataFrame()
     # 计算R（最近一次购买时间）注意，这个R是dataframe格式
-    R = filtered_data.groupby('user_id')['paid_time'].max().reset_index()
-    R.columns = ['u_id', 'last_purchase_time']  # 重命名列以避免混淆
-    RFM['u_id'] = R['u_id']
+    R = filtered_data.groupby('u_name')['paid_time'].max().reset_index()
+    R.columns = ['u_name', 'last_purchase_time']  # 重命名列以避免混淆
+    RFM['u_name'] = R['u_name']
     RFM['Recency'] = (pd.Timestamp.now() - R['last_purchase_time']).dt.days
     # 计算F（购买频次）
-    F = filtered_data.groupby('user_id').size().reset_index(name='frequency')
+    F = filtered_data.groupby('u_name').size().reset_index(name='frequency')
     # 使用size()来计算每个组的行数,即该u_id在这一段时间内共出现了多少次。
     RFM['Frequency'] = F['frequency']
     # 计算M（总消费金额）
@@ -1002,7 +1020,7 @@ def rfm_analysis(request):
 
     RFM['RFM_Label'] = RFM['RFM_Class'].map(rfm_labels)
 
-    RFM_data = RFM[['u_id', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
+    RFM_data = RFM[['u_name', 'Recency', 'Frequency', 'Monetary', 'RFM_Class', 'RFM_Label']].to_dict(orient='records')
 
     # 获取选择的RFM标签
     selected_rfm_label = request.GET.get('category_id')
@@ -1020,6 +1038,7 @@ def rfm_analysis(request):
         'RFM_data': paged_data,
         'category_id': '0',  # 用于保持搜索条件
         'selected_rfm_label': selected_rfm_label or 'all',
+        'time_range': time_range,
         'query': None
         # 如果您还有其他数据需要传递，可以在这里添加
     }

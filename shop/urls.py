@@ -21,6 +21,6 @@ urlpatterns = [
     path('shoppage/shop_order/product/<int:p_id>/', views.product_detail, name='product-detail-api'),
     path('shoppage/shop_order/ship/<int:o_id>/', views.ship_product, name='ship_product'),
     path('shoppage/shop_order/return/<int:o_id>/', views.return_product, name='return_product'),
-
     path('shoppage/shop_productdetails/<int:p_id>/', views.shop_productdetails, name='shop_productdetails'),
+    path('shoppage/rfm/time', views.get_time_range, name='get_time_range')
 ]
