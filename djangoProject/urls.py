@@ -70,6 +70,7 @@ urlpatterns = [
     path('update_product_info/', admin_views.update_product_info, name='update_product_info'),
     path('delete_user/', admin_views.delete_user, name='delete_user'),
     path('delete_shop/', admin_views.delete_shop, name='delete_shop'),
+    path('delete_product/', admin_views.delete_product, name='delete_product'),
     path('get_goods_list/', user_views.get_goods_list, name='get_goods_list'),
     path('get_user_info/', user_views.get_user_info, name='get_user_info'),
     path('user/shops_follow_page/', user_views.follow_page, name='follow_page'),

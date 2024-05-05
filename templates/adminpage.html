@@ -317,7 +317,7 @@
       <td>{{ shop_product.current_price }}</td>
       <td>
         <button onclick="openProductEditModal('{{ shop_product.shop_product_id }}')">编辑</button>
-        <button>删除</button>
+        <button class="delete-product-btn" data-shop_product_id="{{ shop_product.shop_product_id }}">删除</button>
       </td>
     </tr>
     {% endfor %}
@@ -1093,7 +1093,32 @@ $(document).ready(function() {
     }
   });
 });
-
+$(document).ready(function() {
+    $('.delete-product-btn').click(function() {
+        var shopProductId = $(this).data('shop_product_id');  // 获取商品 ID
+        if (confirm('确定要删除此商品吗？')) {
+            $.ajax({
+                url: '/delete_product/',  // 后端删除商品的 URL
+                type: 'POST',
+                data: JSON.stringify({'shop_product_id': shopProductId}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新商品列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
 
   </script>
 </body>

@@ -286,6 +286,23 @@ def update_product_info(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def delete_product(request):
+    try:
+        data = json.loads(request.body)
+        shop_product_id = data.get('shop_product_id')
+
+        # 在库存商品表中查找并删除商品
+        product = ShopProducts.objects.get(shop_product_id=shop_product_id)
+        product.delete()
+
+        return JsonResponse({'success': True, 'message': '商品删除成功'})
+    except ShopProducts.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '商品不存在'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+
 @require_http_methods(["POST"])
 @csrf_exempt  # 如果你的前端不处理 CSRF token，可以暂时放宽 CSRF 限制
 def get_shop_info(request):
