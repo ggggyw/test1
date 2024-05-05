@@ -201,6 +201,91 @@ def delete_shop(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': '删除失败: ' + str(e)})
 
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def get_product_info(request):
+    try:
+        # 解析请求体中的 JSON 数据
+        data = json.loads(request.body)
+        print(data)
+        shop_product_id = data.get('product_id')  # 这里改为 shop_product_id
+        print(shop_product_id)
+        # 使用 shop_product_id 查询商品信息
+        shop_product = ShopProducts.objects.get(shop_product_id=shop_product_id)
+
+        # 构建响应数据
+        product_info = {
+            'shop_product_id': shop_product.shop_product_id,
+            'product_desc': shop_product.product_desc,
+            'product_status': shop_product.get_product_status_display(),  # 获取可读的状态
+            'product_auditstatus': shop_product.get_product_auditstatus_display(),  # 获取可读的审核状态
+            'product_image_url': shop_product.product_image_url,
+            'stock_quantity': shop_product.stock_quantity,
+            'original_price': shop_product.original_price,
+            'discount': shop_product.discount if shop_product.discount is not None else "",
+            'current_price': shop_product.current_price if shop_product.current_price is not None else "",
+        }
+
+        # 返回 JSON 响应
+        return JsonResponse({'success': True, 'data': product_info})
+
+    except ShopProducts.DoesNotExist:
+        print('aaaa')
+        return JsonResponse({'success': False, 'error': 'Product does not exist'})
+    except Exception as e:
+        print('asdasd')
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_product_info(request):
+    try:
+        data = json.loads(request.body)
+
+        shop_product_id = data.get('shop_product_id')
+        product = ShopProducts.objects.get(shop_product_id=shop_product_id)
+
+        # 使用原价和折扣来计算现价
+        original_price = data.get('original_price')
+        discount = data.get('discount')
+
+        # 确保原价和折扣都提供了
+        if original_price is not None and discount is not None:
+            # 转换为 float 方便计算（在生产中可能需要更复杂的精度处理）
+            original_price_float = float(original_price)
+            discount_float = float(discount)
+
+            # 计算现价，保留两位小数
+            current_price_float = original_price_float * (1 - discount_float / 100)
+
+            # 更新商品信息
+            product.product_desc = data.get('product_desc')
+            product.product_status = data.get('product_status')
+            product.product_auditstatus = data.get('product_auditstatus')
+            product.product_image_url = data.get('product_image_url')
+            product.stock_quantity = data.get('stock_quantity')
+            product.original_price = original_price_float
+            product.discount = discount_float
+            product.current_price = round(current_price_float, 2)
+
+            # 如果审核状态为“审核不通过”，则商品状态自动设为“下架”
+            if product.product_auditstatus == "审核不通过":
+                product.product_status = "下架"
+
+            product.save()
+            return JsonResponse({'success': True, 'message': '商品信息更新成功'})
+        else:
+            return JsonResponse({'success': False, 'message': '必须提供原价和折扣'})
+
+    except ShopProducts.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '商品不存在'})
+    except ValueError:
+        return JsonResponse({'success': False, 'message': '无效的数值输入'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+
 @require_http_methods(["POST"])
 @csrf_exempt  # 如果你的前端不处理 CSRF token，可以暂时放宽 CSRF 限制
 def get_shop_info(request):

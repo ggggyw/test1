@@ -316,7 +316,7 @@
       <td>{{ shop_product.discount }}</td>
       <td>{{ shop_product.current_price }}</td>
       <td>
-        <button onclick="openshopEditModal('{{ product.shop_product_id }}')">编辑</button>
+        <button onclick="openProductEditModal('{{ shop_product.shop_product_id }}')">编辑</button>
         <button>删除</button>
       </td>
     </tr>
@@ -550,6 +550,51 @@
         <input type="text" id="shop_email" name="shop_email">
         <label for="address">地址:</label>
         <input type="text" id="address" name="address">
+      <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
+
+<!-- 编辑商品信息的模态框 -->
+<div id="editProductModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>编辑商品信息</h2>
+    <form id="product-edit-form">
+      <label for="s_id">商品ID:</label>
+      <input type="text" id="edit_product_id" name="product_id" readonly>
+
+      <label for="edit_product_desc">描述:</label>
+      <input type="text" id="edit_product_desc" name="product_desc">
+
+      <label for="edit_product_status">商品状态:</label>
+        <select id="edit_product_status" name="product_status">
+          <option value="上架">上架</option>
+          <option value="下架">下架</option>
+        </select>
+
+      <label for="edit_product_auditstatus">审核状态:</label>
+        <select id="edit_product_auditstatus" name="product_auditstatus">
+          <option value="待审核">待审核</option>
+          <option value="审核通过">审核通过</option>
+          <option value="审核不通过">审核不通过</option>
+        </select>
+
+      <label for="edit_product_image_url">图片链接:</label>
+      <input type="text" id="edit_product_image_url" name="product_image_url">
+
+      <label for="edit_stock_quantity">库存数量:</label>
+      <input type="number" id="edit_stock_quantity" name="stock_quantity">
+
+      <label for="edit_original_price">原价:</label>
+      <input type="number" step="0.01" id="edit_original_price" name="original_price">
+
+      <label for="edit_discount">折扣:</label>
+      <input type="number" step="0.01" id="edit_discount" name="discount">
+
+      <label for="edit_current_price">现价:</label>
+      <input type="number" step="0.01" id="edit_current_price" name="current_price">
+
       <button type="submit">提交</button>
     </form>
   </div>
@@ -944,6 +989,109 @@ $(document).ready(function() {
             });
         }
     });
+});
+
+function openProductEditModal(productId) {
+  var modal = $('#editProductModal');
+  // 使用 AJAX 请求获取商品信息
+  $.ajax({
+    url: '/get_product_info/',   // 后端获取商品信息的 API 接口
+    type: 'POST',
+    data: JSON.stringify({product_id: productId}),
+    contentType: 'application/json; charset=utf-8',
+    headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // CSRF token
+    success: function(response) {
+        if(response.success) {
+            // 填充表单字段
+            $('#edit_product_id').val(response.data.shop_product_id);
+            $('#edit_product_desc').val(response.data.product_desc);
+            $('#edit_product_status').val(response.data.product_status); // 商品状态
+            $('#edit_product_auditstatus').val(response.data.product_auditstatus); // 审核状态
+            $('#edit_product_image_url').val(response.data.product_image_url); // 图片链接
+            $('#edit_stock_quantity').val(response.data.stock_quantity); // 库存数量
+            $('#edit_original_price').val(response.data.original_price); // 原价
+            $('#edit_discount').val(response.data.discount); // 折扣
+            $('#edit_current_price').val(response.data.current_price); // 现价
+
+            // 显示模态框
+            modal.show();
+        } else {
+            alert('获取商品信息失败??！');
+        }
+    },
+    error: function(error) {
+        console.error(error);
+        alert('请求失败，请检查网络连接或稍后重试');
+    }
+  });
+
+  // 绑定模态框关闭事件
+  modal.find('.close').click(function() {
+    modal.hide();
+  });
+
+  // ...模态框外点击关闭，与上面类似的处理...
+}
+
+$(document).ready(function() {
+  // 为编辑商品信息表单绑定提交事件
+  $('#product-edit-form').submit(function(e) {
+    e.preventDefault(); // 阻止表单默认提交
+
+    // 收集表单数据用于提交
+    var formData = {
+      shop_product_id: $('#edit_product_id').val(),  // 商品的ID，确保模态框中有一个相应的隐藏字段
+      product_desc: $('#edit_product_desc').val(),  // 商品描述
+      product_status: $('#edit_product_status').val(),  // 商品状态
+      product_auditstatus: $('#edit_product_auditstatus').val(),  // 审核状态
+      product_image_url: $('#edit_product_image_url').val(),  // 图片链接
+      stock_quantity: $('#edit_stock_quantity').val(),  // 库存数量
+      original_price: $('#edit_original_price').val(),  // 原价
+      discount: $('#edit_discount').val(),  // 折扣
+      current_price: $('#edit_current_price').val(),  // 现价
+    };
+    // 发送 AJAX 请求到后端更新商品信息 API
+    $.ajax({
+      url: '/update_product_info/', // 更新商品信息的后端URL
+      type: 'POST',
+      data: JSON.stringify(formData),
+      contentType: 'application/json; charset=utf-8',
+      headers: { 'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val() }, // CSRF Token
+      success: function(response) {
+        if (response.success) {
+          alert(response.message);
+          $('#editProductModal').hide(); // 隐藏编辑模态框
+          location.reload(); // 刷新页面
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        // 异常处理
+        console.error(error);
+        alert('更新商品信息失败，请稍后再试');
+      }
+    });
+  });
+
+  // 绑定商品列表中编辑按钮的点击事件
+  $('.edit-product-btn').click(function() {
+    var productId = $(this).data('product_id'); // 获取商品ID
+    // 使用商品ID从后端获取商品的详细信息并填充到编辑表单，然后显示模态框
+    // ...
+  });
+
+  // 绑定关闭模态框功能
+  $('.close').click(function() {
+    $(this).closest('.modal').hide();
+  });
+
+  // 如果点击模态框外部，也关闭模态框
+  $(window).click(function(event) {
+    if ($(event.target).hasClass('modal')) {
+      $('.modal').hide();
+    }
+  });
 });
 
 
