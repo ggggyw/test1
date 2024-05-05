@@ -136,6 +136,43 @@ def update_user_info(request):
         # 捕获并处理任何其他异常
         return JsonResponse({'success': False, 'message': '更新过程中出错', 'error': str(e)})
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_shop_info(request):
+    try:
+        # 解析请求体获取数据
+        data = json.loads(request.body)
+        s_id = data.get('s_id')
+        s_name = data.get('s_name')
+        s_acc = data.get('s_acc')
+        s_phone = data.get('s_phone')
+        email = data.get('email')
+        address = data.get('address')
+
+        # 获取要更新的商家对象
+        shop = Shops.objects.get(s_id=s_id)
+
+        # 更新商家信息
+        shop.s_name = s_name
+        shop.s_acc = s_acc
+        # shop.s_psw = data.get('s_psw')  # 如果需要更新密码
+        shop.s_phone = s_phone
+        shop.email = email
+        shop.address = address
+
+        # 保存更改
+        shop.save()
+
+        # 返回成功响应
+        return JsonResponse({'success': True, 'message': '商家信息更新成功'})
+
+    except Shops.DoesNotExist:
+        # 如果找不到商家
+        return JsonResponse({'success': False, 'message': '商家不存在'})
+    except Exception as e:
+        # 捕获并响应其他异常
+        return JsonResponse({'success': False, 'message': '更新失败', 'error': str(e)})
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def delete_user(request):

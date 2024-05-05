@@ -538,6 +538,8 @@
     <span class="close">&times;</span>
     <h2>编辑商家信息</h2>
     <form id="shop-edit-form">
+        <label for="s_id">商家ID:</label>
+        <input type="text" id="s_id" name="s_id" readonly>
         <label for="s_name">商家名称:</label>
       <input type="text" id="s_name" name="s_acc">
         <label for="s_acc">商家账号:</label>
@@ -844,6 +846,7 @@ function openshopEditModal(shopId) {
         if(response.success) {
             // 渲染数据到模态框的输入框
             // 注意，下面的每个输入框 ID 应与模态中的对应
+            $('#s_id').val(response.data.s_id);
             $('#s_name').val(response.data.s_name);
             $('#s_acc').val(response.data.s_acc);
             $('#s_phone').val(response.data.s_phone);
@@ -877,6 +880,48 @@ function openshopEditModal(shopId) {
     }
   });
 }
+
+
+// JQuery 文档就绪函数，用于安全绑定事件
+$(document).ready(function(){
+    // 绑定表单提交事件处理函数
+    $('#shop-edit-form').submit(function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+
+        // 收集表单数据用于提交
+        var formData = {
+            s_id: $('#s_id').val(),
+            s_name: $('#s_name').val(),
+            s_acc: $('#s_acc').val(),
+            s_phone: $('#s_phone').val(),
+            email: $('#shop_email').val(),
+            address: $('#address').val(),
+        };
+
+        // 发送 AJAX POST 请求
+        $.ajax({
+            url: '/update_shop_info/', // 你用于更新商家信息的正确 URL
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json; charset=utf-8',
+            headers: { 'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val() }, // 获取 CSRF token
+            success: function(response) {
+                if (response.success) {
+                    alert('商家信息更新成功');
+                    modal.style.display = "none"; // 关闭模态框
+                    location.reload(); // 刷新页面
+                } else {
+                    alert('更新失败：' + response.message); // 显示失败消息
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error); // 控制台记录错误
+                alert('更新时发生错误，请稍后再试');
+            }
+        });
+    });
+});
+
 
 
   </script>
