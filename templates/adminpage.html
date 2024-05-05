@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>管理员界面</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>管理员界面</title>
   <style>
     /* 引入 Google Fonts 中的 Roboto 字体 */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -16,7 +17,16 @@
       display: flex;
       min-height: 100vh;
     }
-
+    @keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
     .sidebar {
       background-color: #333;
       color: #fff;
@@ -49,7 +59,6 @@
       padding: 40px 50px;
       overflow: auto;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
@@ -90,40 +99,123 @@
       background-color: #555;
     }
 
-    /* 新增的样式 */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-    }
+    /* 模态框样式 */
+.modal {
+  display: none; /* 默认隐藏 */
+  position: fixed; /* 固定位置 */
+  z-index: 1; /* 在其他内容之上 */
+  left: 0;
+  top: 0;
+  width: 100%; /* 全宽 */
+  height: 100%; /* 全高 */
+  overflow: auto; /* 启用滚动 */
+  background-color: rgb(0,0,0); /* 黑色背景 */
+  background-color: rgba(0,0,0,0.4); /* 黑色背景，半透明 */
+}
 
+/* 模态框内容 */
     .modal-content {
-      background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 30%;
+        background-color: rgba(255, 255, 255, 0.7);
+        margin: 15% auto; /* 15% 的顶部边距，水平居中 */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%; /* 宽度80% */
+        border-radius: 10px; /* 圆角 */
+        backdrop-filter: blur(10px); /* 添加模糊效果 */
+        animation: bounceIn 0.5s;
     }
 
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
 
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#edit-form label,
+#edit-form input {
+  width: 45%;
+  margin-bottom: 10px;
+}
+
+#edit-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  border-radius: 5px;
+}
+
+#edit-form button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #555;
+}
+
+
+#u_id {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+#shop-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#shop-edit-form label,
+#shop-edit-form input {
+  width: 45%;
+  margin-bottom: 10px;
+}
+
+#shop-edit-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  border-radius: 5px;
+}
+
+#shop-edit-form button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+#s_id{
+  background-color: #ddd;
+  cursor: not-allowed;
+}
 
     /* 新增的样式 */
     .logout-btn {
@@ -178,16 +270,6 @@
       transition: left 0.7s ease;
     }
 
-    /* 新增的样式 */
-    .edit-form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .edit-form label {
-      margin-bottom: 10px;
-    }
-
     .edit-form input[type="text"],
     .edit-form input[type="email"],
     .edit-form select {
@@ -200,6 +282,7 @@
     .edit-form button {
       align-self: flex-end;
     }
+
   </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
@@ -216,10 +299,12 @@
 </div>
 
   <div class="main-content">
-    <h2 id="pageTitle">用户信息</h2>
+    <h2 id="pageTitle">用户管理</h2>
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
+        <input type="text" id="searchInput" placeholder="输入关键字...">
+<button onclick="searchUsers()" id="user-search">搜索</button>
         <thead>
           <tr>
             <th>用户 ID</th>
@@ -619,7 +704,17 @@
 
     // 获取关闭按钮元素
     var span = document.getElementsByClassName("close")[0];
+    // 点击关闭按钮，隐藏模态框
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
 
+  // 点击模态框外的区域，隐藏模态框
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
     // 打开模态框
     function openEditModal(userId) {
       modal.style.display = "block";
@@ -695,7 +790,7 @@
       modal.style.display = "none";
     }
 
-    // 获取所有的关闭按钮元素
+// 获取所有的关闭按钮元素
 var spans = document.getElementsByClassName("close");
 
 // 为每个关闭按钮添加点击事件
@@ -1119,7 +1214,58 @@ $(document).ready(function() {
         }
     });
 });
+function searchUsers() {
+    var keyword = document.getElementById('searchInput').value;  // 获取搜索关键字
 
+    // 发送 AJAX 请求到后端的搜索 API
+    $.ajax({
+        url: '/search_users/',  // 后端搜索 API 的 URL
+        type: 'POST',
+        data: {keyword: keyword},
+        headers: {"X-CSRFToken": $('meta[name="csrf-token"]').attr('content')},  // 添加 CSRF token
+        success: function(response) {
+            // 清空表格
+            $('#userTable tbody').empty();
+
+            if (response.length > 0) {
+                // 用搜索结果更新表格
+                for (var i = 0; i < response.length; i++) {
+                    var user = response[i];
+                    var row = '<tr>' +
+                        '<td>' + user.u_id + '</td>' +
+                        '<td>' + user.u_acc + '</td>' +
+                        '<td>' + user.u_name + '</td>' +
+                        '<td>' + user.u_sex + '</td>' +
+                        '<td>' + user.u_phone + '</td>' +
+                        '<td>' + user.email + '</td>' +
+                        '<td>' + user.created_at + '</td>' +
+                        '<td>' +
+                        '<button onclick="openEditModal(\'' + user.u_id + '\')">编辑</button>' +
+                        '<button class="delete-btn" data-u_id="' + user.u_id + '">删除</button>' +
+                        '</td>' +
+                        '</tr>';
+                    $('#userTable tbody').append(row);
+                }
+            } else {
+                // 如果没有结果，显示 "无匹配记录"
+                $('#userTable tbody').append('<tr><td colspan="8" style="text-align:center;">无匹配记录</td></tr>');
+            }
+            // 隐藏分页器
+            $('.pagination').hide();
+        },
+        error: function(error) {
+            console.error(error);
+            alert('搜索时发生错误，请稍后再试');
+        }
+    });
+}
+
+// 绑定回车键到搜索框
+$('#searchInput').on('keypress',function(e) {
+    if(e.which == 13) {
+        searchUsers();
+    }
+});
   </script>
 </body>
 </html>
