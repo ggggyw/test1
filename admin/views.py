@@ -1,12 +1,11 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
 from django.views.decorators.http import require_http_methods, require_POST
 import json
 from common.models import Admin, Users,Shops,ShopProducts,Orders,OrderDetails,Products
 from django.core.paginator import Paginator
-
+from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
 
 def adminpage(request):
     # 如果没有登陆，那么重定向到登陆页面
@@ -334,4 +333,21 @@ def get_shop_info(request):
         # 捕获并处理任何其他异常
         return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
 
+from common.models import Users
+def search_users(request):
+    keyword = request.POST.get('keyword')  # 获取搜索关键字
 
+    # 在数据库中搜索包含关键字的用户
+    users = Users.objects.filter(
+        Q(u_id__icontains=keyword) |
+        Q(u_name__icontains=keyword) |
+        Q(u_sex__icontains=keyword) |
+        Q(u_phone__icontains=keyword) |
+        Q(email__icontains=keyword)
+    )
+
+    # 将用户数据转换为 JSON 格式
+    user_list = list(users.values())
+
+    # 返回 JSON 数据
+    return JsonResponse(user_list, safe=False)
