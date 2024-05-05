@@ -349,29 +349,8 @@
       <td>{{ order.order_address }}</td>
       <td>
         <button type="button" onclick="toggleOrderDetails({{ order.o_id }})">展开/收起</button>
-        <div id="OrderDetail{{ order.o_id }}" style="display: none;">
-          <table>
-            <thead>
-              <tr>
-                <th>订单详情ID</th>
-                <th>商品ID</th>
-                <th>商家ID</th>
-                <th>数量</th>
-                <th>购买时单价</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for detail in order.order_details %}
-              <tr>
-                <td>{{ detail.order_detail_id }}</td>
-                <td>{{ detail.product_id }}</td>
-                <td>{{ detail.shop_id }}</td>
-                <td>{{ detail.quantity }}</td>
-                <td>{{ detail.current_single_price }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div id="OrderDetail{{ order.o_id }}" style="display: none;" data-is-loaded="false">
+        <!-- 如果有订单商品数据，则在这里显示 -->
         </div>
       </td>
     </tr>
@@ -813,13 +792,40 @@ function switchTable(tableId) {
 }
 
 function toggleOrderDetails(orderId) {
-    var x = document.getElementById("OrderDetail" + orderId);
-    if (x.style.display === "none") {
-      x.style.display = "block";
+    var detailsDiv = document.getElementById("OrderDetail" + orderId);
+    var isHidden = detailsDiv.style.display === "none";
+
+    // 切换展开/收起
+    if (isHidden) {
+        // 如果是第一次点击展开，则通过API获取订单项
+            fetch(`/order-items/${orderId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 生成商品信息的HTML
+                        var orderItemsHtml = data.order_items.map(item => {
+                            return `
+                                <div class="order-item">
+                                    <span>${item.product_name}</span> -
+                                    <span>${item.quantity}</span> -
+                                    <span>${item.current_single_price}</span>
+                                </div>
+                            `;
+                        }).join('');
+                        detailsDiv.innerHTML = orderItemsHtml;
+                        detailsDiv.style.display = "block";
+                        detailsDiv.dataset.isLoaded = "true"; // 标记为已加载
+                    } else {
+                        console.error("Error loading order items:", data.error);
+                    }
+                })
+                .catch(error => console.error("Failed to fetch order items:", error));
+
     } else {
-      x.style.display = "none";
+        // 折叠起来
+        detailsDiv.style.display = "none";
     }
-  }
+}
 
   // 打开编辑管理员信息的模态框
 function openAdminEditModal() {
