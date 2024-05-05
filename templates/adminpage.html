@@ -545,7 +545,7 @@
       <label for="s_phone">手机号:</label>
         <input type="text" id="s_phone" name="s_phone">
         <label for="email">邮箱:</label>
-        <input type="text" id="email" name="email">
+        <input type="text" id="shop_email" name="shop_email">
         <label for="address">地址:</label>
         <input type="text" id="address" name="address">
       <button type="submit">提交</button>
@@ -847,7 +847,7 @@ function openshopEditModal(shopId) {
             $('#s_name').val(response.data.s_name);
             $('#s_acc').val(response.data.s_acc);
             $('#s_phone').val(response.data.s_phone);
-            $('#email').val(response.data.email);
+            $('#shop_email').val(response.data.email);
             $('#address').val(response.data.address);
 
             // 由于 s_id 通常作为一个隐藏的字段来保存，在这里没必要设置它的值，
