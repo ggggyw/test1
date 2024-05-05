@@ -516,6 +516,8 @@
       <span class="close">&times;</span>
       <h2>编辑用户信息</h2>
       <form id="edit-form">
+          <label for="u_id">用户ID:</label>
+      <input type="text" id="u_id" name="u_id" readonly> <!-- 只读字段，不可编辑 -->
         <label for="u_acc">用户名:</label>
         <input type="text" id="u_acc" name="u_acc">
         <label for="u_name">姓名:</label>
@@ -639,16 +641,27 @@
     }
   });
 });
-
+  var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
     // 关闭模态框
     span.onclick = function() {
+        alert()
       modal.style.display = "none";
     }
 
-    var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
-span.onclick = function() {
-  modal.style.display = "none"; // 当点击时隐藏模态框
+    // 获取所有的关闭按钮元素
+var spans = document.getElementsByClassName("close");
+
+// 为每个关闭按钮添加点击事件
+for (var i = 0; i < spans.length; i++) {
+  spans[i].onclick = function() {
+    // 找到父元素中最近的 .modal 并隐藏
+    var modal = this.closest('.modal');
+    if (modal) {
+      modal.style.display = "none";
+    }
+  }
 }
+
 
     // 当用户点击模态框外部时关闭模态框
     window.onclick = function(event) {
