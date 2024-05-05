@@ -276,7 +276,7 @@
             <td>{{ shop.address }}</td>
             <td>
               <button onclick="openshopEditModal('{{ shop.s_id }}')">编辑</button>
-              <button>删除</button>
+              <button class="delete-shop-btn" data-s_id="{{ shop.s_id }}">删除</button>
             </td>
           </tr>
           {% endfor %}
@@ -845,16 +845,13 @@ function openshopEditModal(shopId) {
     success: function(response) {
         if(response.success) {
             // 渲染数据到模态框的输入框
-            // 注意，下面的每个输入框 ID 应与模态中的对应
+
             $('#s_id').val(response.data.s_id);
             $('#s_name').val(response.data.s_name);
             $('#s_acc').val(response.data.s_acc);
             $('#s_phone').val(response.data.s_phone);
             $('#shop_email').val(response.data.email);
             $('#address').val(response.data.address);
-
-            // 由于 s_id 通常作为一个隐藏的字段来保存，在这里没必要设置它的值，
-            // 除非你在表单中做了一个隐藏的输入来存储它。
 
             // 显示模态框
             modal.show();
@@ -921,7 +918,33 @@ $(document).ready(function(){
         });
     });
 });
+$(document).ready(function() {
+    $('.delete-shop-btn').click(function() {
+        var s_id = $(this).data('s_id');  // 获取商家 ID
 
+        if (confirm('确定要删除此商家吗？')) {
+            $.ajax({
+                url: '/delete_shop/',  // 后端删除商家的 URL
+                type: 'POST',
+                data: JSON.stringify({'s_id': s_id}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新商家列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
 
 
   </script>

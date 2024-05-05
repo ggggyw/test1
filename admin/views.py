@@ -187,6 +187,19 @@ def delete_user(request):
     except Exception as e:
         return JsonResponse({'success': False, 'message': '删除过程出错', 'error': str(e)})
 
+@csrf_exempt
+def delete_shop(request):
+    try:
+        data = json.loads(request.body)
+        s_id = data.get('s_id')
+        shop = Shops.objects.get(s_id=s_id)
+        shop.delete()
+        return JsonResponse({'success': True, 'message': '商家删除成功'})
+
+    except Shops.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '商家不存在'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '删除失败: ' + str(e)})
 
 @require_http_methods(["POST"])
 @csrf_exempt  # 如果你的前端不处理 CSRF token，可以暂时放宽 CSRF 限制
