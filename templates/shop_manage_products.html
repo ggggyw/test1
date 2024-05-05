@@ -18,6 +18,10 @@
             color: #333;
         }
 
+        body, html {
+            background: #6ec2ea;
+            height: 100%;
+        }
 
         /* ------------------------------------------头部样式--------------------------------- */
         .shop_head {
@@ -90,7 +94,7 @@
             z-index: 0;
             padding: 10px 0;
             background: #ffffff;
-            margin: 10px auto; /* 增加外部间距 */
+            margin: 0px auto; /* 增加外部间距 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 2000px; /* 设置一个最大宽度 */
             display: flex; /* 使用flex布局 */
@@ -141,6 +145,7 @@
             list-style-type: none; /* 去除列表符号 */
             color: #ff0000;
         }
+
         /* 选中的类别样式 */
         .shop_classes-items a.selected {
             background-color: #89cdda; /* 被选中项的背景色 */
@@ -376,7 +381,61 @@
             }
         }
 
+        /*---------------------------------------分页控件-------------------------------------------*/
+        .pagination {
+            text-align: center; /* 居中分页控件 */
+            margin-top: 20px; /* 顶部距离，可根据需要调整 */
+            margin-bottom: 20px; /* 底部距离，可根据需要调整 */
+        }
 
+        .pagination .step-links span.current {
+            font-weight: bold; /* 当前页加粗显示 */
+        }
+
+        /* 页码相关样式 */
+        .pagination .step-links a,
+        .pagination .step-links span {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #337ab7;
+            background-color: #337ab7;
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .pagination .step-links a:hover {
+            background-color: #23527c;
+        }
+
+        .pagination .step-links span.current {
+            font-weight: bold;
+            background-color: #337ab7;
+            color: white;
+            border-color: #337ab7;
+        }
+
+        .shop_manage_content {
+            width: 1300px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px 0;
+            background-color: #fff;
+            max-width: 1300px; /* 设置一个最大宽度 */
+            margin: 1px auto; /* 上下保持20px间距，左右自动，以达到居中效果 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            border-radius: 10px; /* 边框圆角 */
+        }
+
+        .search-section {
+            display: flex; /* 使用Flex布局 */
+            flex-direction: column; /* 子项垂直排列 */
+            align-items: stretch; /* 子项沿交叉轴的延伸 */
+            width: 100%; /* 确保容器的宽度是100% */
+            margin: auto; /* 如果需要，可以水平居中 */
+        }
+        
     </style>
 </head>
 <body>
@@ -419,114 +478,118 @@
 </div>
 <!-- 在这里添加一个 '增加商品' 的按钮 -->
 <div class="shop_manage_content">
-    <div class="add-product-button">
-        <a href="{% url 'add_product' %}" class="btn btn-success">增加商品</a>
-        <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索商品</a>
-    </div>
-    <!-- 创建一个初始隐藏的搜索栏 -->
-    <div id="search-bar" style="display: none;">
-        <form action="{% url 'shop_search_manage_products' %}" method="get">
-            <!-- 第一行 -->
-            <div class="search-row">
-                <div class="search-field">
-                    <label for="product_name">商品名称:</label>
-                    <input type="text" id="product_name" name="product_name" placeholder="商品名称"
-                           value="{{ product_name }}" maxlength="50">
+    <div class="search-section">
+        <div class="add-product-button">
+            <a href="{% url 'add_product' %}" class="btn btn-success">增加商品</a>
+            <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索商品</a>
+        </div>
+        <!-- 创建一个初始隐藏的搜索栏 -->
+        <div id="search-bar" style="display: none;">
+            <form action="{% url 'shop_search_manage_products' %}" method="get">
+                <!-- 第一行 -->
+                <div class="search-row">
+                    <div class="search-field">
+                        <label for="product_name">商品名称:</label>
+                        <input type="text" id="product_name" name="product_name" placeholder="商品名称"
+                               value="{{ product_name }}" maxlength="50">
+                    </div>
+                    <div class="search-field">
+                        <label for="brand">商品品牌:</label>
+                        <input type="text" id="brand" name="brand" placeholder="品牌" value="{{ brand }}"
+                               maxlength="50">
+                    </div>
+                    <div class="search-field range-field">
+                        <label for="stock_range">库存范围:</label>
+                        <input type="number" class="range-input" id="min_stock" name="min_stock"
+                               placeholder="最低库存" value="{{ min_stock }}" min="0" max="99999">
+                        <span class="range-separator">~</span>
+                        <input type="number" class="range-input" id="max_stock" name="max_stock"
+                               placeholder="最高库存" value="{{ max_stock }}" min="0" max="99999">
+                    </div>
                 </div>
-                <div class="search-field">
-                    <label for="brand">商品品牌:</label>
-                    <input type="text" id="brand" name="brand" placeholder="品牌" value="{{ brand }}" maxlength="50">
+                <!-- 第二行 -->
+                <div class="search-row">
+                    <div class="search-field">
+                        <label for="category_id">商品类别:</label>
+                        <select id="category_id" name="category_id">
+                            <option value="0" {% if category_id == "0" %}selected{% endif %}>全部商品</option>
+                            <option value="1" {% if category_id == "1" %}selected{% endif %}>个人电脑和配件</option>
+                            <option value="2" {% if category_id == "2" %}selected{% endif %}>移动设备</option>
+                            <option value="3" {% if category_id == "3" %}selected{% endif %}>家用电子产品</option>
+                            <option value="4" {% if category_id == "4" %}selected{% endif %}>厨房电子设备</option>
+                            <option value="5" {% if category_id == "5" %}selected{% endif %}>办公设备</option>
+                            <option value="6" {% if category_id == "6" %}selected{% endif %}>汽车电子设备</option>
+                            <option value="7" {% if category_id == "7" %}selected{% endif %}>网络和通信设备</option>
+                            <option value="8" {% if category_id == "8" %}selected{% endif %}>可穿戴设备</option>
+                            <option value="9" {% if category_id == "9" %}selected{% endif %}>智能家居设备</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label for="status">商品状态:</label>
+                        <select id="status" name="status">
+                            <option value="">所有状态</option>
+                            <option value="上架" {% if status == "上架" %}selected{% endif %}>上架</option>
+                            <option value="下架" {% if status == "下架" %}selected{% endif %}>下架</option>
+                        </select>
+                    </div>
+                    <div class="search-field">
+                        <label for="audit_status">审核状态:</label>
+                        <select id="audit_status" name="audit_status">
+                            <option value="">所有状态</option>
+                            <option value="待审核" {% if audit_status == "待审核" %}selected{% endif %}>待审核</option>
+                            <option value="审核通过" {% if audit_status == "审核通过" %}selected{% endif %}>审核通过
+                            </option>
+                            <option value="审核不通过" {% if audit_status == "审核不通过" %}selected{% endif %}>审核不通过
+                            </option>
+                        </select>
+                    </div>
                 </div>
-                <div class="search-field range-field">
-                    <label for="stock_range">库存范围:</label>
-                    <input type="number" class="range-input" id="min_stock" name="min_stock"
-                           placeholder="最低库存" value="{{ min_stock }}" min="0" max="99999">
-                    <span class="range-separator">~</span>
-                    <input type="number" class="range-input" id="max_stock" name="max_stock"
-                           placeholder="最高库存" value="{{ max_stock }}" min="0" max="99999">
+                <!-- 第三行 -->
+                <div class="search-row">
+                    <div class="search-field range-field">
+                        <label for="original_price">原始价格:</label>
+                        <input type="number" class="range-input" id="min_original_price" name="min_original_price"
+                               placeholder="最低价" value="{{ min_original_price }}" min="0" max="99999">
+                        <span class="range-separator">~</span>
+                        <input type="number" class="range-input" id="max_original_price" name="max_original_price"
+                               placeholder="最高价" value="{{ max_original_price }}" min="0" max="99999">
+                    </div>
+                    <div class="search-field range-field">
+                        <label for="current_price">现在价格:</label>
+                        <input type="number" class="range-input" id="min_current_price" name="min_current_price"
+                               placeholder="最低价" value="{{ min_current_price }}" min="0" max="99999">
+                        <span class="range-separator">~</span>
+                        <input type="number" class="range-input" id="max_current_price" name="max_current_price"
+                               placeholder="最高价" value="{{ max_current_price }}" min="0" max="99999">
+                    </div>
+                    <div class="search-field range-field">
+                        <label for="discount">商品折扣:</label>
+                        <input type="number" class="range-input" id="min_discount" name="min_discount"
+                               placeholder="最小折扣" value="{{ min_discount }}" step="0.01" min="0" max="1">
+                        <span class="range-separator">~</span>
+                        <input type="number" class="range-input" id="max_discount" name="max_discount"
+                               placeholder="最大折扣" value="{{ max_discount }}" step="0.01" min="0" max="1">
+                    </div>
                 </div>
-            </div>
-            <!-- 第二行 -->
-            <div class="search-row">
-                <div class="search-field">
-                    <label for="category_id">商品类别:</label>
-                    <select id="category_id" name="category_id">
-                        <option value="0" {% if category_id == "0" %}selected{% endif %}>全部商品</option>
-                        <option value="1" {% if category_id == "1" %}selected{% endif %}>个人电脑和配件</option>
-                        <option value="2" {% if category_id == "2" %}selected{% endif %}>移动设备</option>
-                        <option value="3" {% if category_id == "3" %}selected{% endif %}>家用电子产品</option>
-                        <option value="4" {% if category_id == "4" %}selected{% endif %}>厨房电子设备</option>
-                        <option value="5" {% if category_id == "5" %}selected{% endif %}>办公设备</option>
-                        <option value="6" {% if category_id == "6" %}selected{% endif %}>汽车电子设备</option>
-                        <option value="7" {% if category_id == "7" %}selected{% endif %}>网络和通信设备</option>
-                        <option value="8" {% if category_id == "8" %}selected{% endif %}>可穿戴设备</option>
-                        <option value="9" {% if category_id == "9" %}selected{% endif %}>智能家居设备</option>
-                    </select>
+                <!-- 第四行 -->
+                <div class="search-row">
+                    <div class="search-field">
+                        <label for="description">商品描述:</label>
+                        <input type="text" id="description" name="description" placeholder="描述"
+                               value="{{ description }}"
+                               maxlength="50">
+                    </div>
                 </div>
-                <div class="search-field">
-                    <label for="status">商品状态:</label>
-                    <select id="status" name="status">
-                        <option value="">所有状态</option>
-                        <option value="上架" {% if status == "上架" %}selected{% endif %}>上架</option>
-                        <option value="下架" {% if status == "下架" %}selected{% endif %}>下架</option>
-                    </select>
+                <!-- 第五行 -->
+                <div class="search-buttons"> <!-- 添加 search-buttons 类 -->
+                    <div class="search-field-buttons">
+                        <input type="submit" value="搜索" class="search-button"> <!-- 添加 search-button 类 -->
+                        <input type="reset" value="清除搜索" class="search-button clear-search-button"
+                               onclick="clearSearch()"> <!-- 添加 clear-search-button 类 -->
+                    </div>
                 </div>
-                <div class="search-field">
-                    <label for="audit_status">审核状态:</label>
-                    <select id="audit_status" name="audit_status">
-                        <option value="">所有状态</option>
-                        <option value="待审核" {% if audit_status == "待审核" %}selected{% endif %}>待审核</option>
-                        <option value="审核通过" {% if audit_status == "审核通过" %}selected{% endif %}>审核通过
-                        </option>
-                        <option value="审核不通过" {% if audit_status == "审核不通过" %}selected{% endif %}>审核不通过
-                        </option>
-                    </select>
-                </div>
-            </div>
-            <!-- 第三行 -->
-            <div class="search-row">
-                <div class="search-field range-field">
-                    <label for="original_price">原始价格:</label>
-                    <input type="number" class="range-input" id="min_original_price" name="min_original_price"
-                           placeholder="最低价" value="{{ min_original_price }}" min="0" max="99999">
-                    <span class="range-separator">~</span>
-                    <input type="number" class="range-input" id="max_original_price" name="max_original_price"
-                           placeholder="最高价" value="{{ max_original_price }}" min="0" max="99999">
-                </div>
-                <div class="search-field range-field">
-                    <label for="current_price">现在价格:</label>
-                    <input type="number" class="range-input" id="min_current_price" name="min_current_price"
-                           placeholder="最低价" value="{{ min_current_price }}" min="0" max="99999">
-                    <span class="range-separator">~</span>
-                    <input type="number" class="range-input" id="max_current_price" name="max_current_price"
-                           placeholder="最高价" value="{{ max_current_price }}" min="0" max="99999">
-                </div>
-                <div class="search-field range-field">
-                    <label for="discount">商品折扣:</label>
-                    <input type="number" class="range-input" id="min_discount" name="min_discount"
-                           placeholder="最小折扣" value="{{ min_discount }}" step="0.01" min="0" max="1">
-                    <span class="range-separator">~</span>
-                    <input type="number" class="range-input" id="max_discount" name="max_discount"
-                           placeholder="最大折扣" value="{{ max_discount }}" step="0.01" min="0" max="1">
-                </div>
-            </div>
-            <!-- 第四行 -->
-            <div class="search-row">
-                <div class="search-field">
-                    <label for="description">商品描述:</label>
-                    <input type="text" id="description" name="description" placeholder="描述" value="{{ description }}"
-                           maxlength="50">
-                </div>
-            </div>
-            <!-- 第五行 -->
-            <div class="search-buttons"> <!-- 添加 search-buttons 类 -->
-                <div class="search-field-buttons">
-                    <input type="submit" value="搜索" class="search-button"> <!-- 添加 search-button 类 -->
-                    <input type="reset" value="清除搜索" class="search-button clear-search-button"
-                           onclick="clearSearch()"> <!-- 添加 clear-search-button 类 -->
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     {% if shop_products %}
         <table>

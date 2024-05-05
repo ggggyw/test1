@@ -72,6 +72,7 @@ urlpatterns = [
     path('delete_shop/', admin_views.delete_shop, name='delete_shop'),
     path('delete_product/', admin_views.delete_product, name='delete_product'),
     path('search_users/', admin_views.search_users, name='search_users'),
+    path('order-items/<int:order_id>/', admin_views.order_items, name='order_items'),
     path('get_goods_list/', user_views.get_goods_list, name='get_goods_list'),
     path('get_user_info/', user_views.get_user_info, name='get_user_info'),
     path('user/shops_follow_page/', user_views.follow_page, name='follow_page'),

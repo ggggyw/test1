@@ -328,7 +328,7 @@ def shop_productdetails(request, p_id):
     category_id = products.p_type.category_id
     return render(request, 'shop_product_details.html',
                   {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role,
-                   'category_id': category_id})
+                   'category_id': category_id, 'query': None})
 
 
 def manage_products(request):

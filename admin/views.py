@@ -172,6 +172,27 @@ def update_shop_info(request):
         # 捕获并响应其他异常
         return JsonResponse({'success': False, 'message': '更新失败', 'error': str(e)})
 
+@require_http_methods(["GET"])
+def order_items(request, order_id):
+    try:
+        order_details = OrderDetails.objects.filter(order_id=order_id).select_related('product', 'shop')
+        items_data = [{
+            'order_detail_id': detail.order_detail_id,
+            'product_id': detail.product_id,
+            'product_name': Products.objects.get(p_id=detail.product.product_id).p_name,
+            'product_image_url': detail.product.product_image_url,
+            'shop_id': detail.shop_id,
+            'shop_name': detail.shop.s_name,
+            'quantity': detail.quantity,
+            'current_single_price': detail.current_single_price
+        } for detail in order_details]
+
+        return JsonResponse({'success': True, 'order_items': items_data})
+    except Orders.DoesNotExist:
+        return JsonResponse({'success': False, 'error': '订单不存在'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def delete_user(request):
