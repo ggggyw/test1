@@ -1,4 +1,4 @@
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
 import json
@@ -139,7 +139,7 @@ def add_to_cart(request):
    return JsonResponse({'success': True})
 
 
-
+from django.core.paginator import Paginator
 def userorder(request):
     ord_de=OrderDetails.objects.all()
     u_id = request.session.get('u_id')
@@ -391,37 +391,44 @@ def delete_order(request):
     else:
         return JsonResponse({'error': '删除失败'}, status=400)
 
+
 def user_orders(request):
     user_id = request.session.get('u_id')
-    status = request.GET.get('status')  # 获取 URL 参数中的 status 值
+    page = request.GET.get('page', 1)  # 获取页码
+    page_size = 5  # 定义每页多少个订单
+
+    # 订单状态的映射，这个根据你的具体需求来设定
     status_mapping = {
         'all': None,
         'pending': '待付款',
         'shipped': '待收货',
         'beshipped': '待发货',
         'review': '已完成',
-        'bereturned':'待退货',
+        'bereturned': '待退货',
         'returned': '已退货',
         'recycle': '已取消'
     }
-    # 获取映射后的状态值
-    status_value = status_mapping.get(status)
+    status = request.GET.get('status')
+    status_value = status_mapping.get(status, None)
+
     try:
-        # 如果 status_value 为 None，则获取所有订单
-        if status_value is None:
-            orders = Orders.objects.filter(user_id=user_id).exclude(status=0).prefetch_related(
-                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
-            )
+        if status_value:
+            orders = Orders.objects.filter(user_id=user_id, status=status_value)
         else:
-            # 根据状态值过滤订单
-            orders = Orders.objects.filter(user_id=user_id, status=status_value).prefetch_related(
-                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
-            )
+            orders = Orders.objects.filter(user_id=user_id)
+
+        # 应用分页
+        paginator = Paginator(orders, page_size)
+        try:
+            orders_page = paginator.page(page)
+        except PageNotAnInteger:
+            orders_page = paginator.page(1)
+        except EmptyPage:
+            orders_page = paginator.page(paginator.num_pages)
 
         orders_data = [{
             'order_id': order.o_id,
             'order_details': [{
-
                 'product_name': Products.objects.get(p_id=detail.product.product_id).p_name,
                 'product_image_url': detail.product.product_image_url,
                 'quantity': detail.quantity,
@@ -431,17 +438,18 @@ def user_orders(request):
             'total_amount': order.total_price,
             'status': order.status,
             'user_id': order.user_id,
-        } for order in orders]
+        } for order in orders_page]
 
-        # # 添加下面这段代码来查看每一个 order 的 first detail 的 product 对象
-        # first_order = orders[0]
-        # first_detail = first_order.orderdetails_set.all()[0]
-        # print(dir(first_detail.product))
+        pagination_data = {
+            'has_previous': orders_page.has_previous(),
+            'has_next': orders_page.has_next(),
+            'num_pages': paginator.num_pages,
+            'current_page': orders_page.number
+        }
 
-        return JsonResponse({'orders': orders_data})
+        return JsonResponse({'orders': orders_data, 'pagination': pagination_data})
     except Exception as e:
-        print("Error:", e)
-        return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 @require_http_methods(["POST"])  # 只处理HTTP POST请求
