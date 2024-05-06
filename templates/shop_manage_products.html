@@ -206,7 +206,7 @@
         }
 
         table {
-            margin: 20px auto;
+            margin: 2px auto;
             width: 100%; /* 宽度已经是100%，这会使表格根据其父容器的宽度进行伸展 */
             background-color: #efefef;
             border-collapse: collapse; /* 移除单元格之间的间隔 */
@@ -462,6 +462,35 @@
             transition: all 0.3s; /*添加简短的过渡动画效果*/
         }
 
+        .add-product-button {
+            display: flex; /* 使用flex布局 */
+            width: 100%; /* 容器宽度设为100% */
+            margin-top: 0; /* 上边距设为0，确保上面没有间隙 */
+            margin-bottom: 20px; /* 下边距设为20px，创建到表格的间隙 */
+        }
+
+
+        .add-product-button a {
+            flex: 1; /* 使链接(buttons)共享可用空间 */
+            text-decoration: none; /* 去除下划线 */
+            text-align: center; /* 文本居中 */
+            padding: 10px 0; /* 上下填充 */
+            color: white; /* 文本颜色设置为白色 */
+        }
+
+        /* 特定按钮的背景颜色 */
+        .add-product-button .btn-success {
+            background-color: #5cb85c; /* 绿色，表示“增加商品”按钮 */
+        }
+
+        .add-product-button .btn-info {
+            background-color: #5bc0de; /* 蓝色，表示“搜索商品”按钮 */
+        }
+
+        /* 鼠标悬停时的按钮样式 */
+        .add-product-button a:hover {
+            opacity: 0.8; /* 添加透明度效果以提供视觉反馈 */
+        }
     </style>
 </head>
 <body>
