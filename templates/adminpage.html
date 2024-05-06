@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>管理员界面</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>管理员界面</title>
   <style>
     /* 引入 Google Fonts 中的 Roboto 字体 */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
@@ -16,7 +17,16 @@
       display: flex;
       min-height: 100vh;
     }
-
+    @keyframes bounceIn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
     .sidebar {
       background-color: #333;
       color: #fff;
@@ -90,40 +100,123 @@
       background-color: #555;
     }
 
-    /* 新增的样式 */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0, 0, 0, 0.4);
-    }
+    /* 模态框样式 */
+.modal {
+  display: none; /* 默认隐藏 */
+  position: fixed; /* 固定位置 */
+  z-index: 1; /* 在其他内容之上 */
+  left: 0;
+  top: 0;
+  width: 100%; /* 全宽 */
+  height: 100%; /* 全高 */
+  overflow: auto; /* 启用滚动 */
+  background-color: rgb(0,0,0); /* 黑色背景 */
+  background-color: rgba(0,0,0,0.4); /* 黑色背景，半透明 */
+}
 
+/* 模态框内容 */
     .modal-content {
-      background-color: #fefefe;
-      margin: 15% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 30%;
+        background-color: rgba(255, 255, 255, 0.7);
+        margin: 15% auto; /* 15% 的顶部边距，水平居中 */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%; /* 宽度80% */
+        border-radius: 10px; /* 圆角 */
+        backdrop-filter: blur(10px); /* 添加模糊效果 */
+        animation: bounceIn 0.5s;
     }
 
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
 
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#edit-form label,
+#edit-form input {
+  width: 45%;
+  margin-bottom: 10px;
+}
+
+#edit-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  border-radius: 5px;
+}
+
+#edit-form button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #555;
+}
+
+
+#u_id {
+  background-color: #ddd;
+  cursor: not-allowed;
+}
+
+#shop-edit-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+#shop-edit-form label,
+#shop-edit-form input {
+  width: 45%;
+  margin-bottom: 10px;
+}
+
+#shop-edit-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #555;
+  color: white;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  border-radius: 5px;
+}
+
+#shop-edit-form button:hover {
+  background-color: white;
+  color: black;
+  border: 2px solid #4CAF50;
+}
+#s_id{
+  background-color: #ddd;
+  cursor: not-allowed;
+}
 
     /* 新增的样式 */
     .logout-btn {
@@ -178,16 +271,6 @@
       transition: left 0.7s ease;
     }
 
-    /* 新增的样式 */
-    .edit-form {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .edit-form label {
-      margin-bottom: 10px;
-    }
-
     .edit-form input[type="text"],
     .edit-form input[type="email"],
     .edit-form select {
@@ -200,7 +283,11 @@
     .edit-form button {
       align-self: flex-end;
     }
+     {% load static %}
   </style>
+    <script type="text/javascript">
+        var staticBaseUrl = "{% static '商品图片/' %}";
+</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -215,8 +302,10 @@
     <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
 </div>
 
-  <div class="main-content">
-    <h2 id="pageTitle">用户信息</h2>
+<div class="main-content">
+    <h2 id="pageTitle">用户管理</h2>
+    <input type="text" id="searchInput" placeholder="输入关键字...">
+    <button onclick="searchUsers()" id="user-search">搜索</button>
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
@@ -276,7 +365,7 @@
             <td>{{ shop.address }}</td>
             <td>
               <button onclick="openshopEditModal('{{ shop.s_id }}')">编辑</button>
-              <button>删除</button>
+              <button class="delete-shop-btn" data-s_id="{{ shop.s_id }}">删除</button>
             </td>
           </tr>
           {% endfor %}
@@ -316,8 +405,8 @@
       <td>{{ shop_product.discount }}</td>
       <td>{{ shop_product.current_price }}</td>
       <td>
-        <button onclick="openshopEditModal('{{ product.shop_product_id }}')">编辑</button>
-        <button>删除</button>
+        <button onclick="openProductEditModal('{{ shop_product.shop_product_id }}')">编辑</button>
+        <button class="delete-product-btn" data-shop_product_id="{{ shop_product.shop_product_id }}">删除</button>
       </td>
     </tr>
     {% endfor %}
@@ -342,36 +431,15 @@
     <tr>
       <td>{{ order.o_id }}</td>
       <td>{{ order.user_id }}</td>
-      <td>{{ order.get_status_display }}</td>
+      <td>{{ order.status }}</td>
       <td>{{ order.o_time }}</td>
       <td>{{ order.paid_time }}</td>
       <td>{{ order.total_price }}</td>
       <td>{{ order.order_address }}</td>
       <td>
         <button type="button" onclick="toggleOrderDetails({{ order.o_id }})">展开/收起</button>
-        <div id="OrderDetail{{ order.o_id }}" style="display: none;">
-          <table>
-            <thead>
-              <tr>
-                <th>订单详情ID</th>
-                <th>商品ID</th>
-                <th>商家ID</th>
-                <th>数量</th>
-                <th>购买时单价</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for detail in order.order_details %}
-              <tr>
-                <td>{{ detail.order_detail_id }}</td>
-                <td>{{ detail.product_id }}</td>
-                <td>{{ detail.shop_id }}</td>
-                <td>{{ detail.quantity }}</td>
-                <td>{{ detail.current_single_price }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+        <div id="OrderDetail{{ order.o_id }}" style="display: none;" data-is-loaded="false">
+        <!-- 如果有订单商品数据，则在这里显示 -->
         </div>
       </td>
     </tr>
@@ -385,6 +453,8 @@
     <span class="close">&times;</span>
     <h2>编辑管理员信息</h2>
     <form id="admin-edit-form">
+        <label for="ad_id">管理员id:</label>
+        <input type="text" id="ad_id" name="ad_id" readonly>
       <label for="ad_acc">用户名:</label>
       <input type="text" id="ad_acc" name="ad_acc">
       <label for="ad_psw">密码:</label>
@@ -504,7 +574,42 @@
     </div>
     {% endif %}
 
+    <!-- 订单分页器 -->
+{% if orders.paginator.num_pages > 1 %}
+<div class="pagination" id="orderPagination" style="{% if table != 'order' %}display: none;{% endif %}">
+  {% if orders.has_previous %}
+    <a href="?table=order&order_page=1">第一页</a>
+    <a href="?table=order&order_page={{ orders.previous_page_number }}">上一页</a>
+  {% endif %}
 
+  {% with orders.number|add:"-2" as prev_range %}
+    {% with orders.number|add:"2" as next_range %}
+      {% if prev_range > 2 %}
+        <span>...</span>
+      {% endif %}
+
+      {% for page_num in orders.paginator.page_range %}
+        {% if page_num >= prev_range and page_num <= next_range %}
+          {% if page_num == orders.number %}
+            <span class="current-page">{{ page_num }}</span>
+          {% else %}
+            <a href="?table=order&order_page={{ page_num }}">{{ page_num }}</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if next_range < orders.paginator.num_pages|add:"-1" %}
+        <span>...</span>
+      {% endif %}
+    {% endwith %}
+  {% endwith %}
+
+  {% if orders.has_next %}
+    <a href="?table=order&order_page={{ orders.next_page_number }}">下一页</a>
+    <a href="?table=order&order_page={{ orders.paginator.num_pages }}">最后一页</a>
+  {% endif %}
+</div>
+{% endif %}
 
   </div>
 
@@ -516,6 +621,8 @@
       <span class="close">&times;</span>
       <h2>编辑用户信息</h2>
       <form id="edit-form">
+          <label for="u_id">用户ID:</label>
+      <input type="text" id="u_id" name="u_id" readonly> <!-- 只读字段，不可编辑 -->
         <label for="u_acc">用户名:</label>
         <input type="text" id="u_acc" name="u_acc">
         <label for="u_name">姓名:</label>
@@ -536,6 +643,8 @@
     <span class="close">&times;</span>
     <h2>编辑商家信息</h2>
     <form id="shop-edit-form">
+        <label for="s_id">商家ID:</label>
+        <input type="text" id="s_id" name="s_id" readonly>
         <label for="s_name">商家名称:</label>
       <input type="text" id="s_name" name="s_acc">
         <label for="s_acc">商家账号:</label>
@@ -543,9 +652,54 @@
       <label for="s_phone">手机号:</label>
         <input type="text" id="s_phone" name="s_phone">
         <label for="email">邮箱:</label>
-        <input type="text" id="email" name="email">
+        <input type="text" id="shop_email" name="shop_email">
         <label for="address">地址:</label>
         <input type="text" id="address" name="address">
+      <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
+
+<!-- 编辑商品信息的模态框 -->
+<div id="editProductModal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>编辑商品信息</h2>
+    <form id="product-edit-form">
+      <label for="s_id">商品ID:</label>
+      <input type="text" id="edit_product_id" name="product_id" readonly>
+
+      <label for="edit_product_desc">描述:</label>
+      <input type="text" id="edit_product_desc" name="product_desc">
+
+      <label for="edit_product_status">商品状态:</label>
+        <select id="edit_product_status" name="product_status">
+          <option value="上架">上架</option>
+          <option value="下架">下架</option>
+        </select>
+
+      <label for="edit_product_auditstatus">审核状态:</label>
+        <select id="edit_product_auditstatus" name="product_auditstatus">
+          <option value="待审核">待审核</option>
+          <option value="审核通过">审核通过</option>
+          <option value="审核不通过">审核不通过</option>
+        </select>
+
+      <label for="edit_product_image_url">图片链接:</label>
+      <input type="text" id="edit_product_image_url" name="product_image_url">
+
+      <label for="edit_stock_quantity">库存数量:</label>
+      <input type="number" id="edit_stock_quantity" name="stock_quantity">
+
+      <label for="edit_original_price">原价:</label>
+      <input type="number" step="0.01" id="edit_original_price" name="original_price">
+
+      <label for="edit_discount">折扣:</label>
+      <input type="number" step="0.01" id="edit_discount" name="discount">
+
+      <label for="edit_current_price">现价:</label>
+      <input type="number" step="0.01" id="edit_current_price" name="current_price">
+
       <button type="submit">提交</button>
     </form>
   </div>
@@ -570,7 +724,17 @@
 
     // 获取关闭按钮元素
     var span = document.getElementsByClassName("close")[0];
+    // 点击关闭按钮，隐藏模态框
+  span.onclick = function() {
+    modal.style.display = "none";
+  }
 
+  // 点击模态框外的区域，隐藏模态框
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
     // 打开模态框
     function openEditModal(userId) {
       modal.style.display = "block";
@@ -639,16 +803,27 @@
     }
   });
 });
-
+  var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
     // 关闭模态框
     span.onclick = function() {
+        alert()
       modal.style.display = "none";
     }
 
-    var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
-span.onclick = function() {
-  modal.style.display = "none"; // 当点击时隐藏模态框
+// 获取所有的关闭按钮元素
+var spans = document.getElementsByClassName("close");
+
+// 为每个关闭按钮添加点击事件
+for (var i = 0; i < spans.length; i++) {
+  spans[i].onclick = function() {
+    // 找到父元素中最近的 .modal 并隐藏
+    var modal = this.closest('.modal');
+    if (modal) {
+      modal.style.display = "none";
+    }
+  }
 }
+
 
     // 当用户点击模态框外部时关闭模态框
     window.onclick = function(event) {
@@ -656,6 +831,21 @@ span.onclick = function() {
         modal.style.display = "none";
       }
     }
+
+    document.querySelectorAll('.page-link').forEach(function(link) {
+  link.addEventListener('click', function(event) {
+    // 阻止链接的默认跳转行为
+    event.preventDefault();
+
+    // 获取目标页面和当前页面
+    var targetPage = this.getAttribute('data-target-page');
+    var currentPage = this.getAttribute('data-current-page');
+    var tableName = this.getAttribute('data-table-name');
+
+    // 调用moveTables来更新表格内容，而不刷新页面
+    moveTables(targetPage, currentPage, tableName);
+  });
+});
 
     // 修改后的函数
     function moveTables(targetPage, currentPage, tableName) {
@@ -725,7 +915,6 @@ span.onclick = function() {
     });
 });
 
-
 function switchTable(tableId) {
   // 隐藏所有的表格
   var tables = document.getElementsByTagName('table');
@@ -736,6 +925,9 @@ function switchTable(tableId) {
   // 显示对应的表格
   var table = document.getElementById(tableId);
   table.style.display = '';
+
+  // 更新搜索框的行为
+  updateSearchFunction(tableId);
 
   // 隐藏所有的分页器
   var paginations = document.getElementsByClassName('pagination');
@@ -749,22 +941,49 @@ function switchTable(tableId) {
   if (pagination) {
     pagination.style.display = '';
   }
-
 }
 
 function toggleOrderDetails(orderId) {
-    var x = document.getElementById("OrderDetail" + orderId);
-    if (x.style.display === "none") {
-      x.style.display = "block";
+    var detailsDiv = document.getElementById("OrderDetail" + orderId);
+    var isHidden = detailsDiv.style.display === "none";
+
+    // 切换展开/收起
+    if (isHidden) {
+        // 如果是第一次点击展开，则通过API获取订单项
+            fetch(`/order-items/${orderId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 生成商品信息的HTML
+                        var orderItemsHtml = data.order_items.map(item => {
+                            return `
+                                <div class="order-item">
+                                    <span><img src="${staticBaseUrl}${item.product_image_url}"  style="width: 50px; height: auto;"></span> -
+                                    <span>${item.product_name}</span> -
+                                    <span>${item.quantity}</span> -
+                                    <span>${item.current_single_price}</span>
+                                </div>
+                            `;
+                        }).join('');
+                        detailsDiv.innerHTML = orderItemsHtml;
+                        detailsDiv.style.display = "block";
+                        detailsDiv.dataset.isLoaded = "true"; // 标记为已加载
+                    } else {
+                        console.error("Error loading order items:", data.error);
+                    }
+                })
+                .catch(error => console.error("Failed to fetch order items:", error));
+
     } else {
-      x.style.display = "none";
+        // 折叠起来
+        detailsDiv.style.display = "none";
     }
-  }
+}
 
   // 打开编辑管理员信息的模态框
 function openAdminEditModal() {
   // 获取 admin 用户的 ID
-  var adminId = 1; // 这里应该根据实际情况填写
+  var adminId = "{{ admin.ad_id }}";
 
   // 发送 AJAX 请求，获取 admin 用户的信息
   $.ajax({
@@ -830,15 +1049,13 @@ function openshopEditModal(shopId) {
     success: function(response) {
         if(response.success) {
             // 渲染数据到模态框的输入框
-            // 注意，下面的每个输入框 ID 应与模态中的对应
+
+            $('#s_id').val(response.data.s_id);
             $('#s_name').val(response.data.s_name);
             $('#s_acc').val(response.data.s_acc);
             $('#s_phone').val(response.data.s_phone);
-            $('#email').val(response.data.email);
+            $('#shop_email').val(response.data.email);
             $('#address').val(response.data.address);
-
-            // 由于 s_id 通常作为一个隐藏的字段来保存，在这里没必要设置它的值，
-            // 除非你在表单中做了一个隐藏的输入来存储它。
 
             // 显示模态框
             modal.show();
@@ -866,6 +1083,362 @@ function openshopEditModal(shopId) {
 }
 
 
+// JQuery 文档就绪函数，用于安全绑定事件
+$(document).ready(function(){
+    // 绑定表单提交事件处理函数
+    $('#shop-edit-form').submit(function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+
+        // 收集表单数据用于提交
+        var formData = {
+            s_id: $('#s_id').val(),
+            s_name: $('#s_name').val(),
+            s_acc: $('#s_acc').val(),
+            s_phone: $('#s_phone').val(),
+            email: $('#shop_email').val(),
+            address: $('#address').val(),
+        };
+
+        // 发送 AJAX POST 请求
+        $.ajax({
+            url: '/update_shop_info/', // 你用于更新商家信息的正确 URL
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json; charset=utf-8',
+            headers: { 'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val() }, // 获取 CSRF token
+            success: function(response) {
+                if (response.success) {
+                    alert('商家信息更新成功');
+                    modal.style.display = "none"; // 关闭模态框
+                    location.reload(); // 刷新页面
+                } else {
+                    alert('更新失败：' + response.message); // 显示失败消息
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error); // 控制台记录错误
+                alert('更新时发生错误，请稍后再试');
+            }
+        });
+    });
+});
+$(document).ready(function() {
+    $('.delete-shop-btn').click(function() {
+        var s_id = $(this).data('s_id');  // 获取商家 ID
+
+        if (confirm('确定要删除此商家吗？')) {
+            $.ajax({
+                url: '/delete_shop/',  // 后端删除商家的 URL
+                type: 'POST',
+                data: JSON.stringify({'s_id': s_id}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新商家列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
+
+function openProductEditModal(productId) {
+  var modal = $('#editProductModal');
+  // 使用 AJAX 请求获取商品信息
+  $.ajax({
+    url: '/get_product_info/',   // 后端获取商品信息的 API 接口
+    type: 'POST',
+    data: JSON.stringify({product_id: productId}),
+    contentType: 'application/json; charset=utf-8',
+    headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // CSRF token
+    success: function(response) {
+        if(response.success) {
+            // 填充表单字段
+            $('#edit_product_id').val(response.data.shop_product_id);
+            $('#edit_product_desc').val(response.data.product_desc);
+            $('#edit_product_status').val(response.data.product_status); // 商品状态
+            $('#edit_product_auditstatus').val(response.data.product_auditstatus); // 审核状态
+            $('#edit_product_image_url').val(response.data.product_image_url); // 图片链接
+            $('#edit_stock_quantity').val(response.data.stock_quantity); // 库存数量
+            $('#edit_original_price').val(response.data.original_price); // 原价
+            $('#edit_discount').val(response.data.discount); // 折扣
+            $('#edit_current_price').val(response.data.current_price); // 现价
+
+            // 显示模态框
+            modal.show();
+        } else {
+            alert('获取商品信息失败??！');
+        }
+    },
+    error: function(error) {
+        console.error(error);
+        alert('请求失败，请检查网络连接或稍后重试');
+    }
+  });
+
+  // 绑定模态框关闭事件
+  modal.find('.close').click(function() {
+    modal.hide();
+  });
+
+  // ...模态框外点击关闭，与上面类似的处理...
+}
+
+$(document).ready(function() {
+  // 为编辑商品信息表单绑定提交事件
+  $('#product-edit-form').submit(function(e) {
+    e.preventDefault(); // 阻止表单默认提交
+
+    // 收集表单数据用于提交
+    var formData = {
+      shop_product_id: $('#edit_product_id').val(),  // 商品的ID，确保模态框中有一个相应的隐藏字段
+      product_desc: $('#edit_product_desc').val(),  // 商品描述
+      product_status: $('#edit_product_status').val(),  // 商品状态
+      product_auditstatus: $('#edit_product_auditstatus').val(),  // 审核状态
+      product_image_url: $('#edit_product_image_url').val(),  // 图片链接
+      stock_quantity: $('#edit_stock_quantity').val(),  // 库存数量
+      original_price: $('#edit_original_price').val(),  // 原价
+      discount: $('#edit_discount').val(),  // 折扣
+      current_price: $('#edit_current_price').val(),  // 现价
+    };
+    // 发送 AJAX 请求到后端更新商品信息 API
+    $.ajax({
+      url: '/update_product_info/', // 更新商品信息的后端URL
+      type: 'POST',
+      data: JSON.stringify(formData),
+      contentType: 'application/json; charset=utf-8',
+      headers: { 'X-CSRFToken': $('input[name="csrfmiddlewaretoken"]').val() }, // CSRF Token
+      success: function(response) {
+        if (response.success) {
+          alert(response.message);
+          $('#editProductModal').hide(); // 隐藏编辑模态框
+          location.reload(); // 刷新页面
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function(xhr, status, error) {
+        // 异常处理
+        console.error(error);
+        alert('更新商品信息失败，请稍后再试');
+      }
+    });
+  });
+
+  // 绑定商品列表中编辑按钮的点击事件
+  $('.edit-product-btn').click(function() {
+    var productId = $(this).data('product_id'); // 获取商品ID
+    // 使用商品ID从后端获取商品的详细信息并填充到编辑表单，然后显示模态框
+    // ...
+  });
+
+  // 绑定关闭模态框功能
+  $('.close').click(function() {
+    $(this).closest('.modal').hide();
+  });
+
+  // 如果点击模态框外部，也关闭模态框
+  $(window).click(function(event) {
+    if ($(event.target).hasClass('modal')) {
+      $('.modal').hide();
+    }
+  });
+});
+$(document).ready(function() {
+    $('.delete-product-btn').click(function() {
+        var shopProductId = $(this).data('shop_product_id');  // 获取商品 ID
+        if (confirm('确定要删除此商品吗？')) {
+            $.ajax({
+                url: '/delete_product/',  // 后端删除商品的 URL
+                type: 'POST',
+                data: JSON.stringify({'shop_product_id': shopProductId}),
+                contentType: 'application/json; charset=utf-8',
+                headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') },  // CSRF token
+                success: function(response) {
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();  // 刷新页面以更新商品列表
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                    alert('删除时发生错误，请稍后再试');
+                }
+            });
+        }
+    });
+});
+
+function updateSearchFunction(tableId) {
+  var searchButton = document.getElementById('user-search');
+  if (tableId === 'userTable') {
+    searchButton.onclick = searchUsers; // 绑定到用户搜索函数
+  } else if (tableId === 'shopTable') {
+    searchButton.onclick = searchShops; // 绑定到商家搜索函数
+  } // 可以为其他管理表格添加更多条件
+}
+
+function searchUsers() {
+    var keyword = document.getElementById('searchInput').value;  // 获取搜索关键字
+
+    // 发送 AJAX 请求到后端的搜索 API
+    $.ajax({
+        url: '/search_users/',  // 后端搜索 API 的 URL
+        type: 'POST',
+        data: {keyword: keyword},
+        headers: {"X-CSRFToken": $('meta[name="csrf-token"]').attr('content')},  // 添加 CSRF token
+        success: function(response) {
+            // 清空表格
+            $('#userTable tbody').empty();
+
+            if (response.length > 0) {
+                // 用搜索结果更新表格
+                for (var i = 0; i < response.length; i++) {
+                    var user = response[i];
+                    var row = '<tr>' +
+                        '<td>' + user.u_id + '</td>' +
+                        '<td>' + user.u_acc + '</td>' +
+                        '<td>' + user.u_name + '</td>' +
+                        '<td>' + user.u_sex + '</td>' +
+                        '<td>' + user.u_phone + '</td>' +
+                        '<td>' + user.email + '</td>' +
+                        '<td>' + user.created_at + '</td>' +
+                        '<td>' +
+                        '<button onclick="openEditModal(\'' + user.u_id + '\')">编辑</button>' +
+                        '<button class="delete-btn" data-u_id="' + user.u_id + '">删除</button>' +
+                        '</td>' +
+                        '</tr>';
+                    $('#userTable tbody').append(row);
+                }
+            } else {
+                // 如果没有结果，显示 "无匹配记录"
+                $('#userTable tbody').append('<tr><td colspan="8" style="text-align:center;">无匹配记录</td></tr>');
+            }
+            // 隐藏分页器
+            $('.pagination').hide();
+        },
+        error: function(error) {
+            console.error(error);
+            alert('搜索时发生错误，请稍后再试');
+        }
+    });
+}
+
+// 绑定回车键到搜索框
+$('#searchInput').on('keypress',function(e) {
+    if(e.which == 13) {
+        searchUsers();
+    }
+});
+
+// JQuery 文档就绪函数，用于安全绑定事件
+$(document).ready(function(){
+    // 绑定编辑管理员信息表单的提交事件
+    $('#admin-edit-form').submit(function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+
+        // 收集表单数据用于提交
+        var formData = {
+            ad_id: $('#ad_id').val(),
+            ad_acc: $('#ad_acc').val(),  // 管理员账号
+            ad_psw: $('#ad_psw').val()   // 管理员密码
+
+        };
+        // 发送 AJAX POST 请求
+        $.ajax({
+            url: '/update_admin_info/', // 你用于更新管理员信息的正确 URL
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json; charset=utf-8',
+            headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // CSRF token
+            success: function(response) {
+                if (response.success) {
+                    alert('管理员信息更新成功');
+                    $('#adminEditModal').css('display', 'none'); // 关闭模态框
+                    location.reload(); // 刷新页面以获取更新后的信息
+                } else {
+                    alert('更新失败：' + response.message); // 显示失败消息
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error); // 控制台记录错误
+                alert('更新时发生错误，请稍后再试');
+            }
+        });
+    });
+
+    // 绑定模态框关闭事件
+    $('.close').click(function() {
+        $('#adminEditModal').css('display', 'none');
+    });
+
+    // 如果点击模态框外部，也关闭模态框
+    $(window).click(function(event) {
+        if ($(event.target).hasClass('modal')) {
+            $('#adminEditModal').css('display', 'none');
+        }
+    });
+});
+function searchShops() {
+    var keyword = document.getElementById('shopSearchInput').value;  // 获取搜索关键字
+
+    // 发送 AJAX 请求到后端的搜索 API
+    $.ajax({
+        url: '/search_shops/',  // 后端搜索 API 的 URL
+        type: 'POST',
+        data: {keyword: keyword},
+        headers: {"X-CSRFToken": $('meta[name="csrf-token"]').attr('content')},  // 添加 CSRF token
+        success: function(response) {
+            // 清空表格
+            $('#shopTable tbody').empty();
+
+            if (response.length > 0) {
+                // 用搜索结果更新表格
+                for (var i = 0; i < response.length; i++) {
+                    var shop = response[i];
+                    var row = '<tr>' +
+                        '<td>' + shop.s_id + '</td>' +
+                        '<td>' + shop.s_name + '</td>' +
+                        '<td>' + shop.s_acc + '</td>' +
+                        '<td>' + shop.s_phone + '</td>' +
+                        '<td>' + shop.email + '</td>' +
+                        '<td>' + shop.address + '</td>' +
+                        '<td>' +
+                        '<button onclick="openshopEditModal(\'' + shop.s_id + '\')">编辑</button>' +
+                        '<button class="delete-shop-btn" data-s_id="' + shop.s_id + '">删除</button>' +
+                        '</td>' +
+                        '</tr>';
+                    $('#shopTable tbody').append(row);
+                }
+            } else {
+                // 如果没有结果，显示 "无匹配记录"
+                $('#shopTable tbody').append('<tr><td colspan="8" style="text-align:center;">无匹配记录</td></tr>');
+            }
+            // 隐藏分页器
+            $('.pagination').hide();
+        },
+        error: function(error) {
+            console.error(error);
+            alert('搜索时发生错误，请稍后再试');
+        }
+    });
+}
+// 绑定回车键到搜索框
+$('#shopSearchInput').on('keypress',function(e) {
+    if(e.which == 13) {
+        searchShops();
+    }
+});
   </script>
 </body>
 </html>

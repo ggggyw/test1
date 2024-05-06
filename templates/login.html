@@ -27,7 +27,6 @@
 body {
 	align-items: center;
 	background-color: var(--white);
-{#background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");#}
 	background: url('{% static "/登录_files/R.gif" %}');
     background-attachment: fixed;
 	background-position: center;
@@ -282,7 +281,28 @@ body {
   transform: translateX(calc(var(--container_width) * 2/3));
 }
 
+    {#-------------------------------------------------------------#}
+.message-container {
+    animation: slideDownFadeOut 3s forwards;
+}
 
+@keyframes slideDownFadeOut {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
     </style>
 </head>
 <body>
@@ -355,8 +375,60 @@ body {
 		</div>
 	</div>
 </div>
-</body>
+
+{% if messages %}
 <script>
+// 创建一个空数组来存储消息
+var djangoMessages = [];
+
+{% for message in messages %}
+    // 将每个消息添加到数组中
+    djangoMessages.push({"level": "{{ message.tags }}", "text": "{{ message|escapejs }}"});
+{% endfor %}
+</script>
+{% endif %}
+
+</body>
+
+<script>
+
+
+// 当页面加载完成后执行
+window.onload = function() {
+    // 检查 djangoMessages 是否存在并且包含消息
+    if(typeof djangoMessages !== 'undefined' && djangoMessages.length > 0) {
+        // 通过遍历所有的 djangoMessages 来显示消息
+        djangoMessages.forEach(function(message){
+            // 使用模态框或自定义弹窗展示消息
+            displayMessage(message.level, message.text);
+        });
+    }
+};
+
+function displayMessage(level, text) {
+    // 创建消息容器
+    var messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-container', level);
+    messageContainer.textContent = text;
+
+    // 添加样式
+    messageContainer.style.position = 'fixed';
+    messageContainer.style.top = '0';
+    messageContainer.style.left = '0';
+    messageContainer.style.width = '100%';
+    messageContainer.style.padding = '1rem';
+    messageContainer.style.backgroundColor = level === 'error' ? 'red' : 'green';
+    messageContainer.style.color = 'white';
+    messageContainer.style.textAlign = 'center';
+
+    // 将消息容器添加到页面中
+    document.body.prepend(messageContainer);
+
+    // 一段时间后移除消息
+    setTimeout(function() {
+        messageContainer.remove();
+    }, 3000);  // 在3秒后消息消失
+}
 const signInBtn = document.getElementById("signIn");
 const signUpBtn = document.getElementById("signUp");
 const firstForm = document.getElementById("form1");

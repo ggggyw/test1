@@ -327,7 +327,7 @@
             transition: all 0.3s ease; /* 添加过渡效果 */
         }
 
-        .shop_good > a > .shop_product_name, .shop_good .shop_product_price {
+        .shop_good > a > .shop_product_name {
             /* 下面的属性在之前的CSS已经设置 */
             padding: 1px 1px;
             display: block; /* 默认就是块级元素，这里可以不用写 */
@@ -349,15 +349,55 @@
             transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
         }
 
-        .shop_good .shop_product_price {
-            margin-top: 5px; /* 距离名称的间距 */
+        /* 商品价格容器样式 */
+        .shop_goods-info {
+            display: flex;
+            align-items: flex-start;
+            justify-content:flex-end;
+            width: 100%; /* 宽度设置为100% */
+        }
+
+        .shop_discount-badge { /* 折扣徽章样式，需要放在左边 */
+            color: #fff;
+            background-color: #a4322c;
+            padding: 3px 6px;
+            font-size: 25px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-right: 10px; /* 控制折扣和价格之间的间距 */
+        }
+
+        .shop_goods-pricing {
+            display: flex;
+            flex-direction: column; /* 使原始价格和现价垂直排列 */
+            align-items: flex-end; /* 价格靠右对齐 */
+            gap: 2px; /* 减少价格信息之间的间隔，使其挨近 */
+        }
+
+        .shop_product_original_price { /* 原始价格样式 */
+            font-size: 15px;
+            color: #888;
+            text-decoration: line-through;
+        }
+
+        .shop_product_original_price, .shop_product_current_price { /* 原始价格和现价样式 */
+            margin: 0; /* 移除间距，让价格垂直方向更加紧凑 */
+        }
+
+
+        .shop_product_current_price { /* 现价样式 */
             font-size: 30px;
-            bottom: 15px;
             color: #E57373; /* 价格的颜色 */
-            font-weight: bold; /* 字体加粗 */
-            margin-bottom: 10px; /* 距离链接底部的间距 */
+            font-weight: bold;
             text-align: right; /* 价格在右边 */
             transition: color 0.3s ease; /* 添加颜色变化过渡效果 */
+        }
+
+        /* 清除浮动对齐影响 */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
         }
 
         /* 统计信息块样式 */
@@ -766,12 +806,23 @@
         <div class="shop_goods-content">
             <h2>最畅销商品信息</h2>
             {% if top_selling_product_info %}
-                <div class="shop_good shop_good-item">
+                <div class="shop_good shop_good-item clearfix">
                     <a href="{% url 'shop_productdetails' top_selling_product_info.shop_product_id %}">
                         <img src="{% static '商品图片/'|add:top_selling_product_info.product_image_url %}"
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ top_selling_product_info.product.p_name }}</p>
-                        <p class="shop_product_price">￥{{ top_selling_product_info.current_price }}</p>
+                        <div class="shop_goods-info">
+                            {% if top_selling_product_info.discount %}
+                                <p class="shop_discount-badge">
+                                    -{{ top_selling_product_info.discount|floatformat:0 }}%
+                                </p>
+                            {% endif %}
+                            <div class="shop_goods-pricing">
+                                <p class="shop_product_original_price">
+                                    ￥{{ top_selling_product_info.original_price }}</p>
+                                <p class="shop_product_current_price">￥{{ top_selling_product_info.current_price }}</p>
+                            </div>
+                        </div>
                     </a>
                 </div>
             {% else %}
@@ -781,13 +832,26 @@
         <div class="shop_goods-content">
             <h2>7天内最畅销商品信息</h2>
             {% if weekly_top_selling_product_info %}
-
                 <div class="shop_good shop_good-item">
                     <a href="{% url 'shop_productdetails' weekly_top_selling_product_info.shop_product_id %}">
                         <img src="{% static '商品图片/'|add:weekly_top_selling_product_info.product_image_url %}"
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ weekly_top_selling_product_info.product.p_name }}</p>
-                        <p class="shop_product_price">￥{{ weekly_top_selling_product_info.current_price }}</p>
+                        <div class="shop_goods-info">
+                            {% if weekly_top_selling_product_info.discount %}
+                                <p class="shop_discount-badge">
+                                    -{{ weekly_top_selling_product_info.discount|floatformat:0 }}%
+                                </p>
+                            {% endif %}
+                            <div class="shop_goods-pricing">
+                                <p class="shop_product_original_price">
+                                    ￥{{ weekly_top_selling_product_info.original_price }}
+                                </p>
+                                <p class="shop_product_current_price">
+                                    ￥{{ weekly_top_selling_product_info.current_price }}
+                                </p>
+                            </div>
+                        </div>
                     </a>
                 </div>
             {% else %}
@@ -797,13 +861,26 @@
         <div class="shop_goods-content">
             <h2>今日最畅销商品信息</h2>
             {% if today_top_selling_product_info %}
-
                 <div class="shop_good shop_good-item">
                     <a href="{% url 'shop_productdetails' today_top_selling_product_info.shop_product_id %}">
                         <img src="{% static '商品图片/'|add:today_top_selling_product_info.product_image_url %}"
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ today_top_selling_product_info.product.p_name }}</p>
-                        <p class="shop_product_price">￥{{ today_top_selling_product_info.current_price }}</p>
+                        <div class="shop_goods-info">
+                            {% if today_top_selling_product_info.discount %}
+                                <p class="shop_discount-badge">
+                                    -{{ today_top_selling_product_info.discount|floatformat:0 }}%
+                                </p>
+                            {% endif %}
+                            <div class="shop_goods-pricing">
+                                <p class="shop_product_original_price">
+                                    ￥{{ today_top_selling_product_info.original_price }}
+                                </p>
+                                <p class="shop_product_current_price">
+                                    ￥{{ today_top_selling_product_info.current_price }}
+                                </p>
+                            </div>
+                        </div>
                     </a>
                 </div>
             {% else %}

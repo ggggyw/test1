@@ -130,6 +130,29 @@
     display: flex;
     align-items: center;
 }
+.pagination {
+    text-align: center; /* 居中分页链接 */
+    margin: 20px 0; /* 添加一些上下外边距 */
+}
+
+.pagination .pagination-link {
+    display: inline-block; /* 这将允许链接水平排列 */
+    padding: 5px 10px; /* 添加一些填充 */
+    margin: 4px; /* 分开链接 */
+    border: 1px solid #ddd; /* 添加边框 */
+    color: #337ab7; /* 文字颜色 */
+    text-decoration: none; /* 去除下划线 */
+}
+
+.pagination .pagination-link:hover {
+    background-color: #ddd; /* 鼠标悬停的背景颜色 */
+}
+
+.pagination .is-current {
+    background-color: #337ab7; /* 当前页的背景颜色 */
+    color: white; /* 当前页的文字颜色 */
+    border-color: #337ab7; /* 当前页的边框颜色 */
+}
 
 
 {#按钮----------------------------------------------------------------------------------------------------#}
@@ -265,8 +288,9 @@ button {
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
         <li><a href="/user/userorder?status=beshipped" data-status="beshipped">待发货</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
+        <li><a href="/user/userorder?status=bereturned" data-status="bereturned">待退货</a></li>
         <li><a href="/user/userorder?status=returned" data-status="returned">已退货</a></li>
-        <li><a href="/user/userorder?status=review" data-status="review">待评价</a></li>
+        <li><a href="/user/userorder?status=review" data-status="review">已完成</a></li>
         <li><a href="/user/userorder?status=recycle" data-status="recycle">订单回收站</a></li>
     </ul>
 
@@ -281,10 +305,13 @@ button {
     </div>
 
 </div>
+   <!-- 添加这个元素来动态插入分页按钮 -->
+   <div class="pagination"></div>
 
 
-
-
+<script type="text/javascript">
+    var staticUrl = "{% static '' %}";
+</script>
 <script>
     $(document).ready(function() {
     // 获取当前 URL 中的 status 参数
@@ -311,122 +338,37 @@ button {
 });
 
 
+
+
 $(document).ready(function() {
-    $.ajax({
-        url: '/user_orders/',  // 后端 API 地址
-        type: 'GET',
-success: function(response) {
-    var ordersData = response.orders;
-    var ordersContent = '';
-    for (var i = 0; i < ordersData.length; i++) {
-        var order = ordersData[i];
-        var orderDetailsContent = '';
-        for (var j = 0; j < order.order_details.length; j++) {
-            var orderDetail = order.order_details[j];
-            orderDetailsContent += '<div class="oorder-product">' +
-                '<div class="oorder-product-details">' +
-                '<img src="{% static '商品图片/' %}' + orderDetail.product_image_url + '">' +
-                '<div>'+
-                '<p>' + orderDetail.product_name + '</p>' +
-                '<p>数量：' + orderDetail.quantity + '</p>' +
-                '<p>单价：' + orderDetail.price + '</p>' +
-                '<input type="hidden" name="product_ids[]" value="' + orderDetail.product_id + '">' +
-                '</div>'+
-                '</div></div>';
-        }
-        ordersContent += '<div class="oorder-container">' +
-            '<div >' +
-            {#'<p>订单号：' + order.order_id + '</p>' +#}
-            '<input type="hidden" name="orders[]" value="' + order.order_id + '">' +
-            '<div class="oorder-details">' + orderDetailsContent + '</div>' +
-            '</div>' +
-             '<div class="user_id">' +
-            '<p>' + order.user_id + '</p>' +
-            '</div>' +
-            '<div class="total-amount">' +
-            '<p>' + order.total_amount +'元'+ '</p>' +
-            '</div>' +
-            '<div class="status">' +
-            '<p>' + order.status + '</p>' +
-            '</div>' +
-            '<div class="caozuo">' +
-                '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
-              (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
-            (order.status === '待收货' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
-                 '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
-            '</div>' +
-            '</div>';
-    }
-    $('#order-details-container').append(ordersContent);
-    showOrdersWithAnimation();
-},
-        error: function(xhr, status, error) {
-            console.error(error);
-            $('#order-details-container').html('<p>获取订单失败</p>');
-        }
+    // 假设“getOrdersByStatus”和其他用于初始化或页面事件处理的函数已经定义
+
+    // 在文档加载完成后，页面初始化时加载第一页的订单
+    getOrdersByStatus(undefined, 1);  // 加载第一页订单，不指定状态
+
+    // 点击分页按钮获取相应页面的订单
+    $(document).on('click', '.pagination a', function(e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        getOrdersByStatus(urlParams.get('status'), page);
     });
-
- $(document).on('click', '.caozuo button:first-child', function() {
-        var orderContainer = $(this).closest('.oorder-container');
-        var orderDetails = orderContainer.find('.oorder-product');
-        var products = [];
-        {#var order = {};#}
-        // 从订单详情中提取商品信息
-        orderDetails.each(function() {
-            var product = {};
-            product.product_id = $(this).find('input[name="product_ids[]"]').val();
-            product.product_name = $(this).find('p:nth-child(1)').text();
-            product.quantity = $(this).find('p:nth-child(2)').text().split('：')[1];
-            product.price = $(this).find('p:nth-child(3)').text().split('：')[1];
-            products.push(product);
-        });
-        {#order.user_id = orderContainer.find('.user_id p').text();#}
-        {#var totalPriceText = orderContainer.find('.total-amount p').text();#}
-        {#order.total_price = parseFloat(totalPriceText.substring(0, totalPriceText.length - 1));#}
-        {#order.status = orderContainer.find('.status p').text();#}
-
-        // 发送再次购买请求到后端
-        $.ajax({
-            url: '/again_buy/',
-            type: 'POST',
-            contentType: 'application/json', // Specify JSON content type
-            data: JSON.stringify({
-                products: products
-            }),
-            success: function(response) {
-                // Handle success response
-                alert('再次购买成功');
-                location.reload();
-            },
-            error: function(xhr, status, error) {
-                // Handle error response
-                console.error(error);
-                alert('再次购买失败，请重试');
-            }
-        });
-
-    });
-
 });
-function showOrdersWithAnimation() {
-        $('.oorder-container').each(function(index) {
-            $(this).css('opacity', 0).delay(index * 200).animate({
-                opacity: 1,
-                top: '0'
-            }, 500);
-        });
-    }
-function getOrdersByStatus(status) {
+
+// 更新 “getOrdersByStatus” 函数以接收状态和页码参数
+function getOrdersByStatus(status, page) {
     $.ajax({
         url: '/user_orders/',
         type: 'GET',
         data: {
-            status: status
+            status: status,
+            page: page
         },
         success: function(response) {
-            // 清除旧的订单内容
+            // ...（同上）在这里构建订单的HTML并插入到页面中
+                        // 清除旧的订单内容
             $('#order-details-container .oorder-container').remove();
             // 插入新的订单内容
+
             var ordersData = response.orders;
             var ordersContent = '';
             for (var i = 0; i < ordersData.length; i++) {
@@ -451,7 +393,7 @@ function getOrdersByStatus(status) {
                     '<div class="oorder-details">' + orderDetailsContent + '</div>' +
                     '</div>' +
                     '<div class="user_id">' +
-                    '<p>' + order.user_id + '</p>' +
+                    '<p>' + order.user_name + '</p>' +
                     '</div>' +
                     '<div class="total-amount">' +
                     '<p>' + order.total_amount +'元'+ '</p>' +
@@ -463,28 +405,102 @@ function getOrdersByStatus(status) {
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
                     (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                     (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
+                    (order.status === '待退货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
+                    (order.status === '待退货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
                      '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
                     '</div>' +
                     '</div>';
             }
             $('#order-details-container').append(ordersContent);
+// 渲染分页控件，动态创建分页按钮
+            var paginationHtml = '';
 
-                // 依次显示订单容器
-                showOrdersWithAnimation();
-            },
-            error: function(xhr, status, error) {
-                console.error(error);
-                $('#order-details-container').html('<p>获取订单失败</p>');
-            }
-        });
+    if (response.pagination.has_previous) {
+        paginationHtml += '<a class="pagination-link" href="#" data-page="' + (response.pagination.current_page - 1) + '">&lsaquo; 上一页</a> ';
     }
 
+    for (var i = 1; i <= response.pagination.num_pages; i++) {
+        if (i === response.pagination.current_page) {
+            paginationHtml += '<span class="pagination-link is-current">' + i + '</span> ';
+        } else {
+            paginationHtml += '<a class="pagination-link" href="#" data-page="' + i + '">' + i + '</a> ';
+        }
+    }
+
+    if (response.pagination.has_next) {
+        paginationHtml += '<a class="pagination-link" href="#" data-page="' + (response.pagination.current_page + 1) + '">下一页 &rsaquo;</a> ';
+    }
+
+    // 将分页HTML更新到分页容器
+    $('.pagination').html(paginationHtml);
+
+    // 重新绑定分页链接的点击事件
+    $('.pagination a').on('click', function(e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        getOrdersByStatus(status, page);
+    });
+
+            // 显示订单动画
+            showOrdersWithAnimation();
+        },
+        error: function(xhr, status, error) {
+            console.error(error);
+            $('#order-details-container').html('<p>获取订单失败</p>');
+        }
+    });
+}
+
+
+     $(document).on('click', '.caozuo button:first-child', function() {
+        var orderContainer = $(this).closest('.oorder-container');
+        var orderDetails = orderContainer.find('.oorder-product');
+        var products = [];
+        // 从订单详情中提取商品信息
+        orderDetails.each(function() {
+            var product = {};
+            product.product_id = $(this).find('input[name="product_ids[]"]').val();
+            product.product_name = $(this).find('p:nth-child(1)').text();
+            product.quantity = $(this).find('p:nth-child(2)').text().split('：')[1];
+            product.price = $(this).find('p:nth-child(3)').text().split('：')[1];
+            products.push(product);
+        });
+        // 发送再次购买请求到后端
+        $.ajax({
+            url: '/again_buy/',
+            type: 'POST',
+            contentType: 'application/json', // Specify JSON content type
+            data: JSON.stringify({
+                products: products
+            }),
+            success: function(response) {
+                // Handle success response
+                alert('再次购买成功');
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                // Handle error response
+                console.error(error);
+                alert('再次购买失败，请重试');
+            }
+        });
+
+    });
+
+    function showOrdersWithAnimation() {
+        $('.oorder-container').each(function(index) {
+            $(this).css('opacity', 0).delay(index * 200).animate({
+                opacity: 1,
+                top: '0'
+            }, 500);
+        });
+    }
 
 $(document).on('click', '.caozuo button:last-child', function() {
     var orderContainer = $(this).closest('.oorder-container');
     var orderId = orderContainer.find('input[name="orders[]"]').val();
     var status = orderContainer.find('.status').text().trim();
-    if (status === '已完成' || status === '回收') {
+    if (status === '已完成' || status === '已取消') {
         // 发送删除订单请求到后端
         $.ajax({
             url: '/delete_order/',
@@ -561,6 +577,32 @@ function confirmReceipt(orderId) {
     });
 }
 
+function confirm(orderId) {
+    var data = { o_id: orderId};
+    fetch('/confirm/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 确保你已正确处理 CSRF token。
+            'X-CSRFToken': getCSRFToken()  // 假定 getCSRFToken() 是一个用于获取 CSRF token 的函数。
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("确认成功！");
+            location.reload();  // 重新加载页面以获取最新的订单状态。
+        } else {
+            alert("确认失败：" + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('错误:', error);
+        alert("请求发生错误，请稍后再试。");
+    });
+}
+
 function redirectToPaymentPage(orderId,total_amount) {
     // 可以选择性地在这里执行其他逻辑，例如验证等
 
@@ -585,6 +627,39 @@ function getCSRFToken() {
         }
     }
     return cookieValue;
+}
+
+function returnOrder(orderId) {
+
+
+    // 准备请求数据
+    var data = { o_id: orderId };
+
+    // 从cookie中获取CSRF token
+    var csrfToken = getCSRFToken();
+
+    // 发送 AJAX POST 请求给服务器以处理退货
+    fetch('/return_order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("退货操作成功！");
+            location.reload(); // 重新加载页面获取最新状态
+        } else {
+            alert("退货操作失败：" + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('错误:', error);
+        alert("请求发生错误，请稍后再试。");
+    });
 }
 
 </script>

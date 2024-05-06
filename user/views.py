@@ -1,4 +1,6 @@
-from django.core.paginator import Paginator
+from datetime import timedelta
+
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
 import json
@@ -15,7 +17,7 @@ from django.contrib import messages
 # Create your views here.
 def userpage(request):
 
-    products = ShopProducts.objects.all()
+    products = ShopProducts.objects.all().exclude(product_status='下架')
     products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
@@ -52,6 +54,8 @@ def userprofile(request):
     context = {}
     u_id = request.session.get('u_id')
     role = request.session.get('role')
+    pending_orders_count = Orders.objects.filter(user_id=u_id, status='待付款').count()
+    shipped_orders_count = Orders.objects.filter(user_id=u_id, status='待收货').count()
     if role == 'user':
         # 获取并处理用户信息
         user = get_object_or_404(Users, u_id=u_id)
@@ -65,6 +69,8 @@ def userprofile(request):
             'email': user.email,
             'created_at': user.created_at,
             'role': role,
+            'pending_orders_count': pending_orders_count,
+            'shipped_orders_count': shipped_orders_count,
         }
     return render(request, 'userprofile.html', context)
 
@@ -139,11 +145,21 @@ def add_to_cart(request):
    return JsonResponse({'success': True})
 
 
-
+from django.core.paginator import Paginator
 def userorder(request):
     ord_de=OrderDetails.objects.all()
     u_id = request.session.get('u_id')
     orders=Orders.objects.filter(user_id=u_id)
+    now = timezone.now()
+    # 对每个订单进行检查
+    for order in orders:
+        # 如果订单未支付且从下单时间起已超过3天，则取消订单
+        if order.status == '待付款':
+            time_diff = order.paid_time - order.o_time
+            if time_diff > timedelta(days=3):
+                order.status = '已取消'  # 设置状态为 "已取消"
+                order.save()
+    orders = Orders.objects.filter(user_id=u_id)
     order_ids = [order.o_id for order in orders]
     context={
         'orders':orders,
@@ -218,7 +234,7 @@ def checkout(request):
         selected_product_ids = request_data.get('selectedProductIds')
         address = request_data.get('address')
         address_text = request_data.get('address')
-        print(address_text)
+        # print(address_text)
         u_id = request.session.get('u_id')
         itemPrices = request_data.get('itemPrices')
         totalPrice = request_data.get('totalPrice')
@@ -241,7 +257,7 @@ def checkout(request):
 
             # 创建新订单
             new_order = Orders.objects.create(
-                status='1', paid_time=timezone.localtime(timezone.now()),
+                status='1', paid_time='1999-01-01 00:00:00',
                 o_time=timezone.localtime(timezone.now()),
                 total_price=totalPrice, user_id=u_id, order_address=address
             )
@@ -272,7 +288,7 @@ def process_payment(request):
     # 获取当前的时间
     current_time = timezone.now()
     # 更新订单状态和时间
-    Orders.objects.filter(o_id=order_id).update(status="待发货", o_time=current_time)
+    Orders.objects.filter(o_id=order_id).update(status="待发货", paid_time=current_time)
     return JsonResponse({'success': True, 'message': '支付成功'})
 
 
@@ -330,6 +346,22 @@ def confirm_receipt(request):
         data = json.loads(request.body)
         try:
             order = Orders.objects.get(o_id=data['o_id'])
+            order.status = '待退货'  # 假设 '已完成' 是完成状态的正确值
+            order.save()
+            return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
+        except Orders.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '该订单不存在。'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'message': '无效的请求方法。'})
+
+@csrf_exempt
+def confirm(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        try:
+            order = Orders.objects.get(o_id=data['o_id'])
             order.status = '已完成'  # 假设 '已完成' 是完成状态的正确值
             order.save()
             return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
@@ -339,19 +371,34 @@ def confirm_receipt(request):
             return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
     else:
         return JsonResponse({'success': False, 'message': '无效的请求方法。'})
+
+@require_POST
+def return_order(request):
+    data = json.loads(request.body)
+    order_id = data.get('o_id')
+    try:
+        order = Orders.objects.get(o_id=order_id)
+        order.status = '已退货'
+        order.save()
+        return JsonResponse({'success': True, 'message': '退货成功。'})
+    except Orders.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '订单不存在。'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '服务器错误。', 'error': str(e)})
+
 @csrf_exempt
 def delete_order(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         order_id = data.get('order_id', {})
         order = Orders.objects.filter(o_id=order_id).first()
-#-------------------------------------------------------------------------------删除有问题
+
         if order:
-            if order.status == '回收':
+            if order.status == '已取消':
                 order.status = 0
                 order.save()
             else:
-                order.status = '待付款'
+                order.status = '已取消'
                 order.save()
 
             return JsonResponse({'message': '删除成功'}, status=200)
@@ -360,36 +407,44 @@ def delete_order(request):
     else:
         return JsonResponse({'error': '删除失败'}, status=400)
 
+
 def user_orders(request):
     user_id = request.session.get('u_id')
-    status = request.GET.get('status')  # 获取 URL 参数中的 status 值
+    page = request.GET.get('page', 1)  # 获取页码
+    page_size = 5  # 定义每页多少个订单
+
+    # 订单状态的映射，这个根据你的具体需求来设定
     status_mapping = {
         'all': None,
         'pending': '待付款',
         'shipped': '待收货',
         'beshipped': '待发货',
         'review': '已完成',
+        'bereturned': '待退货',
         'returned': '已退货',
-        'recycle': '回收'
+        'recycle': '已取消'
     }
-    # 获取映射后的状态值
-    status_value = status_mapping.get(status)
+    status = request.GET.get('status')
+    status_value = status_mapping.get(status, None)
+
     try:
-        # 如果 status_value 为 None，则获取所有订单
-        if status_value is None:
-            orders = Orders.objects.filter(user_id=user_id).exclude(status=0).prefetch_related(
-                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
-            )
+        if status_value:
+            orders = Orders.objects.filter(user_id=user_id, status=status_value).exclude(status='0')
         else:
-            # 根据状态值过滤订单
-            orders = Orders.objects.filter(user_id=user_id, status=status_value).prefetch_related(
-                Prefetch('orderdetails_set', queryset=OrderDetails.objects.select_related('order', 'product'))
-            )
+            orders = Orders.objects.filter(user_id=user_id).exclude(status='0')
+
+        # 应用分页
+        paginator = Paginator(orders, page_size)
+        try:
+            orders_page = paginator.page(page)
+        except PageNotAnInteger:
+            orders_page = paginator.page(1)
+        except EmptyPage:
+            orders_page = paginator.page(paginator.num_pages)
 
         orders_data = [{
             'order_id': order.o_id,
             'order_details': [{
-
                 'product_name': Products.objects.get(p_id=detail.product.product_id).p_name,
                 'product_image_url': detail.product.product_image_url,
                 'quantity': detail.quantity,
@@ -399,17 +454,19 @@ def user_orders(request):
             'total_amount': order.total_price,
             'status': order.status,
             'user_id': order.user_id,
-        } for order in orders]
+            'user_name':Users.objects.get(u_id=user_id).u_name
+        } for order in orders_page]
 
-        # # 添加下面这段代码来查看每一个 order 的 first detail 的 product 对象
-        # first_order = orders[0]
-        # first_detail = first_order.orderdetails_set.all()[0]
-        # print(dir(first_detail.product))
+        pagination_data = {
+            'has_previous': orders_page.has_previous(),
+            'has_next': orders_page.has_next(),
+            'num_pages': paginator.num_pages,
+            'current_page': orders_page.number
+        }
 
-        return JsonResponse({'orders': orders_data})
+        return JsonResponse({'orders': orders_data, 'pagination': pagination_data})
     except Exception as e:
-        print("Error:", e)
-        return JsonResponse({'error': 'Failed to retrieve orders'}, status=500)
+        return JsonResponse({'error': str(e)}, status=500)
 
 @csrf_exempt
 @require_http_methods(["POST"])  # 只处理HTTP POST请求

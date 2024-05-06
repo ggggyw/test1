@@ -31,6 +31,7 @@
             align-items: center;
             padding: 10px 0;
         }
+
         .cart-header {
             border-bottom: 2px solid #ddd;
             margin-bottom: 20px;
@@ -47,13 +48,63 @@
             margin-right: 15px;
         }
         .item-select,
-        .item-name,
-        .item-description,
-        .item-price,
-        .item-quantity,
-        .item-actions {
-            flex: 1;
-        }
+.item-image,
+.item-name,
+.item-description,
+.item-price,
+.item-quantity,
+.item-actions {
+    flex: 1;
+    text-align: center;
+}
+
+.item-select {
+    flex: 0 0 60px; /* Checkbox的宽度 */
+}
+
+.item-image {
+    flex: 0 0 100px; /* 图片的宽度 */
+    display: flex;
+    justify-content: center; /* 确保图片居中 */
+}
+
+.item-name,
+.item-description {
+    flex: 2; /* 名称和描述占用更多空间 */
+}
+
+.item-price {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.item-quantity {
+    flex: 0 0 100px; /* 数量输入框的宽度 */
+    display: flex;
+    justify-content: center;
+}
+
+.item-actions {
+    flex: 0 0 80px; /* 操作按钮的宽度 */
+    display: flex;
+    justify-content: center; /* 确保按钮居中 */
+}
+
+/* 注意可能还需要定制input、button等的样式来确保开始对齐 */
+.cart-item img {
+    max-width: 80px;
+    height: auto;
+}
+
+.cart-item input[type="number"] {
+    max-width: 140px; /* 调整数量输入框的宽度 */
+}
+
+/* 让原始价格和当前价格垂直排列 */
+.item-price > * {
+    display: block;
+}
         .item-remove {
             color: #d9534f;
             cursor: pointer;
@@ -295,12 +346,13 @@ button:hover::before {
                   <div class="checkmark"></div>
                 </label>
             </div>
-            <div style="flex: 0 0 160px;">商品图片</div>
-            <div style="flex: 0 0 200px;">名称</div>
-            <div style="flex: 0 0 180px;">描述</div>
-            <div style="flex: 0 0 230px;">单价</div>
-            <div style="flex: 0 0 120px;">数量</div>
-            <div style="flex: 0 0 40px;">操作</div>
+      <div class="item-select">选择</div>
+    <div class="item-image">商品图片</div>
+    <div class="item-name">名称</div>
+    <div class="item-description">描述</div>
+    <div class="item-price">单价</div>
+    <div class="item-quantity">数量</div>
+    <div class="item-actions">操作</div>
         </div>
         <!-- 商品列表 -->
         {% for a in cart %}

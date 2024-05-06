@@ -202,33 +202,7 @@
 /*---------------------------------------表格-------------------------------------------*/
 
 
-/*---------------------------------------分页控件-------------------------------------------*/
-.pagination {
-    text-align: center; /* 居中分页控件 */
-    margin-top: 20px; /* 顶部距离，可根据需要调整 */
-    margin-bottom: 20px; /* 底部距离，可根据需要调整 */
-}
 
-.pagination .step-links span.current {
-    font-weight: bold; /* 当前页加粗显示 */
-}
-
-/* 页码相关样式 */
-.pagination .step-links a,
-.pagination .step-links span {
-    margin: 0 5px;
-    padding: 5px 10px;
-    border: 1px solid #ddd;
-    color: #337ab7;
-    text-decoration: none;
-}
-
-.pagination .step-links span.current {
-    font-weight: bold;
-    background-color: #337ab7;
-    color: white;
-    border-color: #337ab7;
-}
 
 /* ---------------------------------------------------按钮样式调整 -------------------------------------*/
 .btn {

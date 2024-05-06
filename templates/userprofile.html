@@ -114,16 +114,14 @@
             </div>
             <div class="bott">
                 <div class="clearfix">
-                    <a href="{% url 'userorder' %}?status=pending" class="fl"><img
-                            src="{% static '首页_files/gxin1.jpg' %}"></a>
-                    <p class="fl"><span>待支付的订单：<strong>0</strong></span>
+                    <a href="{% url 'userorder' %}?status=pending" class="fl"><img src="{% static '首页_files/gxin1.jpg' %}"></a>
+                    <p class="fl"><span>待支付的订单：<strong>{{ pending_orders_count }}</strong></span>
                         <a href="{% url 'userorder' %}?status=pending">查看待支付订单&gt;</a>
                     </p>
                 </div>
                 <div class="clearfix">
-                    <a href="{% url 'userorder' %}?status=shipped" class="fl"><img
-                            src="{% static '首页_files/gxin2.jpg' %}"></a>
-                    <p class="fl"><span>待收货的订单：<strong>0</strong></span>
+                    <a href="{% url 'userorder' %}?status=shipped" class="fl"><img src="{% static '首页_files/gxin2.jpg' %}"></a>
+                    <p class="fl"><span>待收货的订单：<strong>{{ shipped_orders_count }}</strong></span>
                         <a href="{% url 'userorder' %}?status=shipped">查看待收货订单&gt;</a>
                     </p>
                 </div>
