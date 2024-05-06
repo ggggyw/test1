@@ -52,6 +52,8 @@ def userprofile(request):
     context = {}
     u_id = request.session.get('u_id')
     role = request.session.get('role')
+    pending_orders_count = Orders.objects.filter(user_id=u_id, status='待付款').count()
+    shipped_orders_count = Orders.objects.filter(user_id=u_id, status='待收货').count()
     if role == 'user':
         # 获取并处理用户信息
         user = get_object_or_404(Users, u_id=u_id)
@@ -65,6 +67,8 @@ def userprofile(request):
             'email': user.email,
             'created_at': user.created_at,
             'role': role,
+            'pending_orders_count': pending_orders_count,
+            'shipped_orders_count': shipped_orders_count,
         }
     return render(request, 'userprofile.html', context)
 
