@@ -222,7 +222,7 @@ def checkout(request):
         selected_product_ids = request_data.get('selectedProductIds')
         address = request_data.get('address')
         address_text = request_data.get('address')
-        print(address_text)
+        # print(address_text)
         u_id = request.session.get('u_id')
         itemPrices = request_data.get('itemPrices')
         totalPrice = request_data.get('totalPrice')
@@ -276,7 +276,7 @@ def process_payment(request):
     # 获取当前的时间
     current_time = timezone.now()
     # 更新订单状态和时间
-    Orders.objects.filter(o_id=order_id).update(status="待发货", o_time=current_time)
+    Orders.objects.filter(o_id=order_id).update(status="待发货", paid_time=current_time)
     return JsonResponse({'success': True, 'message': '支付成功'})
 
 
