@@ -327,11 +327,13 @@
         <input type="text" id="orderSearchInput" placeholder="搜索订单...">
         <button onclick="searchOrders()" id="order-search">搜索订单</button>
     </div>
-        <!-- 添加在用户表格上方 -->
-    <div class="add-user-container">
-      <button onclick="openModal('addUserModal')" class="add-user-btn">新增用户</button>
-    </div>
-    <div class="add-shop-container">
+<!-- 添加在用户表格上方 -->
+<div class="add-user-container" id="addUserContainer" style="display: none;">
+  <button onclick="openModal('addUserModal')" class="add-user-btn">新增用户</button>
+</div>
+
+<!-- 添加在商家表格上方 -->
+<div class="add-shop-container" id="addShopContainer" style="display: none;">
   <button onclick="openModal('addShopModal')" class="add-shop-btn">新增商家</button>
 </div>
     <div class="table-container">
@@ -1042,6 +1044,10 @@ function switchTable(tableId) {
         tables[i].style.display = 'none';
     }
 
+    // 隐藏新增按钮容器
+    document.getElementById('addUserContainer').style.display = 'none';
+    document.getElementById('addShopContainer').style.display = 'none';
+
     // 显示对应的表格
     var table = document.getElementById(tableId);
     table.style.display = '';
@@ -1055,6 +1061,13 @@ function switchTable(tableId) {
     // 显示对应的搜索框
     var searchBoxId = tableId.replace('Table', 'SearchBox');
     document.getElementById(searchBoxId).style.display = 'block';
+
+    // 显示对应的新增按钮容器
+    if (tableId === 'userTable') {
+        document.getElementById('addUserContainer').style.display = 'block';
+    } else if (tableId === 'shopTable') {
+        document.getElementById('addShopContainer').style.display = 'block';
+    }
 
     updateSearchFunction(tableId);
     // 隐藏所有的分页器
