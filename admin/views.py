@@ -356,3 +356,38 @@ def get_shop_info(request):
         return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
 
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def update_admin_info(request):
+    """
+    更新管理员信息
+    """
+    try:
+
+        data = json.loads(request.body)
+        ad_id = data.get('ad_id')
+        ad_acc = data.get('ad_acc')
+        ad_psw = data.get('ad_psw')
+        # 根据 ad_id 查找管理员记录
+        admin = Admin.objects.filter(ad_id=ad_id).first()
+
+        if not admin:
+            return JsonResponse({'success': False, 'message': '管理员未找到'})
+
+        # 更新管理员信息
+        if ad_acc is not None:
+            admin.ad_acc = ad_acc
+        if ad_psw is not None:
+            admin.ad_psw = ad_psw
+        # 可以在这里添加更多字段的更新逻辑
+
+        admin.save()  # 保存更新
+
+        return JsonResponse({'success': True, 'message': '管理员信息更新成功'})
+
+    except ValueError:
+        return JsonResponse({'success': False, 'message': '无效输入'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': '服务器内部错误'})
+
+

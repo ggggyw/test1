@@ -68,6 +68,7 @@ urlpatterns = [
     path('update_user_info/', admin_views.update_user_info, name='update_user_info'),
     path('update_shop_info/', admin_views.update_shop_info, name='update_shop_info'),
     path('update_product_info/', admin_views.update_product_info, name='update_product_info'),
+    path('update_admin_info/', admin_views.update_admin_info, name='update_admin_info'),
     path('delete_user/', admin_views.delete_user, name='delete_user'),
     path('delete_shop/', admin_views.delete_shop, name='delete_shop'),
     path('delete_product/', admin_views.delete_product, name='delete_product'),

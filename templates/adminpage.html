@@ -364,6 +364,8 @@
     <span class="close">&times;</span>
     <h2>编辑管理员信息</h2>
     <form id="admin-edit-form">
+        <label for="ad_id">管理员id:</label>
+        <input type="text" id="ad_id" name="ad_id" readonly>
       <label for="ad_acc">用户名:</label>
       <input type="text" id="ad_acc" name="ad_acc">
       <label for="ad_psw">密码:</label>
@@ -483,7 +485,42 @@
     </div>
     {% endif %}
 
+    <!-- 订单分页器 -->
+{% if orders.paginator.num_pages > 1 %}
+<div class="pagination" id="orderPagination" style="{% if table != 'order' %}display: none;{% endif %}">
+  {% if orders.has_previous %}
+    <a href="?table=order&order_page=1">第一页</a>
+    <a href="?table=order&order_page={{ orders.previous_page_number }}">上一页</a>
+  {% endif %}
 
+  {% with orders.number|add:"-2" as prev_range %}
+    {% with orders.number|add:"2" as next_range %}
+      {% if prev_range > 2 %}
+        <span>...</span>
+      {% endif %}
+
+      {% for page_num in orders.paginator.page_range %}
+        {% if page_num >= prev_range and page_num <= next_range %}
+          {% if page_num == orders.number %}
+            <span class="current-page">{{ page_num }}</span>
+          {% else %}
+            <a href="?table=order&order_page={{ page_num }}">{{ page_num }}</a>
+          {% endif %}
+        {% endif %}
+      {% endfor %}
+
+      {% if next_range < orders.paginator.num_pages|add:"-1" %}
+        <span>...</span>
+      {% endif %}
+    {% endwith %}
+  {% endwith %}
+
+  {% if orders.has_next %}
+    <a href="?table=order&order_page={{ orders.next_page_number }}">下一页</a>
+    <a href="?table=order&order_page={{ orders.paginator.num_pages }}">最后一页</a>
+  {% endif %}
+</div>
+{% endif %}
 
   </div>
 
@@ -696,6 +733,21 @@ for (var i = 0; i < spans.length; i++) {
       }
     }
 
+    document.querySelectorAll('.page-link').forEach(function(link) {
+  link.addEventListener('click', function(event) {
+    // 阻止链接的默认跳转行为
+    event.preventDefault();
+
+    // 获取目标页面和当前页面
+    var targetPage = this.getAttribute('data-target-page');
+    var currentPage = this.getAttribute('data-current-page');
+    var tableName = this.getAttribute('data-table-name');
+
+    // 调用moveTables来更新表格内容，而不刷新页面
+    moveTables(targetPage, currentPage, tableName);
+  });
+});
+
     // 修改后的函数
     function moveTables(targetPage, currentPage, tableName) {
         var tableContainer = document.querySelector('.table-container');
@@ -830,7 +882,7 @@ function toggleOrderDetails(orderId) {
   // 打开编辑管理员信息的模态框
 function openAdminEditModal() {
   // 获取 admin 用户的 ID
-  var adminId = 1; // 这里应该根据实际情况填写
+  var adminId = "{{ admin.ad_id }}";
 
   // 发送 AJAX 请求，获取 admin 用户的信息
   $.ajax({
@@ -1122,6 +1174,55 @@ $(document).ready(function() {
                     alert('删除时发生错误，请稍后再试');
                 }
             });
+        }
+    });
+});
+
+// JQuery 文档就绪函数，用于安全绑定事件
+$(document).ready(function(){
+    // 绑定编辑管理员信息表单的提交事件
+    $('#admin-edit-form').submit(function(e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+
+        // 收集表单数据用于提交
+        var formData = {
+            ad_id: $('#ad_id').val(),
+            ad_acc: $('#ad_acc').val(),  // 管理员账号
+            ad_psw: $('#ad_psw').val()   // 管理员密码
+
+        };
+        // 发送 AJAX POST 请求
+        $.ajax({
+            url: '/update_admin_info/', // 你用于更新管理员信息的正确 URL
+            type: 'POST',
+            data: JSON.stringify(formData),
+            contentType: 'application/json; charset=utf-8',
+            headers: { 'X-CSRFToken': $('meta[name="csrf-token"]').attr('content') }, // CSRF token
+            success: function(response) {
+                if (response.success) {
+                    alert('管理员信息更新成功');
+                    $('#adminEditModal').css('display', 'none'); // 关闭模态框
+                    location.reload(); // 刷新页面以获取更新后的信息
+                } else {
+                    alert('更新失败：' + response.message); // 显示失败消息
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error(error); // 控制台记录错误
+                alert('更新时发生错误，请稍后再试');
+            }
+        });
+    });
+
+    // 绑定模态框关闭事件
+    $('.close').click(function() {
+        $('#adminEditModal').css('display', 'none');
+    });
+
+    // 如果点击模态框外部，也关闭模态框
+    $(window).click(function(event) {
+        if ($(event.target).hasClass('modal')) {
+            $('#adminEditModal').css('display', 'none');
         }
     });
 });
