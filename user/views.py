@@ -17,7 +17,7 @@ from django.contrib import messages
 # Create your views here.
 def userpage(request):
 
-    products = ShopProducts.objects.all().exclude(product_status='下架')
+    products = ShopProducts.objects.exclude(product_status='下架').filter(product_auditstatus__in=['审核通过'])
     products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
@@ -346,7 +346,7 @@ def confirm_receipt(request):
         data = json.loads(request.body)
         try:
             order = Orders.objects.get(o_id=data['o_id'])
-            order.status = '待退货'  # 假设 '已完成' 是完成状态的正确值
+            order.status = '已收货'
             order.save()
             return JsonResponse({'success': True, 'message': '订单状态已更新为已完成。'})
         except Orders.DoesNotExist:
@@ -378,7 +378,7 @@ def return_order(request):
     order_id = data.get('o_id')
     try:
         order = Orders.objects.get(o_id=order_id)
-        order.status = '已退货'
+        order.status = '待退货'
         order.save()
         return JsonResponse({'success': True, 'message': '退货成功。'})
     except Orders.DoesNotExist:
@@ -419,6 +419,7 @@ def user_orders(request):
         'pending': '待付款',
         'shipped': '待收货',
         'beshipped': '待发货',
+        'ship': '已收货',
         'review': '已完成',
         'bereturned': '待退货',
         'returned': '已退货',

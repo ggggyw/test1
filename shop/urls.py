@@ -14,7 +14,6 @@ urlpatterns = [
     path('shoppage/manage_products/delete_product/<int:product_id>/', views.delete_product, name='delete_product'),
     path('shoppage/shop_search_manage_products/', views.shop_search_manage_products,
          name='shop_search_manage_products'),
-
     path('shoppage/shop_order/', views.shop_order, name='shop_order'),
     path('shoppage/shop_search_orders/', views.shop_search_orders, name='shop_search_orders'),
     path('shoppage/shop_order/user/<int:user_id>/', views.user_detail, name='user-detail-api'),

@@ -37,7 +37,7 @@
         display: flex;
         justify-content: space-around;
         padding: 10px 0;
-        width: 400px;
+        width: 500px;
     }
     .order-details {
         display: flex;
@@ -129,6 +129,29 @@
 .oorder-details .oorder-product {
     display: flex;
     align-items: center;
+}
+.pagination {
+    text-align: center; /* 居中分页链接 */
+    margin: 20px 0; /* 添加一些上下外边距 */
+}
+
+.pagination .pagination-link {
+    display: inline-block; /* 这将允许链接水平排列 */
+    padding: 5px 10px; /* 添加一些填充 */
+    margin: 4px; /* 分开链接 */
+    border: 1px solid #ddd; /* 添加边框 */
+    color: #337ab7; /* 文字颜色 */
+    text-decoration: none; /* 去除下划线 */
+}
+
+.pagination .pagination-link:hover {
+    background-color: #ddd; /* 鼠标悬停的背景颜色 */
+}
+
+.pagination .is-current {
+    background-color: #337ab7; /* 当前页的背景颜色 */
+    color: white; /* 当前页的文字颜色 */
+    border-color: #337ab7; /* 当前页的边框颜色 */
 }
 
 
@@ -265,6 +288,7 @@ button {
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
         <li><a href="/user/userorder?status=beshipped" data-status="beshipped">待发货</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
+        <li><a href="/user/userorder?status=ship" data-status="ship">已收货</a></li>
         <li><a href="/user/userorder?status=bereturned" data-status="bereturned">待退货</a></li>
         <li><a href="/user/userorder?status=returned" data-status="returned">已退货</a></li>
         <li><a href="/user/userorder?status=review" data-status="review">已完成</a></li>
@@ -382,9 +406,9 @@ function getOrdersByStatus(status, page) {
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
                     (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                     (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
-                    (order.status === '待退货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
-                    (order.status === '待退货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
-                     '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
+                    (order.status === '已收货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
+                    (order.status === '已收货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
+                    (order.status === '待发货' || order.status === '待付款' ? '<button onclick="deleteOrder(' + order.order_id + ')"><span class="box">取消</span></button>' : '') +
                     '</div>' +
                     '</div>';
             }
@@ -392,32 +416,31 @@ function getOrdersByStatus(status, page) {
 // 渲染分页控件，动态创建分页按钮
             var paginationHtml = '';
 
-            if (response.pagination.has_previous) {
-                paginationHtml += '<a href="#" data-page="' + (response.pagination.current_page - 1) + '">&lsaquo; 上一页</a> ';
-            }
+    if (response.pagination.has_previous) {
+        paginationHtml += '<a class="pagination-link" href="#" data-page="' + (response.pagination.current_page - 1) + '">&lsaquo; 上一页</a> ';
+    }
 
-            // 迭代所有页码并创建分页链接，您可能希望在这里添加省略号等逻辑以显示部分页码
-            for (var i = 1; i <= response.pagination.num_pages; i++) {
-                if (i === response.pagination.current_page) {
-                    paginationHtml += '<strong>' + i + '</strong> ';
-                } else {
-                    paginationHtml += '<a href="#" data-page="' + i + '">' + i + '</a> ';
-                }
-            }
+    for (var i = 1; i <= response.pagination.num_pages; i++) {
+        if (i === response.pagination.current_page) {
+            paginationHtml += '<span class="pagination-link is-current">' + i + '</span> ';
+        } else {
+            paginationHtml += '<a class="pagination-link" href="#" data-page="' + i + '">' + i + '</a> ';
+        }
+    }
 
-            if (response.pagination.has_next) {
-                paginationHtml += '<a href="#" data-page="' + (response.pagination.current_page + 1) + '">下一页 &rsaquo;</a> ';
-            }
+    if (response.pagination.has_next) {
+        paginationHtml += '<a class="pagination-link" href="#" data-page="' + (response.pagination.current_page + 1) + '">下一页 &rsaquo;</a> ';
+    }
 
-            // 将分页HTML更新到分页容器
-            $('.pagination').html(paginationHtml);
+    // 将分页HTML更新到分页容器
+    $('.pagination').html(paginationHtml);
 
-            // 重新绑定分页链接的点击事件
-            $('.pagination a').on('click', function(e) {
-                e.preventDefault();
-                var page = $(this).data('page');
-                getOrdersByStatus(status, page);
-            });
+    // 重新绑定分页链接的点击事件
+    $('.pagination a').on('click', function(e) {
+        e.preventDefault();
+        var page = $(this).data('page');
+        getOrdersByStatus(status, page);
+    });
 
             // 显示订单动画
             showOrdersWithAnimation();

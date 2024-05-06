@@ -364,7 +364,8 @@ def search_users(request):
         Q(u_name__icontains=keyword) |
         Q(u_sex__icontains=keyword) |
         Q(u_phone__icontains=keyword) |
-        Q(email__icontains=keyword)
+        Q(email__icontains=keyword) |
+        Q(created_at__icontains=keyword)
     )
 
     # 将用户数据转换为 JSON 格式
@@ -374,6 +375,61 @@ def search_users(request):
     return JsonResponse(user_list, safe=False)
 
 
+from common.models import Shops
+
+def search_shops(request):
+    keyword = request.POST.get('keyword')  # 获取搜索关键字
+
+    # 在数据库中搜索包含关键字的商家
+    shops = Shops.objects.filter(
+        Q(s_id__icontains=keyword) |
+        Q(s_name__icontains=keyword) |
+        Q(s_acc__icontains=keyword) |
+        Q(s_phone__icontains=keyword) |
+        Q(email__icontains=keyword) |
+        Q(address__icontains=keyword)
+    )
+
+    # 将商家数据转换为 JSON 格式
+    shop_list = list(shops.values())
+
+    # 返回 JSON 数据
+    return JsonResponse(shop_list, safe=False)
+
+from common.models import Orders,ShopProducts
+@require_http_methods(["POST"])
+def search_products(request):
+    keyword = request.POST.get('keyword', '')
+
+    if keyword:
+        products = ShopProducts.objects.filter(
+            product_desc__icontains=keyword,
+            product_status=ShopProducts.ProductStatus.ON_SALE
+        ).values(
+            'shop_product_id', 'shop_id', 'product_desc', 'product_status',
+            'product_auditstatus', 'product_image_url', 'stock_quantity',
+            'original_price', 'discount', 'current_price'
+        )
+        products_list = list(products)
+        return JsonResponse({'products': products_list}, safe=False)
+    else:
+        return JsonResponse({'error': 'No keyword provided'}, status=400)
+
+@require_http_methods(["POST"])
+def search_orders(request):
+    keyword = request.POST.get('keyword', '')
+
+    if keyword:
+        orders = Orders.objects.filter(
+            o_id__icontains=keyword  # 可以根据订单 ID 或其他相关字段进行搜索
+        ).values(
+            'o_id', 'user_id', 'status', 'o_time', 'paid_time',
+            'total_price', 'order_address'
+        )
+        orders_list = list(orders)
+        return JsonResponse({'orders': orders_list}, safe=False)
+    else:
+        return JsonResponse({'error': 'No keyword provided'}, status=400)
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_admin_info(request):

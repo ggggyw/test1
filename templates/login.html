@@ -27,8 +27,7 @@
 body {
 	align-items: center;
 	background-color: var(--white);
-{#background: url("https://res.cloudinary.com/dci1eujqw/image/upload/v1616769558/Codepen/waldemar-brandt-aThdSdgx0YM-unsplash_cnq4sb.jpg");#}
-	background: url('{% static "/登录_files/R.gif" %}');
+	background: url('{% static "/登录_files/R1.gif" %}');
     background-attachment: fixed;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -111,7 +110,7 @@ body {
 
 .overlay {
 	background-color: var(--lightblue);
-	background: url('{% static "/登录_files/R.gif" %}');
+	background: url('{% static "/登录_files/login.gif" %}');
     background-attachment: fixed;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -282,7 +281,87 @@ body {
   transform: translateX(calc(var(--container_width) * 2/3));
 }
 
+{#-----------------------------------------------------------------------------------------------#}
+.radioinput input {
+  display: none;
+}
 
+.radioinput {
+  --container_width: 180px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 9999px;
+  background-color: #fff;
+  color: #000000;
+  width: var(--container_width);
+  overflow: hidden;
+  border: 1px solid rgba(53, 52, 52, 0.226);
+}
+
+.radioinput label {
+  width: 100%;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  font-weight: 600;
+  letter-spacing: -1px;
+  font-size: 14px;
+}
+
+.selectionn {
+  display: none;
+  position: absolute;
+  height: 100%;
+  width: calc(var(--container_width) / 2);
+  z-index: 0;
+  left: 0;
+  top: 0;
+  transition: .15s ease;
+}
+
+.radioinput label:has(input:checked) {
+  color: #fff;
+}
+
+.radioinput label:has(input:checked) ~ .selectionn {
+  background-color: rgb(11 117 223);
+  display: inline-block;
+}
+
+.radioinput label:nth-child(1):has(input:checked) ~ .selectionn {
+  transform: translateX(calc(var(--container_width) * 0/2));
+}
+
+.radioinput label:nth-child(2):has(input:checked) ~ .selectionn {
+  transform: translateX(calc(var(--container_width) * 1/2));
+}
+
+    {#-------------------------------------------------------------#}
+.message-container {
+    animation: slideDownFadeOut 3s forwards;
+}
+
+@keyframes slideDownFadeOut {
+    0% {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    20% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
     </style>
 </head>
 <body>
@@ -295,7 +374,7 @@ body {
 {#			<input type="email" placeholder="电子邮件" class="input" />#}
 			<input type="password" placeholder="密码" class="input" name="ppassword"/>
             <p> </p>
-            <div class="radio-input" name="role">
+            <div class="radioinput" name="role">
               <label>
                 <input value="user" name="role" id="value-1" type="radio" checked="">
                 <span>用户</span>
@@ -304,11 +383,11 @@ body {
                 <input value="shop" name="role" id="value-2" type="radio">
                 <span>商家</span>
               </label>
-              <label>
-                <input value="admin" name="role" id="value-3" type="radio">
-                <span>管理员</span>
-              </label>
-              <span class="selection"></span>
+{#              <label>#}
+{#                <input value="admin" name="role" id="value-3" type="radio">#}
+{#                <span>管理员</span>#}
+{#              </label>#}
+              <span class="selectionn"></span>
             </div>
             <input type="submit" class="btn" value="注册">
 
@@ -339,7 +418,7 @@ body {
               <span class="selection"></span>
             </div>
 
-			<a href="#" class="link">忘记密码？</a>
+			<a href="#" class="link"></a>
 			<input type="submit" class="btn" value="登录">
 		</form>
 	</div>
@@ -373,22 +452,42 @@ var djangoMessages = [];
 <script>
 
 
-    // 当页面加载完成后执行
+// 当页面加载完成后执行
 window.onload = function() {
     // 检查 djangoMessages 是否存在并且包含消息
     if(typeof djangoMessages !== 'undefined' && djangoMessages.length > 0) {
         // 通过遍历所有的 djangoMessages 来显示消息
         djangoMessages.forEach(function(message){
-            // 使用 alert 弹出消息
-            alert(message.level + ": " + message.text);
-
-            // 或者如果你使用了 Bootstrap，可以使用模态框展示消息
-            // 这需要在 HTML 中有一个模态框的布局
-            // $('#djangoMessageModal .modal-body').text(message.text);
-            // $('#djangoMessageModal').modal('show');
+            // 使用模态框或自定义弹窗展示消息
+            displayMessage(message.level, message.text);
         });
     }
 };
+
+function displayMessage(level, text) {
+    // 创建消息容器
+    var messageContainer = document.createElement('div');
+    messageContainer.classList.add('message-container', level);
+    messageContainer.textContent = text;
+
+    // 添加样式
+    messageContainer.style.position = 'fixed';
+    messageContainer.style.top = '0';
+    messageContainer.style.left = '0';
+    messageContainer.style.width = '100%';
+    messageContainer.style.padding = '1rem';
+    messageContainer.style.backgroundColor = level === 'error' ? 'red' : 'green';
+    messageContainer.style.color = 'white';
+    messageContainer.style.textAlign = 'center';
+
+    // 将消息容器添加到页面中
+    document.body.prepend(messageContainer);
+
+    // 一段时间后移除消息
+    setTimeout(function() {
+        messageContainer.remove();
+    }, 3000);  // 在3秒后消息消失
+}
 const signInBtn = document.getElementById("signIn");
 const signUpBtn = document.getElementById("signUp");
 const firstForm = document.getElementById("form1");

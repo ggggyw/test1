@@ -1081,7 +1081,8 @@
             <p>商品折扣: <span id="productModel_discount"></span></p>
             <p>当前价格: <span id="productModel_current_price"></span></p>
             <p>商品图片:</p>
-            <img id="productModel_product_image" src="" alt="" width="200" height="200">
+            <img id="productModel_product_image" src="" alt="" width="200" height="200"
+            onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
         </div>
     </div>
 </div>
@@ -1244,9 +1245,9 @@
                 document.getElementById('productModel_discount').textContent = product.discount;
                 // 设置商品图片
                 var productImage = document.getElementById('productModel_product_image');
-                var imageUrl = product.product_image_url ? '{% static "商品图片/" %}' + product.product_image_url : '{% static "商品图片/暂无图片.png" %}';
+                var imageUrl = product.product_image_url ? '{% static "商品图片/" %}' + product.product_image_url : '{% static "商家_files/noimage.png" %}';
                 productImage.src = imageUrl;
-                productImage.alt = product.p_name || '商品图片'; // 使用商品名称作为图片的alt文本，如果没有名称则使用'商品图片'
+                productImage.alt = '没有商品图片' || '没有商品图片'; // 使用商品名称作为图片的alt文本，如果没有名称则使用'商品图片'
 
                 // 显示模态框
                 document.getElementById('productModel').style.display = 'block';
