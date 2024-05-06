@@ -37,7 +37,7 @@
         display: flex;
         justify-content: space-around;
         padding: 10px 0;
-        width: 400px;
+        width: 500px;
     }
     .order-details {
         display: flex;
@@ -288,6 +288,7 @@ button {
         <li><a href="/user/userorder?status=pending" data-status="pending">待付款</a></li>
         <li><a href="/user/userorder?status=beshipped" data-status="beshipped">待发货</a></li>
         <li><a href="/user/userorder?status=shipped" data-status="shipped">待收货/使用</a></li>
+        <li><a href="/user/userorder?status=ship" data-status="ship">已收货</a></li>
         <li><a href="/user/userorder?status=bereturned" data-status="bereturned">待退货</a></li>
         <li><a href="/user/userorder?status=returned" data-status="returned">已退货</a></li>
         <li><a href="/user/userorder?status=review" data-status="review">已完成</a></li>
@@ -405,9 +406,9 @@ function getOrdersByStatus(status, page) {
                     '<button>' +'<span class="box">'+ "再次购买" + '</span>'+'</button>' +
                     (order.status === '待付款' ? '<button onclick="redirectToPaymentPage(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">付款</span></button>' : '')+
                     (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
-                    (order.status === '待退货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
-                    (order.status === '待退货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
-                     '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>' +
+                    (order.status === '已收货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
+                    (order.status === '已收货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
+                    (order.status === '待发货' || order.status === '待付款' ? '<button onclick="deleteOrder(' + order.order_id + ')"><span class="box">取消</span></button>' : '') +
                     '</div>' +
                     '</div>';
             }
