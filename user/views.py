@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Sum, F, Prefetch
 from django.http import HttpResponse, JsonResponse
@@ -148,6 +150,16 @@ def userorder(request):
     ord_de=OrderDetails.objects.all()
     u_id = request.session.get('u_id')
     orders=Orders.objects.filter(user_id=u_id)
+    now = timezone.now()
+    # 对每个订单进行检查
+    for order in orders:
+        # 如果订单未支付且从下单时间起已超过3天，则取消订单
+        if order.status == '待付款':
+            time_diff = order.paid_time - order.o_time
+            if time_diff > timedelta(days=3):
+                order.status = '已取消'  # 设置状态为 "已取消"
+                order.save()
+    orders = Orders.objects.filter(user_id=u_id)
     order_ids = [order.o_id for order in orders]
     context={
         'orders':orders,
@@ -222,7 +234,7 @@ def checkout(request):
         selected_product_ids = request_data.get('selectedProductIds')
         address = request_data.get('address')
         address_text = request_data.get('address')
-        print(address_text)
+        # print(address_text)
         u_id = request.session.get('u_id')
         itemPrices = request_data.get('itemPrices')
         totalPrice = request_data.get('totalPrice')
@@ -245,7 +257,7 @@ def checkout(request):
 
             # 创建新订单
             new_order = Orders.objects.create(
-                status='1', paid_time=timezone.localtime(timezone.now()),
+                status='1', paid_time='1999-01-01 00:00:00',
                 o_time=timezone.localtime(timezone.now()),
                 total_price=totalPrice, user_id=u_id, order_address=address
             )
@@ -276,7 +288,7 @@ def process_payment(request):
     # 获取当前的时间
     current_time = timezone.now()
     # 更新订单状态和时间
-    Orders.objects.filter(o_id=order_id).update(status="待发货", o_time=current_time)
+    Orders.objects.filter(o_id=order_id).update(status="待发货", paid_time=current_time)
     return JsonResponse({'success': True, 'message': '支付成功'})
 
 
