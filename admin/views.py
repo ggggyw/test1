@@ -374,6 +374,28 @@ def search_users(request):
     return JsonResponse(user_list, safe=False)
 
 
+from common.models import Shops
+
+def search_shops(request):
+    keyword = request.POST.get('keyword')  # 获取搜索关键字
+
+    # 在数据库中搜索包含关键字的商家
+    shops = Shops.objects.filter(
+        Q(s_id__icontains=keyword) |
+        Q(s_name__icontains=keyword) |
+        Q(s_acc__icontains=keyword) |
+        Q(s_phone__icontains=keyword) |
+        Q(email__icontains=keyword) |
+        Q(address__icontains=keyword)
+    )
+
+    # 将商家数据转换为 JSON 格式
+    shop_list = list(shops.values())
+
+    # 返回 JSON 数据
+    return JsonResponse(shop_list, safe=False)
+
+
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_admin_info(request):
