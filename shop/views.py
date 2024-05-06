@@ -70,24 +70,44 @@ def shoppage(request):
     # -----------------------------------------------------------------------------------------------------------------
     # 销量最高的商品信息
     if category_id:
-        top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id).annotate(
-            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+        top_selling_product_info = ShopProducts.objects.filter(
+            shop__s_id=s_id,
+            product__p_type__category_id=category_id,
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()
     else:
-        top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
-            '-quantity_sold').first()
+        top_selling_product_info = ShopProducts.objects.filter(
+            shop__s_id=s_id,
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()
 
     if top_selling_product_info:
         top_selling_product_info.discount = top_selling_product_info.discount * 100
 
     # 当天销量最高的商品信息
     today = timezone.now().date()
+    # 当天销量最高的商品信息
     if category_id:
-        today_top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id,
-                                                                     orderdetails__order__o_time__date=today).annotate(
-            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+        today_top_selling_product_info = ShopProducts.objects.filter(
+            shop__s_id=s_id,
+            product__p_type__category_id=category_id,
+            orderdetails__order__o_time__date=today,
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()
     else:
-        today_top_selling_product_info = ShopProducts.objects.filter(orderdetails__order__o_time__date=today).annotate(
-            quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+        today_top_selling_product_info = ShopProducts.objects.filter(
+            shop__s_id=s_id,
+            orderdetails__order__o_time__date=today,
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
+        ).annotate(
+            quantity_sold=Sum('orderdetails__quantity')
+        ).order_by('-quantity_sold').first()
 
     # 将折扣转换为百分数
     if today_top_selling_product_info:
@@ -182,19 +202,24 @@ def shoppage(request):
     # 获取一周前的日期
     start_date = timezone.now().date() - timedelta(days=7)
 
+    # 一周内销量最高的商品信息
     if category_id:
         weekly_top_selling_product_info = ShopProducts.objects.filter(
+            shop__s_id=s_id,
             product__p_type__category_id=category_id,
-            orderdetails__order__o_time__date__range=(start_date, today_date)  # 确保只计算过去一周内的订单
+            orderdetails__order__o_time__date__range=(start_date, today_date),
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
         ).annotate(
             quantity_sold=Sum('orderdetails__quantity')
-        ).order_by('-quantity_sold').first()  # 排序并获取销量最高的商品
+        ).order_by('-quantity_sold').first()
     else:
         weekly_top_selling_product_info = ShopProducts.objects.filter(
-            orderdetails__order__o_time__date__range=(start_date, today_date)  # 确保只计算过去一周内的订单
+            shop__s_id=s_id,
+            orderdetails__order__o_time__date__range=(start_date, today_date),
+            orderdetails__order__status__in=['待发货', '待收货', '已收货', '已完成']
         ).annotate(
             quantity_sold=Sum('orderdetails__quantity')
-        ).order_by('-quantity_sold').first()  # 排序并获取销量最高的商品
+        ).order_by('-quantity_sold').first()
 
     # 将折扣转换为百分数
     if weekly_top_selling_product_info:
