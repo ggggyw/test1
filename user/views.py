@@ -542,6 +542,9 @@ def address_management(request):
     default_address = UserAddresses.objects.filter(user=user, is_default=True).first()
     other_addresses = UserAddresses.objects.filter(user=user, is_default=False)
 
+    if default_address is None:
+        #插入默认地址为"默认地址"
+        default_address = UserAddresses.objects.create(user=user, address='默认地址', is_default=True)
     if not default_address and other_addresses.count() == 1:
         only_address = other_addresses.first()
         only_address.is_default = True
