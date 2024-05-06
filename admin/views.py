@@ -193,6 +193,38 @@ def order_items(request, order_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+from django.utils import timezone
+@csrf_exempt
+@require_http_methods(["POST"])
+def createuser(request):
+    # 将请求体中的JSON数据解析为Python字典
+    data = json.loads(request.body)
+    user_acc = data.get('user_acc')
+    user_name = data.get('user_name')
+    user_sex = data.get('user_sex')
+    user_phone = data.get('user_phone')
+    user_email = data.get('user_email')
+    u_psw = data.get('u_psw', '')  # 假设用户密码字段可选，为简单起见设为''若未提供
+    time=timezone.now()
+    # 使用获取的数据创建用户实例
+    try:
+        user = Users(
+            u_acc=user_acc,
+            u_name=user_name,
+            u_sex=user_sex,
+            u_phone=user_phone,
+            email=user_email,
+            u_psw=u_psw,
+            created_at=time
+        )
+        user.save()  # 保存用户到数据库
+        # 返回成功状态和信息
+        return JsonResponse({'success': True, 'msg': '用户创建成功'})
+    except Exception as e:
+        # 处理错误、例如用户账户名已存在等
+        return JsonResponse({'success': False, 'msg': str(e)}, status=400)
+
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def delete_user(request):
