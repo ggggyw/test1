@@ -516,10 +516,14 @@
 {% if RFM_data.paginator.count > 10 %}
     <script>
         document.getElementById("prompt").style.display = "";
+
     </script>
 {% else %}
     <div class="no-products-animation">
         <h1 align="center">数据太少，不适合进行分析</h1>
+        <script>
+        document.getElementById("dataTable").style.display = "none";
+        </script>
     </div>
 {% endif %}
 <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
@@ -557,12 +561,6 @@
 </div>
 
 <script>
-    //接受消费者数量的数据
-    var consumer =
-    {{ RFM_data|length }}
-    if (consumer <= 5) {
-        document.getElementById("prompt").style.display = ""
-    }
 
 
     function filterTime() {
