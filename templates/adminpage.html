@@ -283,8 +283,11 @@
     .edit-form button {
       align-self: flex-end;
     }
-
+     {% load static %}
   </style>
+    <script type="text/javascript">
+        var staticBaseUrl = "{% static '商品图片/' %}";
+</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <body>
@@ -955,6 +958,7 @@ function toggleOrderDetails(orderId) {
                         var orderItemsHtml = data.order_items.map(item => {
                             return `
                                 <div class="order-item">
+                                    <span><img src="${staticBaseUrl}${item.product_image_url}"  style="width: 50px; height: auto;"></span> -
                                     <span>${item.product_name}</span> -
                                     <span>${item.quantity}</span> -
                                     <span>${item.current_single_price}</span>
