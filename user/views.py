@@ -37,7 +37,7 @@ def userpage(request):
 
 def get_goods_list(request):
     category_id = request.GET.get('category_id', 0)
-    products = ShopProducts.objects.filter(product__p_type__category_id=category_id).order_by('shop_product_id')
+    products = ShopProducts.objects.filter(product__p_type__category_id=category_id).filter(product_auditstatus__in=['审核通过']).order_by('shop_product_id')
     products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
