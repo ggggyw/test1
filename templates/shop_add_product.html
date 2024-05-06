@@ -13,17 +13,21 @@
             transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
             z-index: 1000; /* 确保提示框显示在最上层 */
             text-align: center;
-            width: auto;
         }
 
         .message {
-            background-color: #93ff97; /* 背景色 */
-            color: #000000; /* 字体色 */
-            border: 1px solid #bafd96;
-            padding: 10px; /* 内边距 */
-            margin-bottom: 10px; /* 外边距 */
+            background-color: #3cb045; /* 美化后的背景色 */
+            color: #ffffff; /* 字体颜色为白色以确保可读性 */
+            border: none; /* 去除边框 */
+            padding: 15px 30px; /* 调整内边距为更舒适的空间 */
+            margin-bottom: 10px; /* 保持外边距 */
             display: inline-block;
-            border-radius: 5px; /* 边框圆角 */
+            border-radius: 25px; /* 圆角增加以更趋于流线形状 */
+            font-size: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影为提示框增添深度 */
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s; /*添加简短的过渡动画效果*/
         }
 
         .add-form {
