@@ -483,7 +483,7 @@
                 <tr>
                     <td>
                         <div class="dialogue-link" onclick="showUserModel({{ consumer.u_id }})">
-                            {{ consumer.u_name }}
+                            {{ consumer.u_id }}
                         </div>
                     </td>
                     <td>{{ consumer.Recency }}</td>
@@ -515,11 +515,15 @@
 
 {% if RFM_data.paginator.count > 10 %}
     <script>
-        document.getElementById("prompt").style.display = "none";
+        document.getElementById("prompt").style.display = "";
+
     </script>
 {% else %}
     <div class="no-products-animation">
         <h1 align="center">数据太少，不适合进行分析</h1>
+        <script>
+        document.getElementById("dataTable").style.display = "none";
+        </script>
     </div>
 {% endif %}
 <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
@@ -557,12 +561,6 @@
 </div>
 
 <script>
-    //接受消费者数量的数据
-    var consumer =
-    {{ RFM_data|length }}
-    if (consumer <= 5) {
-        document.getElementById("prompt").style.display = "none"
-    }
 
 
     function filterTime() {
@@ -606,17 +604,17 @@
                 document.getElementById('userModel_u_email').textContent = user.u_email;
                 document.getElementById('userModel_u_address').textContent = user.u_address;
 
-                // 获取显示订单的按钮
-                var showOrdersButton = document.getElementById('showOrdersButton');
-                // 为按钮添加点击事件处理器
-                showOrdersButton.onclick = function () {
-                    // 使用encodeURI函数确保姓名被正确地编码
-                    var encodedUserName = encodeURI(user.u_name);
-                    // 构造URL
-                    var url = '/shop/shoppage/shop_search_orders/?product_name=&brand=&min_stock=&max_stock=&category_id=0&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time=&max_created_time=&user_phone=&user_sex=&user_email=&user_name=' + encodedUserName;
-                    // 跳转到新的URL
-                    window.location.href = url;
-                };
+                {#// 获取显示订单的按钮#}
+                {#var showOrdersButton = document.getElementById('showOrdersButton');#}
+                {#// 为按钮添加点击事件处理器#}
+                {#showOrdersButton.onclick = function () {#}
+                {#    // 使用encodeURI函数确保姓名被正确地编码#}
+                {#    var encodedUserName = encodeURI(user.u_name);#}
+                {#    // 构造URL#}
+                {#    var url = '/shop/shoppage/shop_search_orders/?product_name=&brand=&min_stock=&max_stock=&category_id=0&status=&audit_status=&min_original_price=&max_original_price=&min_current_price=&max_current_price=&min_discount=&max_discount=&description=&order_status=&min_order_total_price=&max_order_total_price=&order_address=&min_paid_time=&max_paid_time=&min_created_time=&max_created_time=&user_phone=&user_sex=&user_email=&user_name=' + encodedUserName;#}
+                {#    // 跳转到新的URL#}
+                {#    window.location.href = url;#}
+
 
                 // 显示模态框
                 document.getElementById('userModel').style.display = 'block';
@@ -632,13 +630,6 @@
         document.getElementById(modelId).style.display = 'none';
     }
 
-    // 点击窗口外区域关闭任何打开的模态框
-    window.onclick = function (event) {
-        // 确保点击的不是模态框内部或关闭按钮
-        if (event.target.id !== 'userModel' && event.target.className !== 'close') {
-            closeModel('userModel');
-        }
-    };
 
 </script>
 </body>
