@@ -355,8 +355,40 @@ body {
 		</div>
 	</div>
 </div>
-</body>
+
+{% if messages %}
 <script>
+// 创建一个空数组来存储消息
+var djangoMessages = [];
+
+{% for message in messages %}
+    // 将每个消息添加到数组中
+    djangoMessages.push({"level": "{{ message.tags }}", "text": "{{ message|escapejs }}"});
+{% endfor %}
+</script>
+{% endif %}
+
+</body>
+
+<script>
+
+
+    // 当页面加载完成后执行
+window.onload = function() {
+    // 检查 djangoMessages 是否存在并且包含消息
+    if(typeof djangoMessages !== 'undefined' && djangoMessages.length > 0) {
+        // 通过遍历所有的 djangoMessages 来显示消息
+        djangoMessages.forEach(function(message){
+            // 使用 alert 弹出消息
+            alert(message.level + ": " + message.text);
+
+            // 或者如果你使用了 Bootstrap，可以使用模态框展示消息
+            // 这需要在 HTML 中有一个模态框的布局
+            // $('#djangoMessageModal .modal-body').text(message.text);
+            // $('#djangoMessageModal').modal('show');
+        });
+    }
+};
 const signInBtn = document.getElementById("signIn");
 const signUpBtn = document.getElementById("signUp");
 const firstForm = document.getElementById("form1");
