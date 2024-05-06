@@ -19,6 +19,11 @@
             color: #333;
         }
 
+        body, html {
+            background: #6ec2ea;
+            height: 100%;
+        }
+
         /* ------------------------------------------头部样式--------------------------------- */
         .shop_head {
             background-color: #8accf8; /* 深色背景 */
@@ -90,7 +95,7 @@
             z-index: 0;
             padding: 10px 0;
             background: #ffffff;
-            margin: 10px auto; /* 增加外部间距 */
+            margin: 0px auto; /* 增加外部间距 */
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             max-width: 2000px; /* 设置一个最大宽度 */
             display: flex; /* 使用flex布局 */
@@ -584,6 +589,62 @@
             padding: 1px; /* 增加一些内边距 */
             box-sizing: border-box; /* 防止内边距影响宽度 */
         }
+
+        /*---------------------------------------分页控件-------------------------------------------*/
+        .pagination {
+            text-align: center; /* 居中分页控件 */
+            margin-top: 20px; /* 顶部距离，可根据需要调整 */
+            margin-bottom: 20px; /* 底部距离，可根据需要调整 */
+        }
+
+        .pagination .step-links span.current {
+            font-weight: bold; /* 当前页加粗显示 */
+        }
+
+        /* 页码相关样式 */
+        .pagination .step-links a,
+        .pagination .step-links span {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid #337ab7;
+            background-color: #337ab7;
+            color: #ffffff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .pagination .step-links a:hover {
+            background-color: #23527c;
+        }
+
+        .pagination .step-links span.current {
+            font-weight: bold;
+            background-color: #337ab7;
+            color: white;
+            border-color: #337ab7;
+        }
+
+        .shop_order_content {
+            width: 1300px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 10px 0;
+            background-color: #fff;
+            max-width: 1300px; /* 设置一个最大宽度 */
+            margin: 1px auto; /* 上下保持20px间距，左右自动，以达到居中效果 */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+            border-radius: 10px; /* 边框圆角 */
+        }
+
+        .search-section {
+            display: flex; /* 使用Flex布局 */
+            flex-direction: column; /* 子项垂直排列 */
+            align-items: stretch; /* 子项沿交叉轴的延伸 */
+            width: 100%; /* 确保容器的宽度是100% */
+            margin: auto; /* 如果需要，可以水平居中 */
+        }
+
     </style>
 </head>
 <body>
@@ -624,11 +685,12 @@
 </div>
 <div class="shop_order_content">
     <!-- 在这里添加一个 '搜索订单' 的按钮 -->
-    <div class="search-order-button">
-        <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索订单</a>
-    </div>
-    <!-- 创建一个初始隐藏的搜索栏 -->
     <div class="search-section">
+        <div class="search-order-button">
+            <a href="javascript:void(0);" onclick="toggleSearchBar();" class="btn btn-info">搜索订单</a>
+        </div>
+        <!-- 创建一个初始隐藏的搜索栏 -->
+
         <div id="search-order-bar" style="display: none;">
             <form action="{% url 'shop_search_orders' %}" method="get">
                 <div class="search-product">
@@ -834,6 +896,7 @@
                 </div>
             </form>
         </div>
+
     </div>
     {% if orders %}
         <table>
@@ -978,7 +1041,7 @@
                    placeholder="页码" style="margin-left: 10px;">
             <input type="submit" value="跳转">
         </form>
-     <!-- 在这里显示商品的总数 -->
+        <!-- 在这里显示商品的总数 -->
         <span class="step-links">
             <span class="current">订单总数: {{ orders.paginator.count }}</span>
         </span>
