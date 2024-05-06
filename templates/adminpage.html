@@ -304,8 +304,29 @@
 
 <div class="main-content">
     <h2 id="pageTitle">用户管理</h2>
-    <input type="text" id="searchInput" placeholder="输入关键字...">
-    <button onclick="searchUsers()" id="user-search">搜索</button>
+  <!-- 用户搜索 -->
+    <div id="userSearchBox" style="display: block;">
+        <input type="text" id="userSearchInput" placeholder="搜索用户...">
+        <button onclick="searchUsers()" id="user-search">搜索用户</button>
+    </div>
+
+    <!-- 商家搜索 -->
+    <div id="shopSearchBox" style="display: none;">
+        <input type="text" id="shopSearchInput" placeholder="搜索商家...">
+        <button onclick="searchShops()" id="shop-search">搜索商家</button>
+    </div>
+
+    <!-- 商品搜索 -->
+    <div id="productSearchBox" style="display: none;">
+        <input type="text" id="productSearchInput" placeholder="搜索商品...">
+        <button onclick="searchProducts()" id="product-search">搜索商品</button>
+    </div>
+
+    <!-- 订单搜索 -->
+    <div id="orderSearchBox" style="display: none;">
+        <input type="text" id="orderSearchInput" placeholder="搜索订单...">
+        <button onclick="searchOrders()" id="order-search">搜索订单</button>
+    </div>
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
@@ -916,31 +937,39 @@ for (var i = 0; i < spans.length; i++) {
 });
 
 function switchTable(tableId) {
-  // 隐藏所有的表格
-  var tables = document.getElementsByTagName('table');
-  for (var i = 0; i < tables.length; i++) {
-    tables[i].style.display = 'none';
-  }
+    // 隐藏所有的表格
+    var tables = document.getElementsByTagName('table');
+    for (var i = 0; i < tables.length; i++) {
+        tables[i].style.display = 'none';
+    }
 
-  // 显示对应的表格
-  var table = document.getElementById(tableId);
-  table.style.display = '';
+    // 显示对应的表格
+    var table = document.getElementById(tableId);
+    table.style.display = '';
 
-  // 更新搜索框的行为
-  updateSearchFunction(tableId);
+    // 隐藏所有搜索框
+    var searchBoxes = ['userSearchBox', 'shopSearchBox', 'productSearchBox', 'orderSearchBox'];
+    searchBoxes.forEach(function(box) {
+        document.getElementById(box).style.display = 'none';
+    });
 
-  // 隐藏所有的分页器
-  var paginations = document.getElementsByClassName('pagination');
-  for (var i = 0; i < paginations.length; i++) {
-    paginations[i].style.display = 'none';
-  }
+    // 显示对应的搜索框
+    var searchBoxId = tableId.replace('Table', 'SearchBox');
+    document.getElementById(searchBoxId).style.display = 'block';
 
-  // 显示对应的分页器
-  var paginationId = tableId.replace('Table', 'Pagination');
-  var pagination = document.getElementById(paginationId);
-  if (pagination) {
-    pagination.style.display = '';
-  }
+    updateSearchFunction(tableId);
+    // 隐藏所有的分页器
+    var paginations = document.getElementsByClassName('pagination');
+    for (var i = 0; i < paginations.length; i++) {
+        paginations[i].style.display = 'none';
+    }
+
+    // 显示对应的分页器
+    var paginationId = tableId.replace('Table', 'Pagination');
+    var pagination = document.getElementById(paginationId);
+    if (pagination) {
+        pagination.style.display = '';
+    }
 }
 
 function toggleOrderDetails(orderId) {
@@ -1288,9 +1317,10 @@ function updateSearchFunction(tableId) {
   } // 可以为其他管理表格添加更多条件
 }
 
-function searchUsers() {
-    var keyword = document.getElementById('searchInput').value;  // 获取搜索关键字
 
+
+function searchUsers() {
+    var keyword = document.getElementById('userSearchInput').value;  // 获取搜索关键字
     // 发送 AJAX 请求到后端的搜索 API
     $.ajax({
         url: '/search_users/',  // 后端搜索 API 的 URL
@@ -1335,7 +1365,7 @@ function searchUsers() {
 }
 
 // 绑定回车键到搜索框
-$('#searchInput').on('keypress',function(e) {
+$('#userSearchInput').on('keypress',function(e) {
     if(e.which == 13) {
         searchUsers();
     }
@@ -1439,6 +1469,99 @@ $('#shopSearchInput').on('keypress',function(e) {
         searchShops();
     }
 });
+
+function searchProducts() {
+    var keyword = $('#productSearchInput').val();  // 获取输入框的搜索关键字
+
+    $.ajax({
+        url: '/search_products/',  // 后端搜索商品的 URL
+        type: 'POST',
+        data: { keyword: keyword },
+        headers: {"X-CSRFToken": $('meta[name="csrf-token"]').attr('content')},  // 使用 CSRF token
+        success: function(response) {
+            $('#productTable tbody').empty();  // 先清空表格
+            if (response.products && response.products.length > 0) {
+                response.products.forEach(function(product) {
+                    var row = `<tr>
+                        <td>${product.shop_product_id}</td>
+                        <td>${product.shop_id}</td>
+                        <td>${product.product_desc}</td>
+                        <td>${product.product_status}</td>
+                        <td>${product.product_auditstatus}</td>
+                        <td><img src="${product.product_image_url}" style="width:50px;"></td>
+                        <td>${product.stock_quantity}</td>
+                        <td>${product.original_price}</td>
+                        <td>${product.discount}</td>
+                        <td>${product.current_price}</td>
+                        <td>
+                            <button onclick="openProductEditModal('${product.shop_product_id}')">编辑</button>
+                            <button class="delete-product-btn" data-shop_product_id="${product.shop_product_id}">删除</button>
+                        </td>
+                    </tr>`;
+                    $('#productTable tbody').append(row);
+                });
+            } else {
+                $('#productTable tbody').append('<tr><td colspan="11" style="text-align:center;">无匹配记录</td></tr>');
+            }
+        },
+        error: function(error) {
+            console.error('搜索商品时发生错误:', error);
+            alert('请输入关键字');
+        }
+    });
+}
+
+// 绑定回车键到搜索框
+$('#productSearchInput').on('keypress',function(e) {
+    if(e.which == 13) {
+        searchShops();
+    }
+});
+
+function searchOrders() {
+    var keyword = $('#orderSearchInput').val();  // 获取输入框的搜索关键字
+
+    $.ajax({
+        url: '/search_orders/',  // 后端搜索订单的 URL
+        type: 'POST',
+        data: { keyword: keyword },
+        headers: {"X-CSRFToken": $('meta[name="csrf-token"]').attr('content')},  // 使用 CSRF token
+        success: function(response) {
+            $('#orderTable tbody').empty();  // 先清空表格
+            if (response.orders && response.orders.length > 0) {
+                response.orders.forEach(function(order) {
+                    var row = `<tr>
+                        <td>${order.o_id}</td>
+                        <td>${order.user_id}</td>
+                        <td>${order.status}</td>
+                        <td>${order.o_time}</td>
+                        <td>${order.paid_time}</td>
+                        <td>${order.total_price}</td>
+                        <td>${order.order_address}</td>
+                        <td>
+                            <button type="button" onclick="toggleOrderDetails(${order.o_id})">展开/收起</button>
+                            <div id="OrderDetail${order.o_id}" style="display: none;" data-is-loaded="false"></div>
+                        </td>
+                    </tr>`;
+                    $('#orderTable tbody').append(row);
+                });
+            } else {
+                $('#orderTable tbody').append('<tr><td colspan="8" style="text-align:center;">无匹配记录</td></tr>');
+            }
+        },
+        error: function(error) {
+            console.error('搜索订单时发生错误:', error);
+            alert('请输入关键字');
+        }
+    });
+}
+
+$('#orderSearchInput').on('keypress',function(e) {
+    if(e.which == 13) {
+        searchShops();
+    }
+});
+
   </script>
 </body>
 </html>
