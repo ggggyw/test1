@@ -13,15 +13,26 @@ from django.shortcuts import redirect
 def home(request):
     request.session.clear()
     products = ShopProducts.objects.all()
+
+    # 遍历全部products商品
+    for product in products:
+        # 如果库存变成了0，就将商品的状态修改为下架
+        if product.stock_quantity == 0:
+            product.product_status = '下架'
+            product.save()  # 保存商品的更改
+
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
-    products2 = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
+
+    # 不需要再次查询所有Products，除非有其他用途
+    # products2 = Products.objects.all()
+
     context = {
         'products': paged_products,
-        'products2':products2
+        # 'products2': products2  # 如果没有特别用处，这行可以注释掉
     }
-    return render(request, '首页.html',context)
+    return render(request, '首页.html', context)
 
 
 def logout_view(request):

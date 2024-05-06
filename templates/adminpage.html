@@ -449,7 +449,8 @@
   </thead>
   <tbody>
     {% for order in orders %}
-    <tr>
+
+        <tr>
       <td>{{ order.o_id }}</td>
       <td>{{ order.user_id }}</td>
       <td>{{ order.status }}</td>
@@ -459,9 +460,12 @@
       <td>{{ order.order_address }}</td>
       <td>
         <button type="button" onclick="toggleOrderDetails({{ order.o_id }})">展开/收起</button>
-        <div id="OrderDetail{{ order.o_id }}" style="display: none;" data-is-loaded="false">
-        <!-- 如果有订单商品数据，则在这里显示 -->
-        </div>
+      </td>
+    </tr>
+    <tr id="OrderDetailRow{{ order.o_id }}" class="order-detail-row" style="display: none;">
+      <td colspan="8"> <!-- 假设你有8列 -->
+        <!-- 订单详情表格将插入到这里 -->
+        <div id="OrderDetail{{ order.o_id }}" class="order-detail"></div>
       </td>
     </tr>
     {% endfor %}
@@ -727,19 +731,49 @@
 </div>
 
   <script>
-      window.onload = function() {
-  var params = new URLSearchParams(window.location.search);
-  var table = params.get('table');
-  switch (table) {
-    case 'user':
-      switchTable('userTable');
-      break;
-    case 'shop':
-      switchTable('shopTable');
-      break;
-    // 添加更多的 case 以处理其他的表格
-  }
+window.onload = function() {
+    var params = new URLSearchParams(window.location.search);
+    var table = params.get('table');
+    switch (table) {
+        case 'user':
+            switchTable('userTable');
+            changeTitle('用户管理');
+            break;
+        case 'shop':
+            switchTable('shopTable');
+            changeTitle('商家管理');
+            break;
+        case 'product':
+            switchTable('productTable');
+            changeTitle('商品管理');
+            break;
+        case 'order':
+            switchTable('orderTable');
+            changeTitle('订单管理');
+            break;
+        // 默认为展示用户管理界面
+        default:
+            switchTable('userTable');
+            changeTitle('用户管理');
+    }
+    // 如果有必要，显示对应的分页器
+    displayCorrespondingPagination(table);
 };
+
+function displayCorrespondingPagination(table) {
+    // 获取所有分页器，并默认隐藏它们
+    let paginations = document.querySelectorAll('.pagination');
+    paginations.forEach(pagination => {
+        pagination.style.display = 'none';
+    });
+
+    // 根据当前表格显示相应的分页器
+    let paginationId = `${table}Pagination`;
+    let pagination = document.getElementById(paginationId);
+    if (pagination) {
+        pagination.style.display = '';
+    }
+}
     // 获取模态框元素
     var modal = document.getElementById("editModal");
 
@@ -827,7 +861,6 @@
   var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
     // 关闭模态框
     span.onclick = function() {
-        alert()
       modal.style.display = "none";
     }
 
@@ -873,7 +906,6 @@ for (var i = 0; i < spans.length; i++) {
         var tableContainer = document.querySelector('.table-container');
       var table = tableContainer.querySelector('#' + tableName);
       var tableWidth = table.offsetWidth;
-
       // 计算表格应该移动的距离
       var distance = (targetPage - currentPage) * -tableWidth;
 
@@ -973,40 +1005,63 @@ function switchTable(tableId) {
 }
 
 function toggleOrderDetails(orderId) {
-    var detailsDiv = document.getElementById("OrderDetail" + orderId);
-    var isHidden = detailsDiv.style.display === "none";
+  var detailsRow = document.getElementById("OrderDetailRow" + orderId); // 订单详情行
+  var detailsDiv = document.getElementById("OrderDetail" + orderId); // 订单详情容器
 
-    // 切换展开/收起
-    if (isHidden) {
-        // 如果是第一次点击展开，则通过API获取订单项
-            fetch(`/order-items/${orderId}/`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // 生成商品信息的HTML
-                        var orderItemsHtml = data.order_items.map(item => {
-                            return `
-                                <div class="order-item">
-                                    <span><img src="${staticBaseUrl}${item.product_image_url}"  style="width: 50px; height: auto;"></span> -
-                                    <span>${item.product_name}</span> -
-                                    <span>${item.quantity}</span> -
-                                    <span>${item.current_single_price}</span>
-                                </div>
-                            `;
-                        }).join('');
-                        detailsDiv.innerHTML = orderItemsHtml;
-                        detailsDiv.style.display = "block";
-                        detailsDiv.dataset.isLoaded = "true"; // 标记为已加载
-                    } else {
-                        console.error("Error loading order items:", data.error);
-                    }
-                })
-                .catch(error => console.error("Failed to fetch order items:", error));
+  // 切换展开/收起
+  if (detailsRow.style.display === "none") {
+    // 首次点击展开时才从服务器获取信息
+    if (!detailsDiv.dataset.isLoaded) {
+      // 在这里添加加载中提示信息
+      detailsDiv.innerHTML = "加载中...";
 
-    } else {
-        // 折叠起来
-        detailsDiv.style.display = "none";
+      fetch(`/order-items/${orderId}/`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // 填充订单详情
+            var orderItemsHtml = `
+              <table class="inner-table">
+                <thead>
+                  <tr>
+                    <th>商品图片</th>
+                    <th>商品名称</th>
+                    <th>商品数量</th>
+                    <th>商品价格</th>
+                  </tr>
+                </thead>
+                <tbody>
+            `;
+
+            data.order_items.forEach(item => {
+              orderItemsHtml += `
+                  <tr>
+                    <td><img src="${staticBaseUrl}${item.product_image_url}" style="width: 50px; height: auto;"></td>
+                    <td>${item.product_name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.current_single_price}</td>
+                  </tr>
+              `;
+            });
+
+            orderItemsHtml += '</tbody></table>';
+            detailsDiv.innerHTML = orderItemsHtml;
+            detailsDiv.dataset.isLoaded = "true"; // 标记数据已加载
+          } else {
+            detailsDiv.innerHTML = "加载订单详情失败。";
+          }
+        })
+        .catch(error => {
+          detailsDiv.innerHTML = "请求订单详情发生错误。";
+          console.error("Failed to fetch order items:", error);
+        });
     }
+    // 显示订单详情
+    detailsRow.style.display = "table-row";
+  } else {
+    // 隐藏订单详情
+    detailsRow.style.display = "none";
+  }
 }
 
   // 打开编辑管理员信息的模态框

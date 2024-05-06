@@ -611,15 +611,16 @@
                 <tr>
                     <td>{{ shop_product.product.p_name }}</td>
                     <td>
-                        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="150px" height="150px"
+                        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="150px"
+                             height="150px"
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                     </td>
                     <td>{{ shop_product.product.p_type.category_name }}</td>
                     <td>{{ shop_product.product.brand }}</td>
                     <td>{{ shop_product.product_desc }}</td>
-                    <td>{{ shop_product.product_status }}</td>
-                    <td>{{ shop_product.product_auditstatus }}</td>
-                    <td>{{ shop_product.stock_quantity }}</td>
+                    <td style="color: {% if shop_product.product_status == '上架' %}green{% elif shop_product.product_status == '下架' %}red{% endif %};font-weight: bold">{{ shop_product.product_status }}</td>
+                    <td style="color: {% if shop_product.product_auditstatus == '待审核' %}#fa9700{% elif shop_product.product_auditstatus == '审核通过' %}green{% elif shop_product.product_auditstatus == '审核不通过' %}red{% endif %};font-weight: bold">{{ shop_product.product_auditstatus }}</td>
+                   <td style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">{{ shop_product.stock_quantity }}</td>
                     <td>{{ shop_product.original_price }}</td>
                     <td>{{ shop_product.discount }}</td>
                     <td>{{ shop_product.current_price }}</td>
