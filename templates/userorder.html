@@ -408,7 +408,8 @@ function getOrdersByStatus(status, page) {
                     (order.status === '待收货' ? '<button onclick="confirmReceipt(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认收货</span></button>' : '')+
                     (order.status === '已收货' ? '<button onclick="returnOrder(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">退货</span></button>' : '')+
                     (order.status === '已收货' ? '<button onclick="confirm(' + order.order_id + ', ' + order.total_amount + ')"><span class="box">确认订单</span></button>' : '')+
-                    (order.status === '待发货' || order.status === '待付款' ? '<button onclick="deleteOrder(' + order.order_id + ')"><span class="box">取消</span></button>' : '') +
+                    (order.status === '待发货' || order.status === '待付款' ? '<button>' +'<span class="box">'+ "取消" + '</span>'+'</button>'  : '') +
+                    (order.status === '已取消' ? '<button>' +'<span class="box">'+ "删除" + '</span>'+'</button>'  : '') +
                     '</div>' +
                     '</div>';
             }
@@ -501,7 +502,7 @@ $(document).on('click', '.caozuo button:last-child', function() {
     var orderContainer = $(this).closest('.oorder-container');
     var orderId = orderContainer.find('input[name="orders[]"]').val();
     var status = orderContainer.find('.status').text().trim();
-    if (status === '已完成' || status === '已取消') {
+    if (status === '待付款' ||status === '待发货'|| status === '已取消') {
         // 发送删除订单请求到后端
         $.ajax({
             url: '/delete_order/',
