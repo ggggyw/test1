@@ -442,6 +442,7 @@ def user_orders(request):
             'total_amount': order.total_price,
             'status': order.status,
             'user_id': order.user_id,
+            'user_name':Users.objects.get(u_id=user_id).u_name
         } for order in orders_page]
 
         pagination_data = {
