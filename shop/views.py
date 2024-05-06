@@ -235,7 +235,8 @@ def shoppage(request):
         'product_audit_status_counts': audit_status_counts,
         'product_status_counts': product_status_counts,
         'sold_products_count': total_sold,
-        'top_selling_product_info': top_selling_product_info if (top_selling_product_info and top_selling_product_info != 0) else None,
+        'top_selling_product_info': top_selling_product_info if (
+                top_selling_product_info and top_selling_product_info != 0) else None,
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
         'today_orders': today_orders,
@@ -713,15 +714,38 @@ def add_product(request):
 
 
 def delete_product(request, product_id):
-    if product_id is not None:
-        shop_product = ShopProducts.objects.filter(shop_product_id=product_id).first()
-        if shop_product:
-            image_path = shop_product.product_image_url  # 获取商品图片的路径
-            fs = FileSystemStorage(location='static/商品图片')  # 创建一个文件系统存储对象
-            fs.delete(shop_product.product_image_url)  # 删除图片文件
-            if fs.exists(shop_product.product_image_url):  # 检查文件是否仍然存在
-                print("删除图片错误")  # 如果文件仍然存在，打印一条错误消息
-            shop_product.delete()  # 删除对应的商品
+    shop_product = get_object_or_404(ShopProducts, shop_product_id=product_id)
+
+    # 检查商品是否正在上架
+    if shop_product.product_status == ShopProducts.ProductStatus.ON_SALE:
+        messages.error(request, "删除失败！商品还在上架中！")
+        return redirect('manage_products')
+
+    # 检查商品最近7天内是否有未完成的订单
+    recent_orders = OrderDetails.objects.filter(
+        product=shop_product,
+        order__o_time__gte=timezone.now() - timedelta(days=7)
+    ).exclude(
+        order__status__in=['已完成', '已取消', '已退货']
+    ).exists()
+
+    # 如果有未完成的订单，返回消息
+    if recent_orders:
+        messages.warning(request, "删除失败！商品还有订单未完成！")
+        return redirect('manage_products')
+
+    # 如果商品有图片，尝试删除图片
+    if shop_product.product_image_url:
+        image_path = shop_product.product_image_url
+        fs = FileSystemStorage(location='static/商品图片')  # 创建一个文件系统存储对象
+        fs.delete(shop_product.product_image_url)  # 删除图片文件
+        if fs.exists(shop_product.product_image_url):  # 检查文件是否仍然存在
+            print("删除图片错误")  # 如果文件仍然存在，打印一条错误消息
+        pass
+
+    # 安全删除商品记录
+    shop_product.delete()
+    messages.success(request, "商品已成功删除。")
     return redirect('manage_products')  # 重定向到manage_products视图
 
 
@@ -1044,8 +1068,6 @@ def rfm_analysis(request):
     merged_data = pd.merge(orders_data, order_details_data, left_on='o_id', right_on='order_id')
     merged_data = pd.merge(merged_data, products_data, left_on='product_id', right_on='p_id')
     merged_data = pd.merge(merged_data, user_data, left_on='user_id', right_on='u_id')
-
-
 
     # 筛选出两年之内的购买记录
     current_time = pd.Timestamp.now()

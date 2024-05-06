@@ -436,6 +436,32 @@
             margin: auto; /* 如果需要，可以水平居中 */
         }
 
+        /* ---------------------------------------------没有商品的提示----------------------------------------------- */
+
+        .messages {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 1000; /* 确保提示框显示在最上层 */
+            text-align: center;
+        }
+
+        .message {
+            background-color: #ff4d4f; /* 美化后的背景色 */
+            color: #ffffff; /* 字体颜色为白色以确保可读性 */
+            border: none; /* 去除边框 */
+            padding: 15px 30px; /* 调整内边距为更舒适的空间 */
+            margin-bottom: 10px; /* 保持外边距 */
+            display: inline-block;
+            font-size: 25px;
+            border-radius: 25px; /* 圆角增加以更趋于流线形状 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影为提示框增添深度 */
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s; /*添加简短的过渡动画效果*/
+        }
+
     </style>
 </head>
 <body>
@@ -620,7 +646,7 @@
                     <td>{{ shop_product.product_desc }}</td>
                     <td style="color: {% if shop_product.product_status == '上架' %}green{% elif shop_product.product_status == '下架' %}red{% endif %};font-weight: bold">{{ shop_product.product_status }}</td>
                     <td style="color: {% if shop_product.product_auditstatus == '待审核' %}#fa9700{% elif shop_product.product_auditstatus == '审核通过' %}green{% elif shop_product.product_auditstatus == '审核不通过' %}red{% endif %};font-weight: bold">{{ shop_product.product_auditstatus }}</td>
-                   <td style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">{{ shop_product.stock_quantity }}</td>
+                    <td style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">{{ shop_product.stock_quantity }}</td>
                     <td>{{ shop_product.original_price }}</td>
                     <td>{{ shop_product.discount }}</td>
                     <td>{{ shop_product.current_price }}</td>
