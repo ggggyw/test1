@@ -185,7 +185,7 @@
         /* 商品详情界面美化 */
         .shop_product-details {
             max-width: 1200px;
-            margin: 40px auto;
+            margin: 1px auto;
             padding: 20px;
             background-color: white;
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
@@ -356,25 +356,26 @@
     </div>
 </div>
 <main class="shop_product-details">
+
     <section class="shop_product-gallery">
         {% load static %}
-        {% if shop_product.product_image_url %} <!-- 如果图片URL存在 -->
-            <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="285px" height="285px">
-        {% else %} <!-- 如果图片URL不存在或为空，显示默认图片 -->
-            <img src="{% static '商家_files/noimage.png' %}" width="285px" height="285px">
-        {% endif %}
+        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="285px" height="285px"
+             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
     </section>
     <section class="shop_product-info">
-        <h1>{{ products.p_name }}</h1>
-        <p>类别：{{ products.p_type.category_name }}</p>  <!-- 添加商品类别 -->
-        <p>品牌：{{ products.brand }}</p>  <!-- 添加商品品牌 -->
+        <h1>{{ product.p_name }}</h1>
+        <p>商品类别：{{ product.p_type.category_name }}</p>  <!-- 添加商品类别 -->
+        <p>商品品牌：{{ product.brand }}</p>  <!-- 添加商品品牌 -->
         <p>商品描述：{{ shop_product.product_desc }}</p>
         <p>商品状态：{{ shop_product.product_status }}</p>
         <p>审核状态：{{ shop_product.product_auditstatus }}</p>
-        <p>库存：{{ shop_product.stock_quantity }}</p>
+        <p>商品库存：{{ shop_product.stock_quantity }}</p>
         <p>原始价格：{{ shop_product.original_price }}</p>
-        <p>折扣：{{ shop_product.discount }}</p>
+        <p>商品折扣：{{ shop_product.discount }}</p>
         <p>现在价格：{{ shop_product.current_price }}</p>
+        <p>总销售数：{{ total_sales_count }}</p>
+        <p>7日销售数：{{ sales_last_7_days_count }}</p>
+        <p>今日销售数：{{ sales_today_count }}</p>
     </section>
 </main>
 </body>
