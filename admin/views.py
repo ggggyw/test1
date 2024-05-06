@@ -224,6 +224,36 @@ def createuser(request):
         # 处理错误、例如用户账户名已存在等
         return JsonResponse({'success': False, 'msg': str(e)}, status=400)
 
+@csrf_exempt
+@require_http_methods(["POST"])
+def createshop(request):
+    try:
+        data = json.loads(request.body)
+        print(data)
+        shop_name = data.get('shop_name')
+        shop_acc = data.get('shop_acc')
+        s_psw = data.get('s_psw')
+        shop_phone = data.get('shop_phone')
+        shop_email = data.get('shop_email')
+        shop_address = data.get('shop_address')
+
+        # 这里可能需要执行一些验证逻辑，例如检查账号是否已存在等。
+
+        # 创建商家对象并保存到数据库
+        shop = Shops(
+            s_name=shop_name,
+            s_acc=shop_acc,
+            s_psw=s_psw,
+            s_phone=shop_phone,
+            email=shop_email,
+            address=shop_address
+        )
+        shop.save()
+
+        return JsonResponse({'success': True, 'msg': '商家创建成功'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'msg': str(e)}, status=400)
+
 
 @require_http_methods(["POST"])
 @csrf_exempt

@@ -331,6 +331,9 @@
     <div class="add-user-container">
       <button onclick="openModal('addUserModal')" class="add-user-btn">新增用户</button>
     </div>
+    <div class="add-shop-container">
+  <button onclick="openModal('addShopModal')" class="add-shop-btn">新增商家</button>
+</div>
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
@@ -766,6 +769,34 @@
   </div>
 </div>
 
+<!-- 新增商家的模态框 -->
+<div id="addShopModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addShopModal')">&times;</span>
+    <h2>新增商家</h2>
+    <form id="add-shop-form">
+        <label for="add_shop_name">商家名称:</label>
+        <input type="text" id="add_shop_name" name="add_shop_name" required>
+
+        <label for="add_shop_acc">账号:</label>
+        <input type="text" id="add_shop_acc" name="add_shop_acc" required>
+
+        <label for="add_shop_phone">手机号:</label>
+        <input type="text" id="add_shop_phone" name="add_shop_phone" required>
+
+        <label for="s_psw">密码:</label>
+        <input type="text" id="s_psw" name="s_psw" required>
+
+        <label for="add_shop_email">邮箱:</label>
+        <input type="email" id="add_shop_email" name="add_shop_email" required>
+
+        <label for="add_shop_address">地址:</label>
+        <input type="text" id="add_shop_address" name="add_shop_address" required>
+
+        <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
   <script>
 window.onload = function() {
     var params = new URLSearchParams(window.location.search);
@@ -1703,7 +1734,48 @@ document.getElementById("add-user-form").addEventListener("submit", function(e) 
         alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
     });
 });
+// 新增商家表单提交
+document.getElementById("add-shop-form").addEventListener("submit", function(e) {
+    e.preventDefault(); // 阻止表单的默认提交行为
 
+    var formData = {
+        shop_name: document.getElementById("add_shop_name").value,
+        shop_acc: document.getElementById("add_shop_acc").value,
+        s_psw: document.getElementById("s_psw").value,
+        shop_phone: document.getElementById("add_shop_phone").value,
+        shop_email: document.getElementById("add_shop_email").value,
+        shop_address: document.getElementById("add_shop_address").value
+    };
+
+    fetch('/createshop/', { // 注意更换为你的保存商家信息的后端API路径
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // 确保使用了正确的CSRF token
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // 在控制台打印响应数据
+        if (data.success) {
+            alert('商家创建成功'); // 根据响应显示成功消息
+            closeModal('addShopModal'); // 关闭模态框
+            // 可能还需要重新加载或更新商家列表显示新增的商家数据
+        } else {
+            alert('商家创建失败: ' + data.msg); // 或显示错误消息
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error); // 在控制台打印错误信息
+        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
+    });
+});
   </script>
 </body>
 </html>
