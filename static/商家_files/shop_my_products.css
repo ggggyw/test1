@@ -221,7 +221,7 @@ body {
     transition: all 0.3s ease; /* 添加过渡效果 */
 }
 
-.shop_good > a > .shop_product_name, .shop_good .shop_product_price {
+.shop_good > a > .shop_product_name, .shop_good .shop_product_current_price {
     /* 下面的属性在之前的CSS已经设置 */
     padding: 1px 1px;
     display: block; /* 默认就是块级元素，这里可以不用写 */
@@ -242,7 +242,7 @@ body {
     transition: font-size 0.3s ease, color 0.3s ease, text-decoration 0.3s ease; /* 平滑过渡效果用于字体大小、颜色和文本装饰 */
 }
 
-.shop_good .shop_product_price {
+.shop_good .shop_product_current_price {
     margin-top: 5px; /* 距离名称的间距 */
     font-size: 30px;
     bottom: 15px;
