@@ -836,7 +836,6 @@ function displayCorrespondingPagination(table) {
   var span = document.getElementsByClassName("close")[0]; // 获取关闭按钮
     // 关闭模态框
     span.onclick = function() {
-        alert()
       modal.style.display = "none";
     }
 
@@ -882,7 +881,6 @@ for (var i = 0; i < spans.length; i++) {
         var tableContainer = document.querySelector('.table-container');
       var table = tableContainer.querySelector('#' + tableName);
       var tableWidth = table.offsetWidth;
-        alert()
       // 计算表格应该移动的距离
       var distance = (targetPage - currentPage) * -tableWidth;
 
