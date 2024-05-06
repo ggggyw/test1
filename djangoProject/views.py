@@ -26,11 +26,11 @@ def home(request):
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
 
     # 不需要再次查询所有Products，除非有其他用途
-    # products2 = Products.objects.all()
+    products2 = Products.objects.all()
 
     context = {
         'products': paged_products,
-        # 'products2': products2  # 如果没有特别用处，这行可以注释掉
+        'products2': products2  # 如果没有特别用处，这行可以注释掉
     }
     return render(request, '首页.html', context)
 
