@@ -417,9 +417,9 @@ def user_orders(request):
 
     try:
         if status_value:
-            orders = Orders.objects.filter(user_id=user_id, status=status_value)
+            orders = Orders.objects.filter(user_id=user_id, status=status_value).exclude(status='0')
         else:
-            orders = Orders.objects.filter(user_id=user_id)
+            orders = Orders.objects.filter(user_id=user_id).exclude(status='0')
 
         # 应用分页
         paginator = Paginator(orders, page_size)
