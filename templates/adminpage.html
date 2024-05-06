@@ -706,19 +706,49 @@
 </div>
 
   <script>
-      window.onload = function() {
-  var params = new URLSearchParams(window.location.search);
-  var table = params.get('table');
-  switch (table) {
-    case 'user':
-      switchTable('userTable');
-      break;
-    case 'shop':
-      switchTable('shopTable');
-      break;
-    // 添加更多的 case 以处理其他的表格
-  }
+window.onload = function() {
+    var params = new URLSearchParams(window.location.search);
+    var table = params.get('table');
+    switch (table) {
+        case 'user':
+            switchTable('userTable');
+            changeTitle('用户管理');
+            break;
+        case 'shop':
+            switchTable('shopTable');
+            changeTitle('商家管理');
+            break;
+        case 'product':
+            switchTable('productTable');
+            changeTitle('商品管理');
+            break;
+        case 'order':
+            switchTable('orderTable');
+            changeTitle('订单管理');
+            break;
+        // 默认为展示用户管理界面
+        default:
+            switchTable('userTable');
+            changeTitle('用户管理');
+    }
+    // 如果有必要，显示对应的分页器
+    displayCorrespondingPagination(table);
 };
+
+function displayCorrespondingPagination(table) {
+    // 获取所有分页器，并默认隐藏它们
+    let paginations = document.querySelectorAll('.pagination');
+    paginations.forEach(pagination => {
+        pagination.style.display = 'none';
+    });
+
+    // 根据当前表格显示相应的分页器
+    let paginationId = `${table}Pagination`;
+    let pagination = document.getElementById(paginationId);
+    if (pagination) {
+        pagination.style.display = '';
+    }
+}
     // 获取模态框元素
     var modal = document.getElementById("editModal");
 
@@ -852,7 +882,7 @@ for (var i = 0; i < spans.length; i++) {
         var tableContainer = document.querySelector('.table-container');
       var table = tableContainer.querySelector('#' + tableName);
       var tableWidth = table.offsetWidth;
-
+        alert()
       // 计算表格应该移动的距离
       var distance = (targetPage - currentPage) * -tableWidth;
 
