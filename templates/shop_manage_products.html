@@ -435,7 +435,7 @@
             width: 100%; /* 确保容器的宽度是100% */
             margin: auto; /* 如果需要，可以水平居中 */
         }
-        
+
     </style>
 </head>
 <body>
@@ -611,12 +611,9 @@
                 <tr>
                     <td>{{ shop_product.product.p_name }}</td>
                     <td>
-                        {% if shop_product.product_image_url %} <!-- 如果图片URL存在 -->
-                            <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="100px"
-                                 height="100px">
-                        {% else %} <!-- 如果图片URL不存在或为空，显示默认图片 -->
-                            <img src="{% static '商家_files/noimage.png' %}" width="100px" height="100px">
-                        {% endif %}</td>
+                        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="150px" height="150px"
+                             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+                    </td>
                     <td>{{ shop_product.product.p_type.category_name }}</td>
                     <td>{{ shop_product.product.brand }}</td>
                     <td>{{ shop_product.product_desc }}</td>

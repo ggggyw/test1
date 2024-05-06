@@ -67,6 +67,7 @@ def shoppage(request):
     product_status_counts = shop_products.values('product_status').annotate(count=Count('product_status'))
     product_status_counts = dict(product_status_counts.values_list('product_status', 'count'))
 
+    # -----------------------------------------------------------------------------------------------------------------
     # 销量最高的商品信息
     if category_id:
         top_selling_product_info = ShopProducts.objects.filter(product__p_type__category_id=category_id).annotate(
@@ -74,6 +75,9 @@ def shoppage(request):
     else:
         top_selling_product_info = ShopProducts.objects.annotate(quantity_sold=Sum('orderdetails__quantity')).order_by(
             '-quantity_sold').first()
+
+    if top_selling_product_info:
+        top_selling_product_info.discount = top_selling_product_info.discount * 100
 
     # 当天销量最高的商品信息
     today = timezone.now().date()
@@ -84,6 +88,10 @@ def shoppage(request):
     else:
         today_top_selling_product_info = ShopProducts.objects.filter(orderdetails__order__o_time__date=today).annotate(
             quantity_sold=Sum('orderdetails__quantity')).order_by('-quantity_sold').first()
+
+    # 将折扣转换为百分数
+    if today_top_selling_product_info:
+        today_top_selling_product_info.discount = today_top_selling_product_info.discount * 100
 
     # 获取该商家指定类别下的已售商品数
     if category_id:
@@ -187,6 +195,11 @@ def shoppage(request):
         ).annotate(
             quantity_sold=Sum('orderdetails__quantity')
         ).order_by('-quantity_sold').first()  # 排序并获取销量最高的商品
+
+    # 将折扣转换为百分数
+    if weekly_top_selling_product_info:
+        weekly_top_selling_product_info.discount = weekly_top_selling_product_info.discount * 100
+
     # 拼接上下文信息
     context = {
         'shop_products': page_obj,
@@ -197,7 +210,7 @@ def shoppage(request):
         'product_audit_status_counts': audit_status_counts,
         'product_status_counts': product_status_counts,
         'sold_products_count': total_sold,
-        'top_selling_product_info': top_selling_product_info if top_selling_product_info else None,
+        'top_selling_product_info': top_selling_product_info if (top_selling_product_info and top_selling_product_info != 0) else None,
         'today_top_selling_product_info': today_top_selling_product_info if today_top_selling_product_info else None,
         'total_revenue': total_revenue,
         'today_orders': today_orders,
@@ -300,6 +313,10 @@ def myproducts(request):
             query = None
 
     products = Products.objects.all()
+    # 计算并设置折扣成百分比形式
+    for shop_product in shop_products:
+        if hasattr(shop_product, 'discount'):
+            shop_product.discount = shop_product.discount * 100
 
     paginator = Paginator(shop_products, 8)  # 每页显示 8 个商品
     page = request.GET.get('page')
@@ -322,13 +339,49 @@ def myproducts(request):
 
 def shop_productdetails(request, p_id):
     s_id = request.session.get('s_id')
-    role = request.session.get('role')
+    if not s_id:
+        # 如果session中不存在s_id，则处理错误或重定向
+        return  # 相应的错误处理
+
+    # 获取商店产品和产品具体信息
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
-    products = Products.objects.get(p_id=shop_product.product_id)
-    category_id = products.p_type.category_id
-    return render(request, 'shop_product_details.html',
-                  {'shop_product': shop_product, 'products': products, 's_id': s_id, 'role': role,
-                   'category_id': category_id, 'query': None})
+    product = Products.objects.get(p_id=shop_product.product.p_id)
+    category_id = product.p_type.category_id
+
+    # 定义时间范围：今天和7天前
+    today = timezone.now().date()
+    date_7_days_ago = timezone.now() - timedelta(days=7)
+
+    # 获取相关订单详情信息，并进行汇总求和
+    aggregates = OrderDetails.objects.filter(
+        product__product_id=p_id,
+        shop_id=s_id,
+        order__status__in=['待发货', '待收货', '已收货', '已完成']
+    ).aggregate(
+        total_sales=Sum('quantity'),  # 总销售量
+        sales_last_7_days=Sum('quantity', filter=Q(order__o_time__gte=date_7_days_ago)),  # 过去7天销量
+        sales_today=Sum('quantity', filter=Q(order__o_time__date=today))  # 当日销量
+    )
+
+    total_sales_count = aggregates['total_sales'] or 0
+    sales_last_7_days_count = aggregates['sales_last_7_days'] or 0
+    sales_today_count = aggregates['sales_today'] or 0
+
+    # 准备上下文数据
+    context = {
+        'shop_product': shop_product,
+        'product': product,
+        's_id': s_id,
+        'role': request.session.get('role'),
+        'category_id': category_id,
+        'query': None,
+        'total_sales_count': total_sales_count,
+        'sales_last_7_days_count': sales_last_7_days_count,
+        'sales_today_count': sales_today_count,
+    }
+
+    # 呈现带有上下文数据的页面
+    return render(request, 'shop_product_details.html', context)
 
 
 def manage_products(request):
