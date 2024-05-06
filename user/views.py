@@ -15,7 +15,7 @@ from django.contrib import messages
 # Create your views here.
 def userpage(request):
 
-    products = ShopProducts.objects.all()
+    products = ShopProducts.objects.all().exclude(product_status='下架')
     products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
