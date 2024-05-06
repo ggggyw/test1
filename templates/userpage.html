@@ -54,7 +54,7 @@
 
 <div class="classes">
     <ul class="classes-items">
-        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=0"><span class="highlight"></span>全部商品</a></li>
+        <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=0" id="all-products-link"><span class="highlight"></span>全部商品</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=1"><span class="highlight"></span>个人电脑和配件</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=2"><span class="highlight"></span>移动设备</a></li>
         <li class="items"><a href="http://127.0.0.1:8000/get_products/?category_id=3"><span class="highlight"></span>家用电子产品</a></li>
@@ -125,6 +125,7 @@
     // 你可能还需要添加其他JavaScript代码来处理用户与页面的交互
     $('#pager').css({'text-align': 'center', 'font-size': '16px', 'overflow': 'hidden', 'margin-top': '10px'})
     $('#pager a').css({'display': 'inline-block', 'padding': '5px', 'margin': '5px'})
+
     document.addEventListener('DOMContentLoaded', function() {
     var goods = document.querySelectorAll('.good');
     var delay = 0.1;
@@ -134,6 +135,20 @@
         delay += 0.1;
     });
 });
+   window.onload = function() {
+    // 获取当前页面的URL
+    var currentUrl = window.location.href;
+
+    // 检查URL中是否已经包含了category_id参数
+    if (!currentUrl.includes('category_id')) {
+        var allProductsLink = document.getElementById('all-products-link');
+        if (allProductsLink) {
+            allProductsLink.click();
+        }
+    }
+};
+
+
 </script>
 
 </body>
