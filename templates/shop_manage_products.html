@@ -863,7 +863,7 @@
             var originalPrice = parseFloat(originalPriceInput.value);
             var discount = parseFloat(discountInput.value);
             if (!isNaN(originalPrice) && !isNaN(discount)) {
-                var currentPrice = originalPrice * (discount);
+                var currentPrice = originalPrice * (1-discount);
                 currentPriceInput.value = currentPrice.toFixed(2);
             }
         }

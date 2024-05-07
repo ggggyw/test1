@@ -50,6 +50,13 @@ def get_products(request):
         shoppro = ShopProducts.objects.exclude(product_status='下架').filter(product_auditstatus__in=['审核通过'])
     products2 = Products.objects.all()
 
+    # 遍历全部products商品
+    for product in shoppro:
+        # 如果库存变成了0，就将商品的状态修改为下架
+        if product.stock_quantity == 0:
+            product.product_status = '下架'
+            product.save()  # 保存商品的更改
+            
     # 创建一个 Paginator 对象，每页显示 24 个商品
     paginator = Paginator(shoppro, 24)
     # 从 GET 请求的查询参数中获取页码
