@@ -56,7 +56,6 @@ def get_products(request):
         if product.stock_quantity == 0:
             product.product_status = '下架'
             product.save()  # 保存商品的更改
-            
     # 创建一个 Paginator 对象，每页显示 24 个商品
     paginator = Paginator(shoppro, 24)
     # 从 GET 请求的查询参数中获取页码
