@@ -339,6 +339,11 @@
 <div class="add-shop-container" id="addShopContainer" style="display: none;">
   <button onclick="openModal('addShopModal')" class="add-shop-btn">新增商家</button>
 </div>
+
+<div class="add-admin-container" id="abcd">
+  <button onclick="openModal('addAdminModal')" class="add-admin-btn">新增管理员</button>
+</div>
+
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
@@ -867,6 +872,28 @@
     </form>
   </div>
 </div>
+
+<!-- 新增管理员的模态框，以下只是一个简单示例 -->
+
+<div id="addAdminModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addAdminModal')">&times;</span>
+    <h2>新增管理员</h2>
+    <form id="add-admin-form">
+        <label for="admin_acc">用户名:</label>
+        <input type="text" id="admin_acc" name="admin_acc" required>
+
+        <label for="admin_psw">密码:</label>
+        <input type="password" id="admin_psw" name="admin_psw" required>
+
+        <!-- 如果还需要更多字段，继续添加 -->
+
+        <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
+
+
   <script>
 window.onload = function() {
     var params = new URLSearchParams(window.location.search);
@@ -1119,6 +1146,8 @@ function switchTable(tableId) {
     // 隐藏新增按钮容器
     document.getElementById('addUserContainer').style.display = 'none';
     document.getElementById('addShopContainer').style.display = 'none';
+    document.getElementById('abcd').style.display = 'none';
+
 
     // 显示对应的表格
     var table = document.getElementById(tableId);
@@ -1141,16 +1170,17 @@ function switchTable(tableId) {
     if (tableId !== 'adminTable'){
     // 显示对应的搜索框
     var searchBoxId = tableId.replace('Table', 'SearchBox');
-    document.getElementById(searchBoxId).style.display = 'block';
-
+    document.getElementById(searchBoxId).style.display = 'block';}
     // 显示对应的新增按钮容器
     if (tableId === 'userTable') {
         document.getElementById('addUserContainer').style.display = 'block';
     } else if (tableId === 'shopTable') {
         document.getElementById('addShopContainer').style.display = 'block';
+    }else if (tableId === 'adminTable') {
+        document.getElementById('abcd').style.display = 'block';
     }
 
-}
+
     updateSearchFunction(tableId);
     // 隐藏所有的分页器
     var paginations = document.getElementsByClassName('pagination');
