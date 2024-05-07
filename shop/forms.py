@@ -128,7 +128,7 @@ class ShopProductForm(forms.ModelForm):
 
         # 计算当前价格
         if original_price is not None and discount is not None:
-            current_price = original_price * (discount)
+            current_price = original_price * (1-discount)
             current_price = round(current_price, 2)  # 四舍五入到两位小数
             cleaned_data['current_price'] = current_price
 
