@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 
 def home(request):
     request.session.clear()
-    products = ShopProducts.objects.all()
+    products = ShopProducts.objects.exclude(product_status='下架').filter(product_auditstatus__in=['审核通过'])
 
     # 遍历全部products商品
     for product in products:
