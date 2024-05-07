@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q, Count, Sum
+from django.db.models.functions import TruncDay, TruncDate
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -225,6 +226,45 @@ def shoppage(request):
     if weekly_top_selling_product_info:
         weekly_top_selling_product_info.discount = weekly_top_selling_product_info.discount * 100
 
+    # 计算过去7天的起始日期
+    seven_days_ago = timezone.now().date() - timedelta(days=6)
+    order_statuses = ['待发货', '待收货', '已收货', '已完成']
+    # 获取7天内每天的订单数量，只考虑特定的订单状态
+    daily_orders_count = Orders.objects.filter(
+        orderdetails__shop__s_id=s_id,
+        o_time__date__gte=seven_days_ago,
+        status__in=order_statuses  # 过滤条件
+    ).annotate(
+        date=TruncDate('o_time')
+    ).values('date').annotate(count=Count('o_id')).values('date', 'count').order_by('date')
+
+    # 获取7天内每天的销售商品数量，只考虑特定的订单状态
+    daily_sales_products_count = OrderDetails.objects.filter(
+        shop__s_id=s_id,
+        order__o_time__date__gte=seven_days_ago,
+        order__status__in=order_statuses  # 过滤条件
+    ).annotate(
+        date=TruncDate('order__o_time')
+    ).values('date').annotate(quantity_sum=Sum('quantity')).values('date', 'quantity_sum').order_by('date')
+
+    # 获取7天内每天的营业额，只考虑特定的订单状态
+    daily_revenue = OrderDetails.objects.filter(
+        shop__s_id=s_id,
+        order__o_time__date__gte=seven_days_ago,
+        order__status__in=order_statuses_for_revenue  # 过滤条件
+    ).annotate(
+        date=TruncDate('order__o_time')
+    ).values('date').annotate(total_income=Sum('order__total_price')).values('date', 'total_income').order_by('date')
+
+    # 转换查询结果为列表，用于前端图表展示
+    daily_orders_list = [[sale['date'].strftime("%Y-%m-%d"), sale['count']] for sale in daily_orders_count]
+    daily_sales_list = [[sale['date'].strftime("%Y-%m-%d"), sale['quantity_sum']] for sale in
+                        daily_sales_products_count]
+    daily_revenue_list = [[sale['date'].strftime("%Y-%m-%d"), sale['total_income']] for sale in daily_revenue]
+
+    print(daily_orders_list)
+    print(daily_sales_list)
+    print(daily_revenue_list)
     # 拼接上下文信息
     context = {
         'shop_products': page_obj,
@@ -242,7 +282,10 @@ def shoppage(request):
         'today_orders': today_orders,
         'today_product_sales': today_product_sales,
         'total_revenue_today': total_revenue_today,
-        'weekly_top_selling_product_info': weekly_top_selling_product_info if weekly_top_selling_product_info else None
+        'weekly_top_selling_product_info': weekly_top_selling_product_info if weekly_top_selling_product_info else None,
+        'daily_orders_list': daily_orders_list,
+        'daily_sales_list': daily_sales_list,
+        'daily_revenue_list': daily_revenue_list,
     }
 
     return render(request, 'shoppage.html', context)
@@ -376,7 +419,7 @@ def shop_productdetails(request, p_id):
 
     # 定义时间范围：今天和7天前
     today = timezone.now().date()
-    date_7_days_ago = timezone.now() - timedelta(days=7)
+    date_7_days_ago = today - timedelta(days=7)
 
     # 获取相关订单详情信息，并进行汇总求和
     aggregates = OrderDetails.objects.filter(
@@ -393,6 +436,20 @@ def shop_productdetails(request, p_id):
     sales_last_7_days_count = aggregates['sales_last_7_days'] or 0
     sales_today_count = aggregates['sales_today'] or 0
 
+    # 获取7天内的销售数据，按天分组并计算每天的销售总量
+    daily_sales_for_last_7_days = OrderDetails.objects.filter(
+        product__product_id=p_id,
+        shop_id=s_id,
+        order__o_time__gte=date_7_days_ago,
+        order__status__in=['待发货', '待收货', '已收货', '已完成']
+    ).annotate(
+        date=TruncDay('order__o_time')  # 按订单时间的天进行分组
+    ).values(
+        'date'  # 指定我们需要返回的分组字段
+    ).annotate(
+        daily_sales=Sum('quantity')  # 计算每天的销售总量
+    ).order_by('-date')  # 按日期
+
     # 准备上下文数据
     context = {
         'shop_product': shop_product,
@@ -404,6 +461,7 @@ def shop_productdetails(request, p_id):
         'total_sales_count': total_sales_count,
         'sales_last_7_days_count': sales_last_7_days_count,
         'sales_today_count': sales_today_count,
+        'daily_sales_for_last_7_days': daily_sales_for_last_7_days
     }
 
     # 呈现带有上下文数据的页面
