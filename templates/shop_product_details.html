@@ -407,7 +407,7 @@
         <!-- Sales Today -->
         <p class="shop_product-detail-item">今日销售数：{{ sales_today_count }}</p>
         <p class="shop_product-detail-edit">
-            <a href="{% url 'edit_product' product_id=shop_product.product.p_id %}"
+            <a href="{% url 'edit_product' product_id=shop_product.shop_product_id %}"
                class="edit-product-btn">修改商品</a>
         </p>
     </section>
