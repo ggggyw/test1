@@ -1,16 +1,31 @@
+/* 没有商品时显示的动画效果 */
 .no-products-animation {
-    display: none;
-    animation: fadeInOut 3s ease infinite;
-    position: fixed; /* 使用 fixed 定位 */
-    top: 50%; /* 从顶部开始的位置 */
-    left: 50%; /* 从左边开始的位置 */
-    transform: translate(-50%, -50%); /* 使用 transform 居中 */
+    display: none; /* 默认不显示，通过JavaScript控制显示 */
+    animation: fadeInToRed 2s ease infinite; /* 添加淡入淡出的无限循环动画，每次动画持续3秒 */
+    position: fixed; /* 使用固定定位，确保元素即使在页面滚动时也保持在预定位置 */
+    bottom: 50%; /* 相对于视口底部的位置，调整这个值可以控制元素距离底部的高度 */
+    left: 50%; /* 相对于视口左侧的位置，保证元素水平居中 */
+    transform: translateX(-50%); /* 水平居中元素；由于是相对于左侧50%定位，需要左移元素宽度的50%来实现居中 */
+    width: 100%; /* 元素宽度设置为100%，这样文本居中可以相对于整个视口宽度居中 */
 }
 
+/* 没有商品时显示的文本样式 */
 .no-products-animation p {
-    text-align: center;
-    font-size: 5em; /* 调整为您需要的大小 */
-    color: red;
+    text-align: center; /* 文本居中对齐 */
+    font-size: 5em; /* 字体大小为2em，根据需要调整 */
+    color: #f82800; /* 字体颜色为淡红色，看起来更柔和 */
+    margin: 0; /* 移除默认的边距，确保元素位置准确 */
+}
+
+/* 键帧动画 */
+@keyframes fadeInToRed {
+    from {
+        opacity: 0; /* 开始时完全透明 */
+        background-color: transparent; /* 背景色为透明 */
+    }
+    to {
+        opacity: 1; /* 结束时完全不透明 */
+    }
 }
 
 .classes-items {
@@ -183,6 +198,7 @@
     background-color: #ff464e;
     text-align: center;
 }
+
 /* 添加到 .good img 选择器中 */
 .good img {
     transition: all 0.3s ease; /* 添加过渡效果 */
@@ -193,11 +209,13 @@
     transform: scale(1.1); /* 放大图片 */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 添加阴影效果 */
 }
+
 .items a {
     transition: transform 0.3s ease-in-out;
     text-decoration: none;
     color: #333;
 }
+
 .items a:hover {
     transform: scale(1.1);
     color: inherit;
