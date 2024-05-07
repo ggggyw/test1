@@ -252,7 +252,7 @@ def checkout(request):
 
             # 减少库存量
             ShopProducts.objects.filter(product_id__in=selected_product_ids).update(
-                stock_quantity=F('stock_quantity') - 1
+                stock_quantity=F('stock_quantity') - itemQuantities
             )
 
             # 创建新订单

@@ -36,15 +36,20 @@ def adminpage(request):
     order_page_number = request.GET.get('order_page')
     orders = paginator_orders.get_page(order_page_number)
 
+    adminn = Admin.objects.exclude(is_super=1)
+    paginator_ad = Paginator(adminn, 6)  # 每页显示 6 个用户
+    admin_page_number = request.GET.get('admin_page')
+    admin_page_obj = paginator_ad.get_page(admin_page_number)
+
     context = {
         'admin': admin,
-        'is_super': admin.is_super,
         'users': user_page_obj,
         'shops': shop_page_obj,
         'orders': orders,  # 这里只传入当前页的订单
         'order_details': order_details,
         'products': products,
         'shop_products': product_page_obj,
+        'admins':admin_page_obj,
     }
     return render(request, 'adminpage.html', context)
 
@@ -384,6 +389,20 @@ def delete_product(request):
         return JsonResponse({'success': False, 'message': '商品不存在'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': '服务器错误', 'error': str(e)})
+
+@csrf_exempt  # 如果全局启用了CSRF保护，可能需要此装饰器来允许从前端进行POST请求
+@require_http_methods(["POST"])
+def delete_admin(request):
+    try:
+        data = json.loads(request.body)
+        admin_id = data.get('ad_id')
+        admin = Admin.objects.get(ad_id=admin_id)
+        admin.delete()
+        return JsonResponse({'success': True, 'message': '管理员删除成功'}, status=200)
+    except Admin.DoesNotExist:
+        return JsonResponse({'success': False, 'message': '管理员不存在'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)}, status=500)
 
 @require_http_methods(["POST"])
 @csrf_exempt  # 如果你的前端不处理 CSRF token，可以暂时放宽 CSRF 限制
