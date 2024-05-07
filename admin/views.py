@@ -1,5 +1,6 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.dateparse import parse_datetime
 from django.views.decorators.http import require_http_methods, require_POST
 import json
 from common.models import Admin, Users,Shops,ShopProducts,Orders,OrderDetails,Products
@@ -80,6 +81,59 @@ def create_admin(request):
         return JsonResponse({'success': True, 'msg': '管理员创建成功'})
     except Exception as e:
         return JsonResponse({'success': False, 'msg': f'发生错误: {str(e)}'})
+
+@csrf_exempt  # 如果你的前端请求包含了有效的 CSRF 令牌，这行不是必需的
+def get_order_info(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            o_id = data.get('o_id')
+
+            order = Orders.objects.get(o_id=o_id)
+            order_info = {
+                'user_id': order.user_id,
+                'status': order.status,
+                'paid_time': order.paid_time.strftime('%Y-%m-%d %H:%M:%S') if order.paid_time else None,
+                'o_time': order.o_time.strftime('%Y-%m-%d %H:%M:%S'),
+                'total_price': order.total_price,
+                'order_address': order.order_address,
+                'o_id':o_id
+            }
+            print(order_info)
+            return JsonResponse({'success': True, 'data': order_info})
+        except Orders.DoesNotExist:
+            return JsonResponse({'success': False, 'message': '订单不存在'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': '请求处理错误', 'error': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'message': '无效的请求方法'}, status=405)
+
+@csrf_exempt
+def update_order_info(request):
+    """
+    View to update order information.
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            print(data)
+            o_id = data.get('o_id')
+            status = data.get('status')
+            paid_time = data.get('paid_time')
+            order_address = data.get('order_address')
+
+            order = get_object_or_404(Orders, pk=o_id)
+            if status:
+                order.status = status
+            if paid_time:
+                order.paid_time = parse_datetime(paid_time)
+            if order_address:
+                order.order_address = order_address
+            order.save()
+
+            return JsonResponse({'success': True, 'message': '订单信息更新成功！'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
 
 @csrf_exempt
 def get_admin_info(request):
