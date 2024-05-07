@@ -555,14 +555,17 @@
                     {% endif %}
                 {% endfor %}
                 <div class="shop_goods-info">
-                    {% if product1.discount %}
+                    {% if product1.discount and product1.discount != 0 %}
                         <p class="shop_discount-badge">
                             -{{ product1.discount|floatformat:0 }}%
                         </p>
                     {% endif %}
+
                     <div class="shop_goods-pricing">
-                        <p class="shop_product_original_price">
-                            ￥{{ product1.original_price }}</p>
+                        {% if product1.discount and product1.discount != 0 %}
+                            <p class="shop_product_original_price">
+                                ￥{{ product1.original_price }}</p>
+                        {% endif %}
                         <p class="shop_product_current_price">￥{{ product1.current_price }}</p>
                     </div>
                 </div>
