@@ -226,18 +226,6 @@
             delay += 0.1;
         });
     });
-    window.onload = function () {
-        // 获取当前页面的URL
-        var currentUrl = window.location.href;
-
-        // 检查URL中是否已经包含了category_id参数
-        if (!currentUrl.includes('category_id')) {
-            var allProductsLink = document.getElementById('all-products-link');
-            if (allProductsLink) {
-                allProductsLink.click();
-            }
-        }
-    };
     document.addEventListener('DOMContentLoaded', function () {
         var slider = document.getElementById('slider');
         var categoryLinks = document.querySelectorAll('.classes-items .items > a');
