@@ -639,6 +639,7 @@ def edit_product(request, product_id):
                 # 如果不是从“上架”变为“下架”且当前审核状态为“审核通过”的特殊情况
                 if not (status_changed_to_off_sale and current_audit_status_is_approved):
                     shop_product.product_auditstatus = '待审核'
+                    shop_product.product_status = '下架'
 
                 shop_product.save()
                 shop_product_form.save()
