@@ -315,6 +315,7 @@
                 window.location.href = 'userpayment_page';
             } else {
                 alert("下单失败，请重试");
+                print(data.message)
             }
         })
         .catch(error => {
