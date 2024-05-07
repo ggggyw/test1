@@ -74,6 +74,7 @@ urlpatterns = [
     path('delete_admin/', admin_views.delete_admin, name='delete_admin'),
     path('createuser/', admin_views.createuser, name='createuser'),
     path('createshop/', admin_views.createshop, name='createshop'),
+    path('create_admin/', admin_views.create_admin, name='create_admin'),
     path('delete_product/', admin_views.delete_product, name='delete_product'),
     path('search_users/', admin_views.search_users, name='search_users'),
     path('search_shops/', admin_views.search_shops, name='search_shops'),
