@@ -58,6 +58,7 @@
       flex: 1;
       padding: 40px 50px;
       overflow: auto;
+
     }
 
     table {
@@ -284,8 +285,27 @@
     .edit-form button {
       align-self: flex-end;
     }
+#add-user-form label,
+#add-user-form input,
+#add-user-form select,
+#add-user-form button,
+#add-shop-form label,
+#add-shop-form input,
+#add-shop-form select,
+#add-shop-form button {
+    width: 100%; /* 修改部分：使所有输入框、下拉框和按钮宽度一致 */
+    margin-bottom: 10px;
+}
 
+#add-user-form,
+#add-shop-form {
+    width: 100%; /* 修改部分：使表单宽度为 100% */
+}
 
+#add-user-form button,
+#add-shop-form button {
+    margin-top: auto; /* 修改部分：使按钮总是在最下方 */
+}
      {% load static %}
   </style>
     <script type="text/javascript">
