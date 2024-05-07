@@ -298,7 +298,9 @@
     <a href="#" onclick="switchTable('shopTable');changeTitle('商家管理')">商家管理</a>
     <a href="#" onclick="switchTable('productTable');changeTitle('商品管理')">商品管理</a>
     <a href="#" onclick="switchTable('orderTable');changeTitle('订单管理')">订单管理</a>
+    {% if is_super %}
     <a href="#" onclick="switchTable('adminTable');changeTitle('管理员管理')">管理员管理</a>
+    {% endif %}
     <a href="#" onclick="openAdminEditModal();">个人设置</a>
     <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
 </div>

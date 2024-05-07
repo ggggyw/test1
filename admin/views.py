@@ -13,6 +13,7 @@ def adminpage(request):
         return redirect('login')
 
     admin = Admin.objects.get(ad_id=request.session['ad_id'])
+    is_super=admin.is_super
     users = Users.objects.all()
     shops = Shops.objects.all()
     orders_all = Orders.objects.all()
@@ -50,6 +51,7 @@ def adminpage(request):
         'products': products,
         'shop_products': product_page_obj,
         'admins':admin_page_obj,
+        'is_super':is_super
     }
     return render(request, 'adminpage.html', context)
 
