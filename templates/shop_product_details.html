@@ -185,31 +185,34 @@
         /* 商品详情界面美化 */
         .shop_product-details {
             max-width: 1200px;
-            margin: 1px auto;
+            margin: 1px auto; /* 上下边距为20px，左右自动（居中） */
             padding: 20px;
             background-color: white;
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             overflow: hidden;
             display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: stretch;
+            flex-direction: row; /* 保持为行布局 */
+            justify-content: flex-start; /* 子元素靠左对齐 */
+            align-items: center; /* 垂直居中 */
         }
 
         /* 商品画廊样式 */
         .shop_product-gallery {
-            flex: 1 1 50%;
-            margin-right: 20px;
-            padding: 20px;
-            text-align: center;
+            flex: 1;
+            text-align: center; /* 图片文本左对齐 */
+            padding: 1px;
+            /* 可以考虑给gallery一定的最大宽度，以保持与信息部分的协调 */
+            max-width: 50%;
         }
 
+        /* 商品图片样式调整 */
         .shop_product-gallery img {
+            border: 5px solid #2f9bb6; /* 图片外框 */
             max-width: 100%;
             max-height: 400px;
-            width: auto;
-            height: auto;
+            width: 350px;
+            height: 350px;
             border-radius: 4px;
             transition: transform 0.3s ease-in-out;
         }
@@ -219,32 +222,37 @@
             transform: scale(1.05);
         }
 
-        /* 商品信息样式 */
+        /* 商品信息部分两列布局 */
         .shop_product-info {
-            flex: 1 1 50%;
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 分成两列 */
+            align-items: center; /* 内容居中 */
+            column-gap: 20px; /* 列与列之间的间隔 */
+            text-align: left; /* 文本左对齐 */
+            max-width: 50%; /* 指定最大宽度，以保持与画廊部分的协调 */
         }
 
         .shop_product-info h1 {
+            grid-column: 1 / -1; /* product.p_name 占满最上面一行 */
+            text-align: center; /* 居中显示 */
             color: #fc1431;
             margin: 0 0 20px 0;
             text-transform: uppercase;
             letter-spacing: 1.9px;
         }
 
-        .shop_product-info p {
-            color: #34495e;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 10px;
+
+        /* 商品详情项样式优化 */
+        .shop_product-detail-item { /* 新增的类，用于商品信息的样式 */
+            background-color: #f8f8f8; /* 更浅的背景色，更好的阅读体验 */
+            margin-bottom: 5px; /* 增加间距 */
+            padding: 10px; /* 增加内边距 */
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 更柔和的阴影 */
         }
 
-        .shop_price {
-            color: #e74c3c;
-            font-size: 24px;
-            margin: 20px 0;
+        .shop_product-detail-item:hover {
+            background-color: #ecf5fd; /* 鼠标悬停背景色变化 */
         }
 
         /* 为元素之间添加悬浮动效 */
@@ -253,20 +261,23 @@
             transition: color 0.3s ease;
         }
 
-        /* 调整响应式设计 */
-        @media (max-width: 767px) {
-            .shop_product-details {
-                flex-direction: column;
-            }
+        .edit-product-btn {
+            display: inline-block; /* 使链接像块元素一样显示 */
+            padding: 10px 20px; /* 添加内边距 */
+            margin: 10px 0; /* 添加外边距 */
+            background-color: #3498db; /* 设置一个背景颜色 */
+            color: white; /* 文本颜色设置为白色 */
+            text-decoration: none; /* 去除下划线 */
+            border-radius: 5px; /* 轻微的按钮圆角 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 添加小阴影 */
+            transition: background-color 0.3s ease; /* 平滑背景颜色过渡 */
+            text-align: center; /* 文本居中 */
+        }
 
-            .shop_product-gallery,
-            .shop_product-info {
-                flex: 1 1 100%;
-            }
-
-            .shop_product-gallery {
-                margin-right: 0;
-            }
+        .edit-product-btn:hover {
+            background-color: #2377b4; /* 鼠标悬浮时背景颜色变深 */
+            color: white; /* 鼠标悬浮时文本颜色仍然是白色 */
+            text-decoration: none; /* 鼠标悬浮时去除下划线 */
         }
 
     </style>
@@ -356,26 +367,49 @@
     </div>
 </div>
 <main class="shop_product-details">
-
     <section class="shop_product-gallery">
         {% load static %}
-        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}" width="285px" height="285px"
+        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}"
              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
     </section>
     <section class="shop_product-info">
-        <h1>{{ product.p_name }}</h1>
-        <p>商品类别：{{ product.p_type.category_name }}</p>  <!-- 添加商品类别 -->
-        <p>商品品牌：{{ product.brand }}</p>  <!-- 添加商品品牌 -->
-        <p>商品描述：{{ shop_product.product_desc }}</p>
-        <p>商品状态：{{ shop_product.product_status }}</p>
-        <p>审核状态：{{ shop_product.product_auditstatus }}</p>
-        <p>商品库存：{{ shop_product.stock_quantity }}</p>
-        <p>原始价格：{{ shop_product.original_price }}</p>
-        <p>商品折扣：{{ shop_product.discount }}</p>
-        <p>现在价格：{{ shop_product.current_price }}</p>
-        <p>总销售数：{{ total_sales_count }}</p>
-        <p>7日销售数：{{ sales_last_7_days_count }}</p>
-        <p>今日销售数：{{ sales_today_count }}</p>
+        <!-- Product name centered and spanning full width -->
+        <h1 class="shop_product-detail-item" style="grid-column: 1 / -1;">{{ product.p_name }}</h1>
+        <!-- Product Category -->
+        <p class="shop_product-detail-item">商品类别：{{ product.p_type.category_name }}</p>
+        <!-- Product Brand -->
+        <p class="shop_product-detail-item">商品品牌：{{ product.brand }}</p>
+        <!-- Product Description -->
+        <p class="shop_product-detail-item">商品描述：{{ shop_product.product_desc }}</p>
+        <!-- Stock Quantity -->
+        <p class="shop_product-detail-item"
+           style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">
+            商品库存：{{ shop_product.stock_quantity }}</p>
+        <!-- Product Status -->
+        <p class="shop_product-detail-item"
+           style="color: {% if shop_product.product_status == '上架' %}green{% elif shop_product.product_status == '下架' %}red{% endif %}; font-weight: bold">
+            商品状态：{{ shop_product.product_status }}</p>
+        <!-- Audit Status -->
+        <p class="shop_product-detail-item"
+           style="color: {% if shop_product.product_auditstatus == '待审核' %}#fa9700{% elif shop_product.product_auditstatus == '审核通过' %}green{% elif shop_product.product_auditstatus == '审核不通过' %}red{% endif %}; font-weight: bold">
+            审核状态：{{ shop_product.product_auditstatus }}</p>
+
+        <!-- Original Price -->
+        <p class="shop_product-detail-item">原始价格：{{ shop_product.original_price }}</p>
+        <!-- Discount -->
+        <p class="shop_product-detail-item">商品折扣：{{ shop_product.discount }}</p>
+        <!-- Current Price -->
+        <p class="shop_product-detail-item">现在价格：{{ shop_product.current_price }}</p>
+        <!-- Total Sales -->
+        <p class="shop_product-detail-item">总销售数：{{ total_sales_count }}</p>
+        <!-- Sales in Last 7 Days -->
+        <p class="shop_product-detail-item">7日销售数：{{ sales_last_7_days_count }}</p>
+        <!-- Sales Today -->
+        <p class="shop_product-detail-item">今日销售数：{{ sales_today_count }}</p>
+        <p class="shop_product-detail-edit">
+            <a href="{% url 'edit_product' product_id=shop_product.product.p_id %}"
+               class="edit-product-btn">修改商品</a>
+        </p>
     </section>
 </main>
 </body>

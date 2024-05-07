@@ -37,7 +37,7 @@ def userpage(request):
 
 def get_goods_list(request):
     category_id = request.GET.get('category_id', 0)
-    products = ShopProducts.objects.filter(product__p_type__category_id=category_id).order_by('shop_product_id')
+    products = ShopProducts.objects.filter(product__p_type__category_id=category_id).filter(product_auditstatus__in=['审核通过']).order_by('shop_product_id')
     products2 = Products.objects.all()
     paginator = Paginator(products, 24)  # 假设每页显示多少个商品
 
@@ -252,7 +252,7 @@ def checkout(request):
 
             # 减少库存量
             ShopProducts.objects.filter(product_id__in=selected_product_ids).update(
-                stock_quantity=F('stock_quantity') - 1
+                stock_quantity=F('stock_quantity') - itemQuantities
             )
 
             # 创建新订单
@@ -542,6 +542,9 @@ def address_management(request):
     default_address = UserAddresses.objects.filter(user=user, is_default=True).first()
     other_addresses = UserAddresses.objects.filter(user=user, is_default=False)
 
+    if default_address is None:
+        #插入默认地址为"默认地址"
+        default_address = UserAddresses.objects.create(user=user, address='默认地址', is_default=True)
     if not default_address and other_addresses.count() == 1:
         only_address = other_addresses.first()
         only_address.is_default = True

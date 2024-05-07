@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 
 def home(request):
     request.session.clear()
-    products = ShopProducts.objects.all()
+    products = ShopProducts.objects.exclude(product_status='下架').filter(product_auditstatus__in=['审核通过'])
 
     # 遍历全部products商品
     for product in products:
@@ -44,10 +44,10 @@ def get_products(request):
     if category_id is not None and category_id != '0':
         types = ProductCategories.objects.filter(category_id=category_id).values_list('category_id', flat=True)
         ids = Products.objects.filter(p_type__in=types).values_list('p_id', flat=True)
-        shoppro = ShopProducts.objects.filter(product_id__in=ids)
+        shoppro = ShopProducts.objects.filter(product_id__in=ids).filter(product_auditstatus__in=['审核通过'])
     else:
         # 如果没有接收到 category_id 参数，或者 category_id 的值为 0，就获取所有商品
-        shoppro = ShopProducts.objects.all()
+        shoppro = ShopProducts.objects.exclude(product_status='下架').filter(product_auditstatus__in=['审核通过'])
     products2 = Products.objects.all()
 
     # 创建一个 Paginator 对象，每页显示 24 个商品

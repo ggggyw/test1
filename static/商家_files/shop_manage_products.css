@@ -242,14 +242,6 @@ table .btn-danger {
     opacity: 0.9;
 }
 
-.add-product-button {
-    text-align: center; /* 居中添加商品按钮 */
-    margin-bottom: 20px; /* 添加与下面内容的间隔 */
-}
 
-.add-product-button .btn {
-    font-size: 20px; /* 增大文字大小，更加引人注目 */
-    padding: 10px 20px; /* 增加按钮的填充，使它看起来更大 */
-}
 
 

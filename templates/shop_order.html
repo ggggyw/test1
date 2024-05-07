@@ -360,6 +360,18 @@
             height: auto; /* 高度自动 */
         }
 
+        .product-info-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .product-info-column {
+            display: flex;
+            flex-direction: column;
+            width: 48%; /* 调整为略小于50%以适应间隔 */
+        }
+
+
         .close {
             color: #0c0c0c; /* 关闭按钮颜色 */
             float: right; /* 右浮动 */
@@ -557,7 +569,7 @@
             display: none; /* 默认不显示，通过JavaScript控制显示 */
             animation: fadeInToRed 2s ease infinite; /* 添加淡入淡出的无限循环动画，每次动画持续3秒 */
             position: fixed; /* 使用固定定位，确保元素即使在页面滚动时也保持在预定位置 */
-            bottom: 6%; /* 相对于视口底部的位置，调整这个值可以控制元素距离底部的高度 */
+            bottom: 5%; /* 相对于视口底部的位置，调整这个值可以控制元素距离底部的高度 */
             left: 50%; /* 相对于视口左侧的位置，保证元素水平居中 */
             transform: translateX(-50%); /* 水平居中元素；由于是相对于左侧50%定位，需要左移元素宽度的50%来实现居中 */
             width: 100%; /* 元素宽度设置为100%，这样文本居中可以相对于整个视口宽度居中 */
@@ -579,7 +591,6 @@
             }
             to {
                 opacity: 1; /* 结束时完全不透明 */
-                background-color: #ffffff; /* 背景色变为红色 */
             }
         }
 
@@ -1069,21 +1080,24 @@
     <div class="Model-content">
         <span class="close" onclick="closeModel('productModel')">&times;</span>
         <h2>商品信息</h2>
-        <!-- 商品信息显示位置 -->
-        <div id="productInfo">
-            <p>商品名称: <span id="productModel_p_name"></span></p>
-            <p>商品类型: <span id="productModel_p_type"></span></p>
-            <p>商品品牌: <span id="productModel_brand"></span></p>
-            <p>商品描述: <span id="productModel_product_desc"></span></p>
-            <p>商品状态: <span id="productModel_product_status"></span></p>
-            <p>库存数量: <span id="productModel_stock_quantity"></span></p>
-            <p>原始价格: <span id="productModel_original_price"></span></p>
-            <p>商品折扣: <span id="productModel_discount"></span></p>
-            <p>当前价格: <span id="productModel_current_price"></span></p>
-            <p>商品图片:</p>
-            <img id="productModel_product_image" src="" alt="" width="200" height="200"
-            onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+        <div id="productInfo" class="product-info-container">
+            <div class="product-info-column">
+                <p>商品名称: <span id="productModel_p_name"></span></p>
+                <p>商品类型: <span id="productModel_p_type"></span></p>
+                <p>商品品牌: <span id="productModel_brand"></span></p>
+                <p>商品描述: <span id="productModel_product_desc"></span></p>
+            </div>
+            <div class="product-info-column">
+                <p>商品状态: <span id="productModel_product_status"></span></p>
+                <p>库存数量: <span id="productModel_stock_quantity"></span></p>
+                <p>原始价格: <span id="productModel_original_price"></span></p>
+                <p>商品折扣: <span id="productModel_discount"></span></p>
+                <p>当前价格: <span id="productModel_current_price"></span></p>
+            </div>
         </div>
+        <p>商品图片:</p>
+        <img id="productModel_product_image" src="" alt="" class="product-image"
+             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
     </div>
 </div>
 <!-- 模态框 - 收到脱货商品确认 -->
