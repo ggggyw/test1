@@ -311,6 +311,52 @@
         }
     });
     function followShop(shopId) {
+        {% if not u_id %}
+            event.preventDefault(); // 阻止表单提交
+
+            alertBar.id = 'alert-bar';
+            alertBar.style.position = 'fixed';
+            alertBar.style.top = '0';
+            alertBar.style.left = '0';
+            alertBar.style.right = '0';
+            alertBar.style.backgroundColor = alertBar.style.backgroundColor = 'red'; /* 将背景颜色改为红色 */
+            alertBar.style.color = 'white'; // 修改颜色为红色
+            alertBar.style.textAlign = 'center'; // 添加文字居中样式
+            alertBar.style.padding = '20px';
+            alertBar.style.zIndex = '9999';
+
+            alertMessage.id = 'alert-message';
+            alertMessage.textContent = '您尚未登录,即将跳转至登录界面,3...';
+
+            alertCancel.id = 'alert-cancel';
+            alertCancel.textContent = '取消';
+            alertCancel.style.padding = '8px 16px'; /* 增加按钮内边距 */
+            alertCancel.style.fontSize = '14px'; /* 增加字体大小 */
+            alertCancel.style.backgroundColor = 'white'; /* 设置背景颜色为白色 */
+            alertCancel.style.color = 'red'; /* 设置文字颜色为红色 */
+            alertCancel.style.border = 'none'; /* 移除边框 */
+            alertCancel.style.borderRadius = '4px'; /* 设置圆角边框 */
+            alertCancel.style.cursor = 'pointer'; /* 设置鼠标指针为手型 */
+
+            alertBar.appendChild(alertMessage);
+            alertBar.appendChild(alertCancel);
+            document.body.appendChild(alertBar);
+            var countdown = 2;
+            var intervalId = setInterval(function() {
+                if (countdown > 0) {
+                    alertMessage.textContent = '您尚未登录,即将跳转至登录界面,' + countdown + '...';
+                    countdown--;
+                } else {
+                    clearInterval(intervalId);
+                    window.location.href = '/user/login'; // 修改为您的登录页面 URL
+                }
+            }, 1000);
+
+            alertCancel.addEventListener('click', function() {
+                clearInterval(intervalId);
+                document.body.removeChild(alertBar);
+            });
+        {% endif %}
     fetch(`/follow-shop/${shopId}/`, {
         method: 'POST',
         headers: {
@@ -393,7 +439,7 @@ function unfollowShop(shopId) {
             {% elif u_id %}
             <button class="follow" onclick="followShop({{ shop.s_id }})">关注店铺</button>
             {% else %}
-            <a href="{% url 'login' %}"><button class="follow">关注店铺</button></a>
+            <button class="follow" onclick="followShop({{ shop.s_id }})">关注店铺</button>
             {% endif %}
         </div>
     </div>
