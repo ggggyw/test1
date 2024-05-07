@@ -201,7 +201,7 @@
         var decreaseButton = document.getElementById('decrease');
         var increaseButton = document.getElementById('increase');
         var quantityInput = document.getElementById('quantity');
-
+        var stockQuantity = {{ product.stock_quantity }};
         decreaseButton.addEventListener('click', function() {
             var currentQuantity = parseInt(quantityInput.value, 10);
             if (currentQuantity > 1) {
@@ -224,7 +224,14 @@
     {% if u_id %}
         var form = document.getElementById('add-to-cart-form');
         var formData = new FormData(form);
-
+        var stockQuantity = {{ product.stock_quantity }};
+        var quantityInput = document.getElementById('quantity');
+        var selectedQuantity=parseInt(quantityInput.value, 10);
+        if (selectedQuantity > stockQuantity) {
+        // 显示弹窗提示用户
+        alert('选定的数量超过了库存量，请减少购买数量。');
+        return; // 停止执行函数的其余部分
+    }
         fetch('/add-to-cart/', {
             method: 'POST',
             body: formData,
