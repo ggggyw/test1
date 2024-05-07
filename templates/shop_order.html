@@ -357,7 +357,9 @@
             margin-left: auto; /* 左自动外边距 */
             margin-right: auto; /* 右自动外边距 */
             max-width: 100%; /* 最大宽度为容器宽度 */
-            height: auto; /* 高度自动 */
+            height: 250px;
+            width: 250px;
+            border-radius: 5px; /* 增加圆角效果 */
         }
 
         .product-info-container {
@@ -370,7 +372,6 @@
             flex-direction: column;
             width: 48%; /* 调整为略小于50%以适应间隔 */
         }
-
 
         .close {
             color: #0c0c0c; /* 关闭按钮颜色 */
@@ -1258,10 +1259,18 @@
                 document.getElementById('productModel_original_price').textContent = product.original_price;
                 document.getElementById('productModel_discount').textContent = product.discount;
                 // 设置商品图片
+                // 先尝试设置商品图片，如果没有或加载失败，将使用默认图片
                 var productImage = document.getElementById('productModel_product_image');
-                var imageUrl = product.product_image_url ? '{% static "商品图片/" %}' + product.product_image_url : '{% static "商家_files/noimage.png" %}';
-                productImage.src = imageUrl;
-                productImage.alt = '没有商品图片' || '没有商品图片'; // 使用商品名称作为图片的alt文本，如果没有名称则使用'商品图片'
+                if (product.product_image_url) {
+                    productImage.src = '{% static "商品图片/" %}' + product.product_image_url; // 尝试设置图片路径
+                    productImage.onerror = function () { // 图片加载失败时触发
+                        this.src = '{% static "商家_files/noimage.png" %}'; // 设置默认图片
+                        this.onerror = null; // 避免无限循环
+                    };
+                } else {
+                    productImage.src = '{% static "商家_files/noimage.png" %}'; // 直接设置为默认图片
+                }
+                productImage.alt = product.p_name || '没有商品图片'; // 设置替代文本
 
                 // 显示模态框
                 document.getElementById('productModel').style.display = 'block';

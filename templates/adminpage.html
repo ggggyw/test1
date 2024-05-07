@@ -301,7 +301,9 @@
     <a href="#" onclick="switchTable('shopTable');changeTitle('商家管理')">商家管理</a>
     <a href="#" onclick="switchTable('productTable');changeTitle('商品管理')">商品管理</a>
     <a href="#" onclick="switchTable('orderTable');changeTitle('订单管理')">订单管理</a>
+    {% if is_super %}
     <a href="#" onclick="switchTable('adminTable');changeTitle('管理员管理')">管理员管理</a>
+    {% endif %}
     <a href="#" onclick="openAdminEditModal();">个人设置</a>
     <a href="http://127.0.0.1:8000/" class="logout-btn">退出登录</a>
 </div>
@@ -340,6 +342,11 @@
 <div class="add-shop-container" id="addShopContainer" style="display: none;">
   <button onclick="openModal('addShopModal')" class="add-shop-btn">新增商家</button>
 </div>
+
+<div class="add-admin-container" id="abcd">
+  <button onclick="openModal('addAdminModal')" class="add-admin-btn">新增管理员</button>
+</div>
+
     <div class="table-container">
       <!-- 用户信息表格 -->
       <table id="userTable">
@@ -868,6 +875,28 @@
     </form>
   </div>
 </div>
+
+<!-- 新增管理员的模态框，以下只是一个简单示例 -->
+
+<div id="addAdminModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('addAdminModal')">&times;</span>
+    <h2>新增管理员</h2>
+    <form id="add-admin-form">
+        <label for="admin_acc">用户名:</label>
+        <input type="text" id="admin_acc" name="admin_acc" required>
+
+        <label for="admin_psw">密码:</label>
+        <input type="password" id="admin_psw" name="admin_psw" required>
+
+        <!-- 如果还需要更多字段，继续添加 -->
+
+        <button type="submit">提交</button>
+    </form>
+  </div>
+</div>
+
+
   <script>
 window.onload = function() {
     var params = new URLSearchParams(window.location.search);
@@ -1120,6 +1149,8 @@ function switchTable(tableId) {
     // 隐藏新增按钮容器
     document.getElementById('addUserContainer').style.display = 'none';
     document.getElementById('addShopContainer').style.display = 'none';
+    document.getElementById('abcd').style.display = 'none';
+
 
     // 显示对应的表格
     var table = document.getElementById(tableId);
@@ -1142,16 +1173,17 @@ function switchTable(tableId) {
     if (tableId !== 'adminTable'){
     // 显示对应的搜索框
     var searchBoxId = tableId.replace('Table', 'SearchBox');
-    document.getElementById(searchBoxId).style.display = 'block';
-
+    document.getElementById(searchBoxId).style.display = 'block';}
     // 显示对应的新增按钮容器
     if (tableId === 'userTable') {
         document.getElementById('addUserContainer').style.display = 'block';
     } else if (tableId === 'shopTable') {
         document.getElementById('addShopContainer').style.display = 'block';
+    }else if (tableId === 'adminTable') {
+        document.getElementById('abcd').style.display = 'block';
     }
 
-}
+
     updateSearchFunction(tableId);
     // 隐藏所有的分页器
     var paginations = document.getElementsByClassName('pagination');
@@ -1903,6 +1935,44 @@ $(document).ready(function() {
                 }
             });
         }
+    });
+});
+
+document.getElementById("add-admin-form").addEventListener("submit", function(e) {
+    e.preventDefault(); // 阻止表单的默认提交行为
+
+    var formData = {
+        admin_acc: document.getElementById("admin_acc").value,
+        admin_psw: document.getElementById("admin_psw").value
+    };
+
+    fetch('/create_admin/', { // 注意更换为你的保存管理员信息的后端 API 路径
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // 确保使用了正确的 CSRF token
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // 在控制台打印响应数据
+        if (data.success) {
+            alert('管理员创建成功'); // 根据响应显示成功消息
+            closeModal('addAdminModal'); // 关闭模态框
+            // 可能还需要重新加载或更新管理员列表
+        } else {
+            alert('管理员创建失败: ' + data.msg); // 或显示错误消息
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error); // 在控制台打印错误信息
+        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
     });
 });
 

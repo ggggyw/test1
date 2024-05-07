@@ -421,7 +421,7 @@ def manage_products(request):
     else:
         # 如果没有接收到 category_id 参数，就获取这个u_id商家的全部商品
         shop_products = ShopProducts.objects.filter(shop__s_id=s_id)
-    paginator = Paginator(shop_products, 3)  # 假设每页显示多少个商品
+    paginator = Paginator(shop_products, 6)  # 假设每页显示多少个商品
     products = Products.objects.all()
     page = request.GET.get('page')  # 从GET请求的查询参数中获取页码
     paged_products = paginator.get_page(page)  # 获取当前页的商品对象列表
@@ -533,7 +533,7 @@ def shop_search_manage_products(request):
     if not queryset.exists():
         messages.info(request, '此搜索条件下没有找到商品！')
 
-    paginator = Paginator(queryset, 2)  # 调整页数到10，或其他适合你应用的数字
+    paginator = Paginator(queryset, 6)  # 调整页数到10，或其他适合你应用的数字
     page = request.GET.get('page')
     shop_products = paginator.get_page(page)
 
