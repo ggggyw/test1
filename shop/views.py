@@ -617,6 +617,11 @@ def edit_product(request, product_id):
             status_changed_to_off_sale = (
                     'product_status' in shop_product_form.changed_data and shop_product_form.cleaned_data[
                 'product_status'] == '下架')
+            # 检查商品状态是否从“下架”变为“上架”
+            status_changed_to_up_sale = (
+                    'product_status' in shop_product_form.changed_data and
+                    shop_product_form.cleaned_data['product_status'] == '上架'
+            )
             # 当前审核状态是否为“审核通过”
             current_audit_status_is_approved = (shop_product.product_auditstatus == '审核通过')
 
@@ -636,8 +641,12 @@ def edit_product(request, product_id):
 
                 shop_product.current_price = shop_product_form.cleaned_data['current_price']
 
-                # 如果不是从“上架”变为“下架”且当前审核状态为“审核通过”的特殊情况
-                if not (status_changed_to_off_sale and current_audit_status_is_approved):
+                if current_audit_status_is_approved and status_changed_to_up_sale:
+                    # 你可能需要在这里执行其他逻辑，但不需要改变审核状态和商品状态
+                    pass
+                    # 如果商品状态从“上架”变为“下架”，或者当前审核状态不是“审核通过”
+                elif not (
+                        status_changed_to_off_sale and current_audit_status_is_approved):
                     shop_product.product_auditstatus = '待审核'
                     shop_product.product_status = '下架'
 
