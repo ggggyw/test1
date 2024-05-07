@@ -565,7 +565,7 @@ def search_products(request):
 
     if keyword:
         products = ShopProducts.objects.filter(
-            product_desc__icontains=keyword,
+            product_auditstatus__icontains=keyword,
             product_status=ShopProducts.ProductStatus.ON_SALE
         ).values(
             'shop_product_id', 'shop_id', 'product_desc', 'product_status',
@@ -583,7 +583,7 @@ def search_orders(request):
 
     if keyword:
         orders = Orders.objects.filter(
-            o_id__icontains=keyword  # 可以根据订单 ID 或其他相关字段进行搜索
+            status__icontains=keyword
         ).values(
             'o_id', 'user_id', 'status', 'o_time', 'paid_time',
             'total_price', 'order_address'
