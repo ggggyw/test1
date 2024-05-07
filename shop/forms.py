@@ -88,8 +88,8 @@ class ShopProductForm(forms.ModelForm):
         discount = self.cleaned_data.get('discount')
 
         # 检查折扣是否在0到1的范围内，但不能等于1
-        if discount is not None and (discount <= 0 or discount > 1):
-            raise ValidationError('折扣必须在0到1的范围内，不能等于0')
+        if discount is not None and (discount < 0 or discount >= 1):
+            raise ValidationError('折扣必须在0到1的范围内，不能等于1')
 
         return discount
 
