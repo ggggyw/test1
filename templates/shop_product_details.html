@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     {% load static %}
     <title>shop_product_details</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         /* --------------------------------------页面整体字体和背景 ------------------------------*/
         body {
@@ -192,9 +193,17 @@
             border-radius: 10px;
             overflow: hidden;
             display: flex;
-            flex-direction: row; /* 保持为行布局 */
+            flex-direction: column;
+            align-items: center;
             justify-content: flex-start; /* 子元素靠左对齐 */
-            align-items: center; /* 垂直居中 */
+        }
+
+        .product-details-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
         }
 
         /* 商品画廊样式 */
@@ -204,6 +213,10 @@
             padding: 1px;
             /* 可以考虑给gallery一定的最大宽度，以保持与信息部分的协调 */
             max-width: 50%;
+        }
+
+        .shop_product-gallery, .shop_product-info {
+            margin: auto;
         }
 
         /* 商品图片样式调整 */
@@ -229,7 +242,7 @@
             align-items: center; /* 内容居中 */
             column-gap: 20px; /* 列与列之间的间隔 */
             text-align: left; /* 文本左对齐 */
-            max-width: 50%; /* 指定最大宽度，以保持与画廊部分的协调 */
+            max-width: 100%; /* 指定最大宽度，以保持与画廊部分的协调 */
         }
 
         .shop_product-info h1 {
@@ -367,51 +380,101 @@
     </div>
 </div>
 <main class="shop_product-details">
-    <section class="shop_product-gallery">
-        {% load static %}
-        <img src="{% static '商品图片/'|add:shop_product.product_image_url %}"
-             onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
-    </section>
-    <section class="shop_product-info">
-        <!-- Product name centered and spanning full width -->
-        <h1 class="shop_product-detail-item" style="grid-column: 1 / -1;">{{ product.p_name }}</h1>
-        <!-- Product Category -->
-        <p class="shop_product-detail-item">商品类别：{{ product.p_type.category_name }}</p>
-        <!-- Product Brand -->
-        <p class="shop_product-detail-item">商品品牌：{{ product.brand }}</p>
-        <!-- Product Description -->
-        <p class="shop_product-detail-item">商品描述：{{ shop_product.product_desc }}</p>
-        <!-- Stock Quantity -->
-        <p class="shop_product-detail-item"
-           style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">
-            商品库存：{{ shop_product.stock_quantity }}</p>
-        <!-- Product Status -->
-        <p class="shop_product-detail-item"
-           style="color: {% if shop_product.product_status == '上架' %}green{% elif shop_product.product_status == '下架' %}red{% endif %}; font-weight: bold">
-            商品状态：{{ shop_product.product_status }}</p>
-        <!-- Audit Status -->
-        <p class="shop_product-detail-item"
-           style="color: {% if shop_product.product_auditstatus == '待审核' %}#fa9700{% elif shop_product.product_auditstatus == '审核通过' %}green{% elif shop_product.product_auditstatus == '审核不通过' %}red{% endif %}; font-weight: bold">
-            审核状态：{{ shop_product.product_auditstatus }}</p>
+    <div class="product-details-container">
+        <section class="shop_product-gallery">
+            {% load static %}
+            <img src="{% static '商品图片/'|add:shop_product.product_image_url %}"
+                 onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
+        </section>
+        <section class="shop_product-info">
+            <!-- Product name centered and spanning full width -->
+            <h1 class="shop_product-detail-item" style="grid-column: 1 / -1;">{{ product.p_name }}</h1>
+            <!-- Product Category -->
+            <p class="shop_product-detail-item">商品类别：{{ product.p_type.category_name }}</p>
+            <!-- Product Brand -->
+            <p class="shop_product-detail-item">商品品牌：{{ product.brand }}</p>
+            <!-- Product Description -->
+            <p class="shop_product-detail-item">商品描述：{{ shop_product.product_desc }}</p>
+            <!-- Stock Quantity -->
+            <p class="shop_product-detail-item"
+               style="color: {% if shop_product.stock_quantity < 20 %}red{% else %}black{% endif %};">
+                商品库存：{{ shop_product.stock_quantity }}</p>
+            <!-- Product Status -->
+            <p class="shop_product-detail-item"
+               style="color: {% if shop_product.product_status == '上架' %}green{% elif shop_product.product_status == '下架' %}red{% endif %}; font-weight: bold">
+                商品状态：{{ shop_product.product_status }}</p>
+            <!-- Audit Status -->
+            <p class="shop_product-detail-item"
+               style="color: {% if shop_product.product_auditstatus == '待审核' %}#fa9700{% elif shop_product.product_auditstatus == '审核通过' %}green{% elif shop_product.product_auditstatus == '审核不通过' %}red{% endif %}; font-weight: bold">
+                审核状态：{{ shop_product.product_auditstatus }}</p>
 
-        <!-- Original Price -->
-        <p class="shop_product-detail-item">原始价格：{{ shop_product.original_price }}</p>
-        <!-- Discount -->
-        <p class="shop_product-detail-item">商品折扣：{{ shop_product.discount }}</p>
-        <!-- Current Price -->
-        <p class="shop_product-detail-item">现在价格：{{ shop_product.current_price }}</p>
-        <!-- Total Sales -->
-        <p class="shop_product-detail-item">总销售数：{{ total_sales_count }}</p>
-        <!-- Sales in Last 7 Days -->
-        <p class="shop_product-detail-item">7日销售数：{{ sales_last_7_days_count }}</p>
-        <!-- Sales Today -->
-        <p class="shop_product-detail-item">今日销售数：{{ sales_today_count }}</p>
-        <p class="shop_product-detail-edit">
-            <a href="{% url 'edit_product' product_id=shop_product.shop_product_id %}"
-               class="edit-product-btn">修改商品</a>
-        </p>
-    </section>
+            <!-- Original Price -->
+            <p class="shop_product-detail-item">原始价格：{{ shop_product.original_price }}</p>
+            <!-- Discount -->
+            <p class="shop_product-detail-item">商品折扣：{{ shop_product.discount }}</p>
+            <!-- Current Price -->
+            <p class="shop_product-detail-item">现在价格：{{ shop_product.current_price }}</p>
+            <!-- Total Sales -->
+            <p class="shop_product-detail-item">总销售数：{{ total_sales_count }}</p>
+            <!-- Sales in Last 7 Days -->
+            <p class="shop_product-detail-item">7日销售数：{{ sales_last_7_days_count }}</p>
+            <!-- Sales Today -->
+            <p class="shop_product-detail-item">今日销售数：{{ sales_today_count }}</p>
+            <p class="shop_product-detail-edit">
+                <a href="{% url 'edit_product' product_id=shop_product.shop_product_id %}"
+                   class="edit-product-btn">修改商品</a>
+            </p>
+        </section>
+    </div>
+    <div class="shop_product-graph">
+        <section class="shop_product-sales-chart">
+            <canvas id="salesChart" width="1000" height="400"></canvas>
+        </section>
+    </div>
 </main>
+
+
+<script>
+    var ctx = document.getElementById('salesChart').getContext('2d');
+    var salesChart = new Chart(ctx, {
+        type: 'bar', // 定义图表类型为直方图
+        data: {
+            labels: ['6天前', '5天前', '4天前', '3天前', '前天', '昨天', '今天'], // X轴标签
+            datasets: [{
+                label: '销售数量', // 数据集标签
+                data: [{{ daily_sales_for_last_7_days.6.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.5.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.4.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.3.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.2.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.1.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.0.daily_sales|default_if_none:"0" }}], // X轴对应的每天销售数
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)',
+                    'rgba(255, 99, 132, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
