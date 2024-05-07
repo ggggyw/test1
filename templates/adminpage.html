@@ -1935,6 +1935,44 @@ $(document).ready(function() {
     });
 });
 
+document.getElementById("add-admin-form").addEventListener("submit", function(e) {
+    e.preventDefault(); // 阻止表单的默认提交行为
+
+    var formData = {
+        admin_acc: document.getElementById("admin_acc").value,
+        admin_psw: document.getElementById("admin_psw").value
+    };
+
+    fetch('/create_admin/', { // 注意更换为你的保存管理员信息的后端 API 路径
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content') // 确保使用了正确的 CSRF token
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // 在控制台打印响应数据
+        if (data.success) {
+            alert('管理员创建成功'); // 根据响应显示成功消息
+            closeModal('addAdminModal'); // 关闭模态框
+            // 可能还需要重新加载或更新管理员列表
+        } else {
+            alert('管理员创建失败: ' + data.msg); // 或显示错误消息
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error); // 在控制台打印错误信息
+        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
+    });
+});
+
   </script>
 </body>
 </html>

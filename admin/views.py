@@ -57,6 +57,31 @@ def adminpage(request):
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
+def create_admin(request):
+    # 从请求体获取数据
+    try:
+        data = json.loads(request.body)
+        ad_acc = data.get('admin_acc')
+        ad_psw = data.get('admin_psw')
+        is_super = 0  # 默认值为 False
+
+        # 输入验证（作为示例）
+        if not ad_acc or not ad_psw:
+            return JsonResponse({'success': False, 'msg': '用户名和密码为必填项'})
+
+        # 检查用户名是否已存在
+        if Admin.objects.filter(ad_acc=ad_acc).exists():
+            return JsonResponse({'success': False, 'msg': '该用户名已存在'})
+
+        # 创建管理员
+        Admin.objects.create(ad_acc=ad_acc, ad_psw=ad_psw, is_super=is_super)
+
+        return JsonResponse({'success': True, 'msg': '管理员创建成功'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'msg': f'发生错误: {str(e)}'})
+
+@csrf_exempt
 def get_admin_info(request):
     if request.method == 'POST':
         ad_id = request.POST.get('ad_id')
