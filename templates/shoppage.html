@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static '商家_files/shop_my_products.css' %}">
     <script src="{% static '首页_files/jquery.min.js.下载' %}"></script>
     <script src="{% static '首页_files/carts.js.下载' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
 
     <style>
         /* --------------------------------------页面整体字体和背景 ------------------------------*/
@@ -353,7 +355,7 @@
         .shop_goods-info {
             display: flex;
             align-items: flex-start;
-            justify-content:flex-end;
+            justify-content: flex-end;
             width: 100%; /* 宽度设置为100% */
         }
 
@@ -627,6 +629,29 @@
         .waveAnimation .waveBottom {
             animation: move_wave 15s linear infinite;
         }
+
+
+        .shop_product_graph {
+            background: #ffffff; /* 背景颜色 */
+            padding: 20px;
+            margin: 1px auto;
+            max-width: 1300px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            border-radius: 8px; /* 边角圆滑处理 */
+            display: flex; /* 使用Flex布局 */
+            justify-content: space-around; /* 分散排列 */
+        }
+
+        .graph {
+            flex: 1; /* 每个.graph子元素都有相同的flex-grow值 */
+            margin: 0 10px; /* 可以根据需要在图表之间添加空间 */
+        }
+
+        canvas {
+            width: 100%; /* 让canvas元素充满父容器 */
+            max-width: 400px; /* 根据需要设置canvas的最大宽度 */
+            height: auto; /* 高度自适应 */
+        }
     </style>
 </head>
 <body>
@@ -890,11 +915,22 @@
 
     </div>
 </div>
-
+<div class="shop_product_graph">
+    <div class="graph">
+        <canvas id="dailyOrdersChart"></canvas>
+    </div>
+    <div class="graph">
+        <canvas id="dailySalesChart"></canvas>
+    </div>
+    <div class="graph">
+        <canvas id="dailyRevenueChart"></canvas>
+    </div>
+</div>
 
 <div id="shop_pagination" style="text-align: center; font-size: 16px; overflow: hidden; margin-top: 10px;">
     <span style="margin-top: 10px;">商品总数: {{ shop_products.paginator.count }}</span>
 </div>
+
 <div class="waveWrapper waveAnimation">
     <div class="waveWrapperInner bgTop">
         <div class="wave waveTop"
@@ -909,6 +945,7 @@
              style="background-image: url('http://front-end-noobs.com/jecko/img/wave-bot.png')"></div>
     </div>
 </div>
+
 
 <script>
     $(document).ready(function () {
@@ -980,6 +1017,82 @@
         // 触发表单提交
         document.getElementById('search-form').submit();
     }
+
+    // 当文档加载完成时，渲染图表
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx1 = document.getElementById('dailyOrdersChart').getContext('2d');
+        createBarChart(ctx1, dailyOrdersData, '每日订单数量');
+
+        var ctx2 = document.getElementById('dailySalesChart').getContext('2d');
+        createBarChart(ctx2, dailySalesData, '每日销售数量');
+
+        var ctx3 = document.getElementById('dailyRevenueChart').getContext('2d');
+        createBarChart(ctx3, dailyRevenueData, '每日收入');
+    });
+    // 图表数据
+    var dailyOrdersData = {{ daily_orders_list | safe }};
+    var dailySalesData = {{ daily_sales_list | safe }};
+    var dailyRevenueData = {{ daily_revenue_list | safe }};
+
+    // 创建柱状图的函数
+    function createBarChart(ctx, dataSet, label) {
+        var labels = dataSet.map(item => item[0]); // 获取日期数组
+        var data = dataSet.map(item => item[1]); // 获取数量数组
+
+        return new Chart(ctx, {
+            type: 'bar', // 指定图表类型为柱状图
+            data: {
+                labels: labels,  // X轴数据
+                datasets: [{
+                    label: label,
+                    data: data,  // Y轴数据
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)',
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                plugins: {
+                    datalabels: {
+                        color: '#000000',
+                        align: 'end',
+                        anchor: 'end',
+                        formatter: function (value, context) {
+                            return value;
+                        }
+                    }
+                }
+            },
+            plugins: [
+                ChartDataLabels
+            ]
+        });
+    }
+
+
 </script>
 
 </body>
