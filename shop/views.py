@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, ExpressionWrapper, DecimalField
 from django.db.models.functions import TruncDay, TruncDate
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -251,16 +251,29 @@ def shoppage(request):
     daily_revenue = OrderDetails.objects.filter(
         shop__s_id=s_id,
         order__o_time__date__gte=seven_days_ago,
-        order__status__in=order_statuses_for_revenue  # 过滤条件
+        order__status__in=order_statuses_for_revenue
     ).annotate(
         date=TruncDate('order__o_time')
-    ).values('date').annotate(total_income=Sum('order__total_price')).values('date', 'total_income').order_by('date')
+    ).values('date').annotate(
+        total_income=ExpressionWrapper(
+            Sum('order__total_price'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+    ).values('date', 'total_income').order_by('date')
 
-    # 转换查询结果为列表，用于前端图表展示
-    daily_orders_list = [[sale['date'].strftime("%Y-%m-%d"), sale['count']] for sale in daily_orders_count]
-    daily_sales_list = [[sale['date'].strftime("%Y-%m-%d"), sale['quantity_sum']] for sale in
-                        daily_sales_products_count]
-    daily_revenue_list = [[sale['date'].strftime("%Y-%m-%d"), sale['total_income']] for sale in daily_revenue]
+    # 创建一个包含最近七天的日期列表
+    seven_days_dates = [(timezone.now().date() - timedelta(days=i)).strftime("%m-%d") for i in range(6, -1, -1)]
+
+    # 创建一个字典，将日期作为键，对应的数据作为值
+    daily_orders_dict = {sale['date'].strftime("%m-%d"): sale['count'] for sale in daily_orders_count}
+    daily_sales_dict = {sale['date'].strftime("%m-%d"): sale['quantity_sum'] for sale in daily_sales_products_count}
+    daily_revenue_dict = {sale['date'].strftime("%m-%d"): "{:.2f}".format(sale['total_income']) for sale in
+                          daily_revenue}
+
+    # 根据日期列表创建新列表，如果某一天没有数据，值即为0
+    daily_orders_list = [[date, daily_orders_dict.get(date, 0)] for date in seven_days_dates]
+    daily_sales_list = [[date, daily_sales_dict.get(date, 0)] for date in seven_days_dates]
+    daily_revenue_list = [[date, daily_revenue_dict.get(date, '0.00')] for date in seven_days_dates]
 
     print(daily_orders_list)
     print(daily_sales_list)
@@ -286,6 +299,7 @@ def shoppage(request):
         'daily_orders_list': daily_orders_list,
         'daily_sales_list': daily_sales_list,
         'daily_revenue_list': daily_revenue_list,
+        'daily_orders_count': daily_orders_count,
     }
 
     return render(request, 'shoppage.html', context)
