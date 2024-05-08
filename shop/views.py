@@ -275,9 +275,6 @@ def shoppage(request):
     daily_sales_list = [[date, daily_sales_dict.get(date, 0)] for date in seven_days_dates]
     daily_revenue_list = [[date, daily_revenue_dict.get(date, '0.00')] for date in seven_days_dates]
 
-    print(daily_orders_list)
-    print(daily_sales_list)
-    print(daily_revenue_list)
     # 拼接上下文信息
     context = {
         'shop_products': page_obj,
