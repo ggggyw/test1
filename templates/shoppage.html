@@ -837,14 +837,16 @@
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ top_selling_product_info.product.p_name }}</p>
                         <div class="shop_goods-info">
-                            {% if top_selling_product_info.discount %}
+                            {% if top_selling_product_info.discount and top_selling_product_info.discount != 0 %}
                                 <p class="shop_discount-badge">
                                     -{{ top_selling_product_info.discount|floatformat:0 }}%
                                 </p>
                             {% endif %}
                             <div class="shop_goods-pricing">
-                                <p class="shop_product_original_price">
-                                    ￥{{ top_selling_product_info.original_price }}</p>
+                                {% if top_selling_product_info.discount and top_selling_product_info.discount != 0 %}
+                                    <p class="shop_product_original_price">
+                                        ￥{{ top_selling_product_info.original_price }}</p>
+                                {% endif %}
                                 <p class="shop_product_current_price">￥{{ top_selling_product_info.current_price }}</p>
                             </div>
                         </div>
@@ -863,18 +865,17 @@
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ weekly_top_selling_product_info.product.p_name }}</p>
                         <div class="shop_goods-info">
-                            {% if weekly_top_selling_product_info.discount %}
+                            {% if weekly_top_selling_product_info.discount and weekly_top_selling_product_info.discount != 0 %}
                                 <p class="shop_discount-badge">
                                     -{{ weekly_top_selling_product_info.discount|floatformat:0 }}%
                                 </p>
                             {% endif %}
                             <div class="shop_goods-pricing">
-                                <p class="shop_product_original_price">
-                                    ￥{{ weekly_top_selling_product_info.original_price }}
-                                </p>
-                                <p class="shop_product_current_price">
-                                    ￥{{ weekly_top_selling_product_info.current_price }}
-                                </p>
+                                {% if weekly_top_selling_product_info.discount and weekly_top_selling_product_info.discount != 0 %}
+                                    <p class="shop_product_original_price">
+                                        ￥{{ weekly_top_selling_product_info.original_price }}</p>
+                                {% endif %}
+                                <p class="shop_product_current_price">￥{{ weekly_top_selling_product_info.current_price }}</p>
                             </div>
                         </div>
                     </a>
@@ -892,18 +893,17 @@
                              onerror="this.onerror=null;this.src='{% static '商家_files/noimage.png' %}';">
                         <p class="shop_product_name">{{ today_top_selling_product_info.product.p_name }}</p>
                         <div class="shop_goods-info">
-                            {% if today_top_selling_product_info.discount %}
+                            {% if today_top_selling_product_info.discount and today_top_selling_product_info.discount != 0 %}
                                 <p class="shop_discount-badge">
                                     -{{ today_top_selling_product_info.discount|floatformat:0 }}%
                                 </p>
                             {% endif %}
                             <div class="shop_goods-pricing">
-                                <p class="shop_product_original_price">
-                                    ￥{{ today_top_selling_product_info.original_price }}
-                                </p>
-                                <p class="shop_product_current_price">
-                                    ￥{{ today_top_selling_product_info.current_price }}
-                                </p>
+                                {% if today_top_selling_product_info.discount and today_top_selling_product_info.discount != 0 %}
+                                    <p class="shop_product_original_price">
+                                        ￥{{ today_top_selling_product_info.original_price }}</p>
+                                {% endif %}
+                                <p class="shop_product_current_price">￥{{ today_top_selling_product_info.current_price }}</p>
                             </div>
                         </div>
                     </a>
