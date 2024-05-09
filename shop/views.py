@@ -430,7 +430,7 @@ def shop_productdetails(request, p_id):
 
     # 定义时间范围：今天和7天前
     today = timezone.now().date()
-    date_7_days_ago = today - timedelta(days=7)
+    date_7_days_ago = timezone.now().date() - timedelta(days=6)
 
     # 获取相关订单详情信息，并进行汇总求和
     aggregates = OrderDetails.objects.filter(
@@ -459,13 +459,13 @@ def shop_productdetails(request, p_id):
         'date'  # 指定我们需要返回的分组字段
     ).annotate(
         daily_sales=Sum('quantity')  # 计算每天的销售总量
-    ).order_by('-date')  # 按日期
+    ).order_by('date')  # 按日期
 
     # 创建一个包含最近七天的日期列表
-    seven_days_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+    seven_days_dates = [(timezone.now().date() - timedelta(days=i)).strftime("%m-%d") for i in range(6, -1, -1)]
 
     # 将查询集结果转换为字典，日期作为键，每日销售总量作为值，注意日期格式需要与上面的列表一致
-    daily_sales_dict = {sales['date'].strftime("%Y-%m-%d"): sales['daily_sales'] for sales in
+    daily_sales_dict = {sales['date'].strftime("%m-%d"): sales['daily_sales'] for sales in
                         daily_sales_for_last_7_days}
 
     # 根据seven_days_dates创建最终的数据列表，缺失的值填充为0
