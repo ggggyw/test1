@@ -461,6 +461,15 @@ def shop_productdetails(request, p_id):
         daily_sales=Sum('quantity')  # 计算每天的销售总量
     ).order_by('-date')  # 按日期
 
+    # 创建一个包含最近七天的日期列表
+    seven_days_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(7)]
+
+    # 将查询集结果转换为字典，日期作为键，每日销售总量作为值，注意日期格式需要与上面的列表一致
+    daily_sales_dict = {sales['date'].strftime("%Y-%m-%d"): sales['daily_sales'] for sales in
+                        daily_sales_for_last_7_days}
+
+    # 根据seven_days_dates创建最终的数据列表，缺失的值填充为0
+    daily_sales_list = [[date, daily_sales_dict.get(date, 0)] for date in seven_days_dates]
     # 准备上下文数据
     context = {
         'shop_product': shop_product,
@@ -472,7 +481,7 @@ def shop_productdetails(request, p_id):
         'total_sales_count': total_sales_count,
         'sales_last_7_days_count': sales_last_7_days_count,
         'sales_today_count': sales_today_count,
-        'daily_sales_for_last_7_days': daily_sales_for_last_7_days
+        'daily_sales_list': daily_sales_list,
     }
 
     # 呈现带有上下文数据的页面
