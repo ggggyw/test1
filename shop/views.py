@@ -920,7 +920,7 @@ def shop_search_orders(request):
     # 只展示当前商家(s_id)的订单
     if s_id:
         query_conditions &= Q(orderdetails__shop__s_id=s_id)
-        # 假设 'status' 是定义在 Orders 模型中的状态字段
+        # 'status' 是定义在 Orders 模型中的状态字段
         order_status_counts = Orders.objects.filter(orderdetails__shop__s_id=s_id).values('status').annotate(
             count=Count('status'))
     else:
