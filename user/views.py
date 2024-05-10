@@ -239,6 +239,10 @@ def checkout(request):
         itemPrices = request_data.get('itemPrices')
         totalPrice = request_data.get('totalPrice')
         itemQuantities = request_data.get('itemQuantities')
+        shop_id = request_data.get('shop_id')
+        # print(shop_id)
+        # print(itemQuantities)
+        # print(itemPrices)
 
         try:
             # 检查地址是否存在，如果不存在，则创建新地址
@@ -250,10 +254,6 @@ def checkout(request):
             # 从购物车表中删除选中的商品
             Carts.objects.filter(product_id__in=selected_product_ids, user_id=u_id).delete()
 
-            # 减少库存量
-            ShopProducts.objects.filter(product_id__in=selected_product_ids).update(
-                stock_quantity=F('stock_quantity') - itemQuantities
-            )
 
             # 创建新订单
             new_order = Orders.objects.create(
@@ -264,12 +264,15 @@ def checkout(request):
 
             # 在订单详情表中添加选中的商品详情
             for i, product_id in enumerate(selected_product_ids):
+                ShopProducts.objects.filter(shop_product_id=product_id).update(
+                    stock_quantity=F('stock_quantity') - itemQuantities[i]
+                )
                 OrderDetails.objects.create(
                     quantity=itemQuantities[i],
                     current_single_price=itemPrices[i],
                     order_id=new_order.o_id,
                     product_id=product_id,
-                    shop_id=1  # 假设shop_id是已知的
+                    shop_id=shop_id[i]
                 )
 
             return JsonResponse({'success': True, 'message': '结算成功', 'order_id': new_order.o_id})

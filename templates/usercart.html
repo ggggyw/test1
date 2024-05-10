@@ -372,7 +372,9 @@ button:hover::before {
             <div class="item-price">
                 <span class="current-price">{{ b.current_price }}</span>
                 <span class="original-price">{{ b.original_price }}</span>
+
             </div>
+         <span class="shop_id" style="display: none;">{{ b.shop_id }}</span>
             <input type="number" class="item-quantity" value="{{ a.quantity }}" min="1">
             <div class="item-remove" >删除</div>
         </form>
@@ -461,7 +463,7 @@ document.querySelectorAll('.item-remove').forEach(function(removeButton) {
         });
     });
 });
-//不能输入enter键，很奇怪，提示csrf有毛病-----------------------------------------------------------------------
+//enter-----------------------------------------------------------------------
 //—-------------------------------------------------------------------------------------------------
 document.querySelectorAll('.item-quantity').forEach(function(removeButton) {
     removeButton.addEventListener('change', function() {
@@ -510,22 +512,27 @@ function checkSelectAll() {
 var totalPrice = 0;
 var itemPrices = []; // 存储每个商品的单价
 var itemQuantities = []; // 存储每个商品的数量
-
+var shop_id=[];
 // 更新总价
 function updateTotal() {
     totalPrice = 0; // 移除了变量重新声明
     itemPrices = []; // 移除了变量重新声明
     itemQuantities = []; // 移除了变量重新声明
-
+    shop_id=[];
     document.querySelectorAll('.cart-item').forEach(function(item) {
         var checkbox = item.querySelector('.select-item');
         if (checkbox.checked) {
             var priceElement = item.querySelector('.item-price');
             var price = parseFloat(priceElement.textContent.replace('¥', ''));
             var quantity = item.querySelector('.item-quantity').valueAsNumber;
+            var shopId = item.querySelector('.shop_id');
+            var shopid = parseInt(shopId.textContent.trim());
             totalPrice += price * quantity; // 更新总价
             itemPrices.push(price); // 将单价添加到数组中
             itemQuantities.push(quantity); // 将数量添加到数组中
+            shop_id.push(shopid);
+            localStorage.setItem('shop_id', JSON.stringify(shop_id));
+            {#alert(shop_id)#}
         }
     });
     document.querySelector('.total-price').textContent = '¥' + totalPrice.toFixed(2);
