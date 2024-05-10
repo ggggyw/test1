@@ -92,7 +92,7 @@ def shoppage(request):
         ).annotate(
             quantity_sold=Sum('orderdetails__quantity')
         ).order_by('-quantity_sold').first()
-
+    # annotate会对查询集中的每个对象进行计算，并根据指定的表达式创建一个新的字段。
     # 当天销量最高的商品信息
     if category_id:
         today_top_selling_product_info = ShopProducts.objects.filter(
@@ -153,9 +153,9 @@ def shoppage(request):
             shop__s_id=s_id
         ).aggregate(total_sold=Sum('quantity'))
 
+    # {'total_sold': 210}
     # 从结果中获取商品总数，如果没有值则默认为0
     total_sold = sold_products_count['total_sold'] if sold_products_count['total_sold'] is not None else 0
-
     # 获取该商家指定类别下的总收入
     order_statuses_for_revenue = ['已完成', '已收货']  # 包括 '已完成' 和 '已收货' 状态
     if category_id:
@@ -247,7 +247,7 @@ def shoppage(request):
         ).annotate(
             date=TruncDate('o_time')
         ).values('date').annotate(count=Count('o_id')).values('date', 'count').order_by('date')
-
+    # {'date': datetime.date(2024, 5, 4), 'count': 1}
     # 获取7天内每天的销售商品数量，只考虑特定的订单状态
     if category_id:
         daily_sales_products_count = OrderDetails.objects.filter(
@@ -300,7 +300,7 @@ def shoppage(request):
     # 创建一个包含最近七天的日期列表
     seven_days_dates = [(timezone.now().date() - timedelta(days=i)).strftime("%m-%d") for i in range(6, -1, -1)]
 
-    # 创建一个字典，将日期作为键，对应的数据作为值
+    # 创建一部字典，将日期作为键，对应的数据作为值
     daily_orders_dict = {sale['date'].strftime("%m-%d"): sale['count'] for sale in daily_orders_count}
     daily_sales_dict = {sale['date'].strftime("%m-%d"): sale['quantity_sum'] for sale in daily_sales_products_count}
     daily_revenue_dict = {sale['date'].strftime("%m-%d"): "{:.2f}".format(sale['total_income']) for sale in
@@ -457,9 +457,6 @@ def myproducts(request):
 
 def shop_productdetails(request, p_id):
     s_id = request.session.get('s_id')
-    if not s_id:
-        # 如果session中不存在s_id，则处理错误或重定向
-        return  # 相应的错误处理
 
     # 获取商店产品和产品具体信息
     shop_product = ShopProducts.objects.get(shop_product_id=p_id)
@@ -718,77 +715,69 @@ def shop_search_manage_products(request):
 
 
 def edit_product(request, product_id):
+    # 获取商品对象
     shop_product = get_object_or_404(ShopProducts, pk=product_id)
     product = shop_product.product
-    category_id = product.p_type.category_id
 
     if request.method == "POST":
+        # 使用POST和FILES数据以及现有实例初始化表单
         product_form = ProductForm(request.POST, request.FILES, instance=product)
         shop_product_form = ShopProductForm(request.POST, request.FILES, instance=shop_product)
 
+        # 验证表单
         if product_form.is_valid() and shop_product_form.is_valid():
-            # 检查表单字段是否有变化
-            form_has_changes = product_form.has_changed() or shop_product_form.has_changed()
-            # 检查商品状态是否有变化
-            status_changed_to_off_sale = (
-                    'product_status' in shop_product_form.changed_data and shop_product_form.cleaned_data[
-                'product_status'] == '下架')
-            # 检查商品状态是否从“下架”变为“上架”
-            status_changed_to_up_sale = (
-                    'product_status' in shop_product_form.changed_data and
-                    shop_product_form.cleaned_data['product_status'] == '上架'
-            )
-            # 当前审核状态是否为“审核通过”
-            current_audit_status_is_approved = (shop_product.product_auditstatus == '审核通过')
+            # 确定哪些字段发生了变化
+            form_changes = product_form.changed_data or shop_product_form.changed_data
+            # 获取状态变化情况
+            status_changed = 'product_status' in shop_product_form.changed_data
+            # 获取当前审核状态
+            audit_approved = shop_product.product_auditstatus == '审核通过'
+            # 获取商品状态变化值
+            new_status = shop_product_form.cleaned_data.get('product_status')
 
-            # 检查商品图片是否有变化
-            image_has_changed = 'product_image' in request.FILES
-
-            if form_has_changes or image_has_changed:
+            # 审核通过的商品仅当状态发生变化时才处理
+            if audit_approved and status_changed and len(form_changes) == 1:
+                # 如果是审核通过且只有状态变化，更新状态不改变审核状态
                 product_form.save()
+                shop_product_form.save()
+                messages.success(request, '商品信息已更新')
+            else:
+                # 否则考虑表单的其他变化，需要设置为待审核
                 shop_product = shop_product_form.save(commit=False)
-                if image_has_changed:
+                shop_product.product_auditstatus = '待审核'
+                shop_product.product_status = '下架' if new_status != '上架' else new_status
+
+                # 处理商品图片变化
+                if 'product_image' in request.FILES:
                     fs = FileSystemStorage(location='static/商品图片')
                     if shop_product.product_image_url:
                         fs.delete(shop_product.product_image_url)
                     myfile = request.FILES['product_image']
                     filename = fs.save(myfile.name, myfile)
-                    shop_product.product_image_url = filename
+                    shop_product.product_image_url = fs.url(filename)
 
-                shop_product.current_price = shop_product_form.cleaned_data['current_price']
-
-                if current_audit_status_is_approved and status_changed_to_up_sale:
-                    # 你可能需要在这里执行其他逻辑，但不需要改变审核状态和商品状态
-                    pass
-                    # 如果商品状态从“上架”变为“下架”，或者当前审核状态不是“审核通过”
-                elif not (
-                        status_changed_to_off_sale and current_audit_status_is_approved):
-                    shop_product.product_auditstatus = '待审核'
-                    shop_product.product_status = '下架'
-
+                # 保存变更
+                product_form.save()
                 shop_product.save()
-                shop_product_form.save()
-
-                messages.success(request, '修改成功！')
-                return redirect('edit_product', product_id=product_id)
-            else:
-                messages.info(request, '商品信息没有修改。')
-                return redirect('edit_product', product_id=product_id)
+                messages.success(request, '商品信息已更新，待审核状态。')
+            return redirect('edit_product', product_id=product_id)
         else:
-            messages.error(request, '修改不成功，请重新修改.')
-    else:
+            # 如果表单验证未通过，显示错误消息
+            messages.error(request, '表单信息填写有误，请检查后重新提交。')
 
+    else:
+        # 对于GET请求，用现有实例初始化表单
         product_form = ProductForm(instance=product)
         shop_product_form = ShopProductForm(instance=shop_product)
 
-    # 将表单传递给模板
+    # 获取类别ID
+    category_id = product.p_type.category_id
     context = {
         'product_form': product_form,
         'shop_product_form': shop_product_form,
         'shop_products': shop_product,
         'products': product,
         'category_id': category_id,
-        'query': None
     }
     return render(request, 'shop_edit_product.html', context)
 
