@@ -292,7 +292,8 @@
         var itemPrices = JSON.parse(localStorage.getItem('itemPrices'));
         var itemQuantities = JSON.parse(localStorage.getItem('itemQuantities'));
         var totalPrice = localStorage.getItem('totalPrice');
-
+        var shop_id = JSON.parse(localStorage.getItem('shop_id'));
+        {#alert(shop_id)#}
         fetch('/checkout/', {
             method: 'POST',
             headers: {
@@ -305,6 +306,7 @@
                 itemQuantities: itemQuantities,
                 totalPrice: totalPrice,
                 address: address,
+                shop_id:shop_id
             })
         })
         .then(response => response.json())
@@ -314,8 +316,8 @@
                 localStorage.setItem('order_id', data.order_id);
                 window.location.href = 'userpayment_page';
             } else {
-                localStorage.setItem('order_id', data.order_id);
-                window.location.href = 'userpayment_page';
+                alert("下单失败，请重试");
+
             }
         })
         .catch(error => {

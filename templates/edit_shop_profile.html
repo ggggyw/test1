@@ -100,6 +100,38 @@
             background-size: 20px;
             padding-right: 40px;
         }
+
+        .messages {
+            position: fixed; /* 固定定位 */
+            top: 50%; /* 顶部距离页面视图窗口中心 */
+            left: 50%; /* 左侧距离页面视图窗口中心 */
+            transform: translate(-50%, -50%); /* 位移变换以确保准确居中 */
+            z-index: 1000; /* 确保提示框显示在最上层 */
+            text-align: center;
+        }
+
+        .messages {
+            background-color: #3cb045; /* 美化后的背景色 */
+            color: #ffffff; /* 字体颜色为白色以确保可读性 */
+            border: none; /* 去除边框 */
+            padding: 15px 30px; /* 调整内边距为更舒适的空间 */
+            margin-bottom: 10px; /* 保持外边距 */
+            display: inline-block;
+            border-radius: 25px; /* 圆角增加以更趋于流线形状 */
+            font-size: 25px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影为提示框增添深度 */
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s; /*添加简短的过渡动画效果*/
+        }
+
+        /* 淡出动画 */
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                display: none;
+            }
+        }
     </style>
 </head>
 <body>
@@ -133,5 +165,96 @@
         </div>
     </form>
 </div>
+{% if messages %}
+    <div id="message-container" class="messages">
+        {% for message in messages %}
+            <div class="{{ message.tags }} message">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+<script>
+    window.onload = function () {
+        // 查找消息容器并准备淡出效果
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            // 设置5秒后执行淡出动画
+            setTimeout(function () {
+                messageContainer.style.opacity = '0'; // 设置透明度为 0 触发消失效果
+                setTimeout(function () {
+                    messageContainer.style.display = 'none'; // 设置display为none来完全隐藏
+                }, 1000); // 额外的时间确保透明度动画完成
+            }, 2000); // 你可以调整这里的时间来控制消息显示多久
+        }
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+        const editForm = document.querySelector('form');
+
+        editForm.addEventListener('submit', function (e) {
+            // 阻止表单的默认提交行为
+            e.preventDefault();
+
+            // 清空旧的错误消息
+            document.querySelectorAll('.error-message').forEach(function (message) {
+                message.remove();
+            });
+
+            // 获取表单字段的值
+            let s_name = document.getElementById('s_name').value;
+            let s_psw = document.getElementById('s_psw').value;
+            let s_phone = document.getElementById('s_phone').value;
+            let email = document.getElementById('email').value;
+
+            // 初始化验证通过标志
+            let validationPassed = true;
+
+            // 验证用户名
+            if (s_name.length > 10) {
+                addErrorMessage('s_name', '用户名不能超过10个字符。');
+                validationPassed = false;
+            }
+
+            // 验证密码
+            if (s_psw.length > 10) {
+                addErrorMessage('s_psw', '密码不能超过10个字符。');
+                validationPassed = false;
+            }
+
+            // 验证电话号码
+            const phoneRegex = /^\+?1?\d{9,15}$/;
+            if (!phoneRegex.test(s_phone)) {
+                addErrorMessage('s_phone', "电话号码格式不正确。");
+                // 验证电话号码为纯数字
+                if (!(/^\d+$/.test(s_phone))) {
+                    addErrorMessage('s_phone', "电话号码必须是数字。");
+                    validationPassed = false;
+                }
+                validationPassed = false;
+            }
+
+            // 验证邮箱
+            const emailRegex = /\S+@\S+\.\S+/;
+            if (!emailRegex.test(email)) {
+                addErrorMessage('email', "邮箱格式不正确。");
+                validationPassed = false;
+            }
+
+            // 如果验证通过，则提交表单
+            if (validationPassed) {
+                editForm.submit();
+            }
+        });
+
+        // 函数：为表单字段添加错误消息
+        function addErrorMessage(fieldId, message) {
+            const inputElement = document.getElementById(fieldId);
+            const errorElement = document.createElement('div');
+            errorElement.classList.add('error-message');
+            errorElement.style.color = 'red';
+            errorElement.innerText = message;
+            inputElement.parentNode.insertBefore(errorElement, inputElement.nextSibling);
+        }
+
+    });
+</script>
 </body>
 </html>
