@@ -5,6 +5,8 @@
     {% load static %}
     <title>shop_product_details</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@0.7.0"></script>
     <style>
         /* --------------------------------------页面整体字体和背景 ------------------------------*/
         body {
@@ -202,7 +204,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start; /* 对齐到顶部 */
             width: 100%;
         }
 
@@ -242,7 +244,7 @@
             align-items: center; /* 内容居中 */
             column-gap: 20px; /* 列与列之间的间隔 */
             text-align: left; /* 文本左对齐 */
-            max-width: 100%; /* 指定最大宽度，以保持与画廊部分的协调 */
+            max-width: 60%; /* 指定最大宽度，以保持与画廊部分的协调 */
         }
 
         .shop_product-info h1 {
@@ -262,6 +264,8 @@
             padding: 10px; /* 增加内边距 */
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 更柔和的阴影 */
+            word-wrap: break-word; /* 允许单词在末尾处断开，防止溢出 */
+            overflow-wrap: break-word; /* 同上，更好的支持 */
         }
 
         .shop_product-detail-item:hover {
@@ -435,44 +439,73 @@
 
 
 <script>
-    var ctx = document.getElementById('salesChart').getContext('2d');
-    var salesChart = new Chart(ctx, {
-        type: 'bar', // 定义图表类型为直方图
-        data: {
-            labels: ['6天前', '5天前', '4天前', '3天前', '前天', '昨天', '今天'], // X轴标签
-            datasets: [{
-                label: '销售数量', // 数据集标签
-                data: [{{ daily_sales_for_last_7_days.6.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.5.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.4.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.3.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.2.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.1.daily_sales|default_if_none:"0" }}, {{ daily_sales_for_last_7_days.0.daily_sales|default_if_none:"0" }}], // X轴对应的每天销售数
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)',
-                    'rgba(255, 99, 132, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 99, 132, 1)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('salesChart').getContext('2d');
+        var dailyProductData = {{ daily_sales_list | safe }};
+        var labels = dailyProductData.map(item => item[0]); // 获取日期数组
+        var data = dailyProductData.map(item => item[1]); // 获取数量数组
+        var salesChart = new Chart(ctx, {
+            type: 'bar', // 定义图表主要类型为直方图
+            data: {
+                labels: labels, // X轴标签
+                datasets: [
+                    {
+                        label: '销售数量', // 柱状图数据集标签
+                        data: data, // X轴对应的每天销售数
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)',
+                            'rgba(255, 99, 132, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 1,
+                        type: 'bar',
+                    },
+                    {
+                        label: '趋势线', // 折线图数据集标签
+                        data: data, // X轴对应的每天销售数
+                        borderColor: 'rgba(255, 99, 132, 1)', // 折线颜色
+                        backgroundColor: 'transparent', // 折线区域背景色（透明）
+                        type: 'line', // 图表类型为折线图
+                        fill: false, // 不填充折线下方区域
+                        lineTension: 0.1, // 线条的弯曲度（0表示完全直线）
+                        borderWidth: 2, // 线条宽度
                     }
-                }]
-            }
-        }
+                ]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                },
+                plugins: {
+                    datalabels: {
+                        color: '#000000',
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function (value, context) {
+                            return value > 0 ? value : '';
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
     });
 </script>
 </body>
