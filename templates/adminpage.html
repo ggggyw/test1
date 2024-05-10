@@ -1919,7 +1919,7 @@ document.getElementById("add-user-form").addEventListener("submit", function(e) 
     })
     .catch((error) => {
         console.error('Error:', error); // 在控制台打印错误信息
-        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
+        alert('用户名或邮箱重复'); // 显示请求失败的提示
     });
 });
 // 新增商家表单提交
@@ -1961,7 +1961,7 @@ document.getElementById("add-shop-form").addEventListener("submit", function(e) 
     })
     .catch((error) => {
         console.error('Error:', error); // 在控制台打印错误信息
-        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
+        alert('用户名或邮箱重复。'); // 显示请求失败的提示
     });
 });
 
@@ -2030,7 +2030,7 @@ document.getElementById("add-admin-form").addEventListener("submit", function(e)
     })
     .catch((error) => {
         console.error('Error:', error); // 在控制台打印错误信息
-        alert('请求失败，请检查网络连接或稍后再试。'); // 显示请求失败的提示
+        alert('用户名重复。'); // 显示请求失败的提示
     });
 });
 

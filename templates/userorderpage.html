@@ -314,8 +314,8 @@
                 localStorage.setItem('order_id', data.order_id);
                 window.location.href = 'userpayment_page';
             } else {
-                alert("下单失败，请重试");
-                print(data.message)
+                localStorage.setItem('order_id', data.order_id);
+                window.location.href = 'userpayment_page';
             }
         })
         .catch(error => {
