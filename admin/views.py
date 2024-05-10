@@ -315,7 +315,7 @@ def createuser(request):
 def createshop(request):
     try:
         data = json.loads(request.body)
-        print(data)
+
         shop_name = data.get('shop_name')
         shop_acc = data.get('shop_acc')
         s_psw = data.get('s_psw')
@@ -376,9 +376,9 @@ def get_product_info(request):
     try:
         # 解析请求体中的 JSON 数据
         data = json.loads(request.body)
-        print(data)
+        # print(data)
         shop_product_id = data.get('product_id')  # 这里改为 shop_product_id
-        print(shop_product_id)
+        # print(shop_product_id)
         # 使用 shop_product_id 查询商品信息
         shop_product = ShopProducts.objects.get(shop_product_id=shop_product_id)
 
