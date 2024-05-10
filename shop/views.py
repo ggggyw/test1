@@ -387,6 +387,8 @@ def edit_shop_profile(request):
             shop.email = request.POST.get('email')
             shop.address = request.POST.get('address')
             shop.save()
+            # 发送成功消息
+            messages.success(request, '资料修改成功！')
             return redirect('edit_shop_profile')
         else:
             # 显示表单
