@@ -426,7 +426,7 @@ def update_product_info(request):
             discount_float = float(discount)
 
             # 计算现价，保留两位小数
-            current_price_float = original_price_float * (1 - discount_float / 100)
+            current_price_float = original_price_float * (1 - discount_float)
 
             # 更新商品信息
             product.product_desc = data.get('product_desc')
