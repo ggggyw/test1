@@ -258,8 +258,8 @@ def get_weekly_top_selling_product_info(s_id, start_date, today_date, category_i
         .first()
     )
     # 将折扣转换为百分数，如果有折扣字段的话
-    if weekly_top_selling_product_info and hasattr(weekly_top_selling_product_info, 'discount'):
-        weekly_top_selling_product_info.discount_percentage = weekly_top_selling_product_info.discount * 100
+    if weekly_top_selling_product_info:
+        weekly_top_selling_product_info.discount = weekly_top_selling_product_info.discount * 100
 
     return weekly_top_selling_product_info
 
