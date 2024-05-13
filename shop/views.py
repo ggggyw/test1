@@ -562,46 +562,23 @@ def shop_productdetails(request, p_id):
 
     # 定义时间范围：今天和7天前
     today = timezone.now().date()
-    date_7_days_ago = timezone.now().date() - timedelta(days=6)
+    date_7_days_ago = today - timedelta(days=6)
 
-    # 获取相关订单详情信息，并进行汇总求和
-    aggregates = OrderDetails.objects.filter(
-        product__product_id=p_id,
-        shop_id=s_id,
-        order__status__in=['待发货', '待收货', '已收货', '已完成']
-    ).aggregate(
-        total_sales=Sum('quantity'),  # 总销售量
-        sales_last_7_days=Sum('quantity', filter=Q(order__o_time__gte=date_7_days_ago)),  # 过去7天销量
-        sales_today=Sum('quantity', filter=Q(order__o_time__date=today))  # 当日销量
-    )
+    # 获取相关订单的汇总数据
+    aggregates = get_order_aggregates(s_id, p_id, date_7_days_ago, today)
 
+    # 从返回的聚合数据中获取总销量和分段销量
     total_sales_count = aggregates['total_sales'] or 0
     sales_last_7_days_count = aggregates['sales_last_7_days'] or 0
     sales_today_count = aggregates['sales_today'] or 0
 
-    # 获取7天内的销售数据，按天分组并计算每天的销售总量
-    daily_sales_for_last_7_days = OrderDetails.objects.filter(
-        product__product_id=p_id,
-        shop_id=s_id,
-        order__o_time__gte=date_7_days_ago,
-        order__status__in=['待发货', '待收货', '已收货', '已完成']
-    ).annotate(
-        date=TruncDay('order__o_time')  # 按订单时间的天进行分组
-    ).values(
-        'date'  # 指定我们需要返回的分组字段
-    ).annotate(
-        daily_sales=Sum('quantity')  # 计算每天的销售总量
-    ).order_by('date')  # 按日期
+    # 函数获取过去7天的销售数据
+    daily_sales_for_last_7_days = get_daily_sales_data(s_id, p_id, date_7_days_ago)
 
     # 创建一个包含最近七天的日期列表
     seven_days_dates = [(timezone.now().date() - timedelta(days=i)).strftime("%m-%d") for i in range(6, -1, -1)]
-
-    # 将查询集结果转换为字典，日期作为键，每日销售总量作为值，注意日期格式需要与上面的列表一致
-    daily_sales_dict = {sales['date'].strftime("%m-%d"): sales['daily_sales'] for sales in
-                        daily_sales_for_last_7_days}
-
     # 根据seven_days_dates创建最终的数据列表，缺失的值填充为0
-    daily_sales_list = [[date, daily_sales_dict.get(date, 0)] for date in seven_days_dates]
+    daily_sales_list = [[date, daily_sales_for_last_7_days.get(date, 0)] for date in seven_days_dates]
     # 准备上下文数据
     context = {
         'shop_product': shop_product,
@@ -618,6 +595,46 @@ def shop_productdetails(request, p_id):
 
     # 呈现带有上下文数据的页面
     return render(request, 'shop_product_details.html', context)
+
+
+def get_order_aggregates(s_id, p_id, start_date, end_date):
+    """
+    获取订单的汇总信息
+    """
+    aggregates = OrderDetails.objects.filter(
+        product__product_id=p_id,
+        shop_id=s_id,
+        order__o_time__range=(start_date, end_date),
+        order__status__in=['待发货', '待收货', '已收货', '已完成']
+    ).aggregate(
+        total_sales=Sum('quantity'),  # 总销售量
+        sales_last_7_days=Sum('quantity', filter=Q(order__o_time__gte=start_date)),  # 过去7天销量
+        sales_today=Sum('quantity', filter=Q(order__o_time__date=end_date))  # 当日销量
+    )
+    # 对数据库进行查询并聚合数据
+    return aggregates
+
+
+def get_daily_sales_data(s_id, p_id, start_date):
+    """
+    获取过去7天内每天的销售数据
+    """
+    # 获取并分组订单详细信息
+    daily_sales_data = OrderDetails.objects.filter(
+        product__product_id=p_id,
+        shop_id=s_id,
+        order__o_time__gte=start_date,
+        order__status__in=['待发货', '待收货', '已收货', '已完成']
+    ).annotate(
+        date=TruncDay('order__o_time')
+    ).values(
+        'date'
+    ).annotate(
+        daily_sales=Sum('quantity')
+    ).order_by('date')
+
+    # 转换结果集为字典
+    return {sales['date'].strftime("%m-%d"): sales['daily_sales'] for sales in daily_sales_data}
 
 
 def manage_products(request):
